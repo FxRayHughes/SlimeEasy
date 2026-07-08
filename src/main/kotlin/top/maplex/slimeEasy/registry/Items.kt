@@ -111,4 +111,64 @@ object Items {
         ItemStack(Material.CACTUS), ItemStack(Material.IRON_SWORD), ItemStack(Material.CACTUS),
         ItemStack(Material.CACTUS), ItemStack(Material.CACTUS), ItemStack(Material.CACTUS)
     )
+
+    /** 矿物勘察尺 (普通) 的全局唯一 ID。 */
+    const val SURVEY_RULER_ID = "SE_SURVEY_RULER"
+
+    /**
+     * 矿物勘察尺物品模板 (铜锄外观)。
+     *
+     * 右键地面不锄地, 而是按 &f工业矿机 &7采掘范围 (7×7) 向下扫描,
+     * 在聊天栏列出可开采矿石及数量。
+     */
+    val SURVEY_RULER: SlimefunItemStack = SlimefunItemStack(
+        SURVEY_RULER_ID,
+        Material.COPPER_HOE,
+        "&b矿物勘察尺",
+        "",
+        "&7右键地面, 按 &f工业矿机 &7的采掘范围",
+        "&7(&f7×7&7) 向下勘探, 在聊天栏列出",
+        "&7可开采的矿石种类与数量。",
+        "",
+        "&7冷却: &f5 秒"
+    )
+
+    /**
+     * 增强工作台配方 (3x3): 铜锄 + 指南针 + 钻石。
+     */
+    val SURVEY_RULER_RECIPE: Array<ItemStack?> = arrayOf(
+        null, ItemStack(Material.COMPASS), null,
+        null, ItemStack(Material.COPPER_HOE), null,
+        null, ItemStack(Material.DIAMOND), null
+    )
+
+    /** 进阶矿物勘察尺的全局唯一 ID。 */
+    const val ADVANCED_SURVEY_RULER_ID = "SE_ADVANCED_SURVEY_RULER"
+
+    /**
+     * 进阶矿物勘察尺物品模板 (钻石锄外观)。
+     *
+     * 同时按 &f进阶工业矿机 &7(11×11) 与 &f工业矿机 &7(7×7) 两种范围向下扫描,
+     * 分区列出各自可开采的矿石数量, 便于对比选型。
+     */
+    val ADVANCED_SURVEY_RULER: SlimefunItemStack = SlimefunItemStack(
+        ADVANCED_SURVEY_RULER_ID,
+        Material.DIAMOND_HOE,
+        "&b进阶矿物勘察尺",
+        "",
+        "&7右键地面, 同时按 &f进阶工业矿机 &7(&f11×11&7)",
+        "&7与 &f工业矿机 &7(&f7×7&7) 两种范围向下勘探,",
+        "&7分区列出各自可开采的矿石数量。",
+        "",
+        "&7冷却: &f5 秒"
+    )
+
+    /**
+     * 增强工作台配方 (3x3): 钻石锄 + 指南针 + 钻石块 (较普通版更高阶)。
+     */
+    val ADVANCED_SURVEY_RULER_RECIPE: Array<ItemStack?> = arrayOf(
+        null, ItemStack(Material.COMPASS), null,
+        null, ItemStack(Material.DIAMOND_HOE), null,
+        null, ItemStack(Material.DIAMOND_BLOCK), null
+    )
 }

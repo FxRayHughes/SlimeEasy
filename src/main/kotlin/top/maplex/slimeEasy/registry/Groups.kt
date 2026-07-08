@@ -29,4 +29,20 @@ object Groups {
             "&7各类自动化实用装置"
         )
     )
+
+    /**
+     * "实用工具" 分类。
+     *
+     * 图标使用铜锄, 呼应本分类以手持勘察 / 辅助工具为主。
+     */
+    val UTILITY_TOOLS: ItemGroup = ItemGroup(
+        NamespacedKey(SlimeEasy.instance, "utility_tools"),
+        SlimefunItemStack(
+            "SE_GROUP_UTILITY_TOOLS",
+            Material.COPPER_HOE,
+            "&b实用工具",
+            "",
+            "&7各类手持辅助工具"
+        )
+    )
 }

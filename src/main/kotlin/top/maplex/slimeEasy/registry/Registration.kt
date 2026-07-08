@@ -6,6 +6,8 @@ import io.github.thebusybiscuit.slimefun4.api.researches.Research
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import top.maplex.slimeEasy.SlimeEasy
+import top.maplex.slimeEasy.feature.survey.SurveyRuler
+import top.maplex.slimeEasy.feature.survey.SurveyTier
 import top.maplex.slimeEasy.feature.ward.CreeperControlListener
 import top.maplex.slimeEasy.feature.ward.CreeperWard
 import top.maplex.slimeEasy.machine.breaker.AutoBreaker
@@ -28,6 +30,15 @@ object Registration {
     /** 苦力怕驱逐方块研究解锁所需经验等级。 */
     private const val CREEPER_WARD_RESEARCH_COST = 10
 
+    /** 矿物勘察尺 (普通/进阶) 研究解锁所需经验等级。 */
+    private const val SURVEY_RULER_RESEARCH_COST = 10
+
+    /** 普通工业矿机采掘半径 (7×7)。 */
+    private const val MINER_RANGE = 3
+
+    /** 进阶工业矿机采掘半径 (11×11)。 */
+    private const val ADVANCED_MINER_RANGE = 5
+
     /**
      * 执行全部注册。
      *
@@ -36,6 +47,7 @@ object Registration {
     fun registerAll(addon: SlimefunAddon) {
         // 1. 注册物品组
         Groups.UTILITY_MACHINES.register(addon)
+        Groups.UTILITY_TOOLS.register(addon)
 
         // 2. 注册自动破坏机 (增强工作台配方)
         val autoBreaker = AutoBreaker(
@@ -102,5 +114,48 @@ object Registration {
             CreeperControlListener(),
             SlimeEasy.instance
         )
+
+        // 9. 注册矿物勘察尺 (普通: 仅工业矿机范围)
+        val surveyRuler = SurveyRuler(
+            Groups.UTILITY_TOOLS,
+            Items.SURVEY_RULER,
+            RecipeType.ENHANCED_CRAFTING_TABLE,
+            Items.SURVEY_RULER_RECIPE,
+            listOf(SurveyTier("工业矿机", MINER_RANGE))
+        )
+        surveyRuler.register(addon)
+
+        Research(
+            NamespacedKey(SlimeEasy.instance, "survey_ruler"),
+            9004,
+            "矿物勘察尺",
+            SURVEY_RULER_RESEARCH_COST
+        ).apply {
+            addItems(surveyRuler)
+            register()
+        }
+
+        // 10. 注册进阶矿物勘察尺 (进阶 + 普通两种范围, 分区展示)
+        val advancedSurveyRuler = SurveyRuler(
+            Groups.UTILITY_TOOLS,
+            Items.ADVANCED_SURVEY_RULER,
+            RecipeType.ENHANCED_CRAFTING_TABLE,
+            Items.ADVANCED_SURVEY_RULER_RECIPE,
+            listOf(
+                SurveyTier("进阶工业矿机", ADVANCED_MINER_RANGE),
+                SurveyTier("工业矿机", MINER_RANGE)
+            )
+        )
+        advancedSurveyRuler.register(addon)
+
+        Research(
+            NamespacedKey(SlimeEasy.instance, "advanced_survey_ruler"),
+            9005,
+            "进阶矿物勘察尺",
+            SURVEY_RULER_RESEARCH_COST
+        ).apply {
+            addItems(advancedSurveyRuler)
+            register()
+        }
     }
 }
