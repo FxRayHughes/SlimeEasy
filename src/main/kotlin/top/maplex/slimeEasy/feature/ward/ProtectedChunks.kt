@@ -19,6 +19,9 @@ object ProtectedChunks {
     /** 区块保护有效期 (毫秒)。远大于 ticker 周期 (默认约 0.5s), 避免续期间隙抖动。 */
     private const val TTL_MILLIS = 8_000L
 
+    /** [exitDirection] 单方向最大外探区块数, 防止大片相连保护区导致过度扫描。 */
+    private const val MAX_SCAN_CHUNKS = 16
+
     /** 区块唯一键 -> 保护到期时间戳 (System.currentTimeMillis)。 */
     private val expiry = ConcurrentHashMap<Long, Long>()
 
@@ -40,8 +43,44 @@ object ProtectedChunks {
     /**
      * 判定区块当前是否受保护; 惰性清除已过期条目。
      */
-    fun isProtected(chunk: Chunk): Boolean {
-        val key = chunkKey(chunk.world.uid.mostSignificantBits, chunk.x, chunk.z)
+    fun isProtected(chunk: Chunk): Boolean =
+        isProtectedAt(chunk.world.uid.mostSignificantBits, chunk.x, chunk.z)
+
+    /**
+     * 计算把某受保护区块内的实体推出"全部受保护区块并集"的最近水平方向。
+     *
+     * 从该区块沿 ±X / ±Z 四个方向逐格外探, 找到各方向上最近的非保护区块,
+     * 返回所需步数最少的方向增量 (dx, dz)。因判定只依赖全局并集、与调用方是
+     * 哪一个驱逐方块无关, 多个方块对同一位置得到一致方向 —— 从根本上消除
+     * 重叠区域内相互对推、把苦力怕挤在中间的问题。
+     *
+     * @return 出口方向的区块增量; 若该区块本身未受保护则返回 null (无需推)
+     */
+    fun exitDirection(worldHigh: Long, chunkX: Int, chunkZ: Int): Pair<Int, Int>? {
+        if (!isProtectedAt(worldHigh, chunkX, chunkZ)) return null
+
+        // 固定顺序保证平局时所有方块选取一致方向 (+X, -X, +Z, -Z)
+        val dirs = arrayOf(1 to 0, -1 to 0, 0 to 1, 0 to -1)
+        var best: Pair<Int, Int>? = null
+        var bestSteps = Int.MAX_VALUE
+        for ((dx, dz) in dirs) {
+            for (step in 1..MAX_SCAN_CHUNKS) {
+                if (!isProtectedAt(worldHigh, chunkX + dx * step, chunkZ + dz * step)) {
+                    if (step < bestSteps) {
+                        bestSteps = step
+                        best = dx to dz
+                    }
+                    break
+                }
+            }
+        }
+        // 极端情形 (半径内全被保护) 兜底给一个默认方向
+        return best ?: (1 to 0)
+    }
+
+    /** 按世界高位与区块坐标查询保护状态, 惰性清除过期条目。 */
+    private fun isProtectedAt(worldHigh: Long, x: Int, z: Int): Boolean {
+        val key = chunkKey(worldHigh, x, z)
         val deadline = expiry[key] ?: return false
         if (System.currentTimeMillis() >= deadline) {
             expiry.remove(key)

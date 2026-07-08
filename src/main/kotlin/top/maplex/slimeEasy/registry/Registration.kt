@@ -6,7 +6,7 @@ import io.github.thebusybiscuit.slimefun4.api.researches.Research
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import top.maplex.slimeEasy.SlimeEasy
-import top.maplex.slimeEasy.feature.ward.CreeperSpawnListener
+import top.maplex.slimeEasy.feature.ward.CreeperControlListener
 import top.maplex.slimeEasy.feature.ward.CreeperWard
 import top.maplex.slimeEasy.machine.breaker.AutoBreaker
 import top.maplex.slimeEasy.machine.placer.AutoPlacer
@@ -97,9 +97,9 @@ object Registration {
             register()
         }
 
-        // 8. 注册苦力怕生成拦截监听器
+        // 8. 注册苦力怕管控监听器 (生成拦截 + 爆炸拦截)
         Bukkit.getPluginManager().registerEvents(
-            CreeperSpawnListener(),
+            CreeperControlListener(),
             SlimeEasy.instance
         )
     }
