@@ -8,8 +8,6 @@ import io.github.thebusybiscuit.slimefun4.core.handlers.ItemUseHandler
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 一个采掘层级: 对应某型工业矿机的扫描配置。
@@ -26,7 +24,8 @@ data class SurveyTier(val label: String, val range: Int)
  * 按 [tiers] 参数化: 铜锄版仅 1 个层级 (普通工业矿机); 钻石锄版含 2 个层级
  * (进阶 + 普通, 分区展示), 用以区分两型矿机各自范围下的产出预估。
  *
- * 附带 [COOLDOWN_MILLIS] 冷却, 防止密集扫描造成卡顿。
+ * 冷却使用原版物品冷却 ([Player.setCooldown]): 既防止密集扫描造成卡顿,
+ * 又能在物品栏显示冷却遮罩, 无需插件侧另行维护冷却状态。
  */
 class SurveyRuler(
     itemGroup: ItemGroup,
@@ -36,33 +35,27 @@ class SurveyRuler(
     private val tiers: List<SurveyTier>
 ) : SlimefunItem(itemGroup, item, recipeType, recipe) {
 
-    /** 玩家 UUID -> 上次使用时间戳 (毫秒)。内存态, 重启清空无副作用。 */
-    private val lastUse = ConcurrentHashMap<UUID, Long>()
-
     override fun preRegister() {
         addItemHandler(ItemUseHandler { e ->
             // 无论是否点到方块, 均取消原版交互 (锄地)
             e.cancel()
             val block = e.clickedBlock.orElse(null) ?: return@ItemUseHandler
-            handleUse(e.player, block)
+            handleUse(e.player, e.item, block)
         })
     }
 
-    /** 处理一次勘察: 冷却校验 -> 逐层级扫描 -> 聊天栏输出。 */
-    private fun handleUse(player: Player, block: Block) {
-        val now = System.currentTimeMillis()
-        val last = lastUse[player.uniqueId] ?: 0L
-        val remain = COOLDOWN_MILLIS - (now - last)
-        if (remain > 0) {
-            player.sendMessage("§c[勘察尺] 冷却中, 还需 §e${"%.1f".format(remain / 1000.0)}s")
-            return
-        }
-        lastUse[player.uniqueId] = now
+    /** 处理一次勘察: 冷却校验 -> 逐层级扫描 -> 聊天栏输出 -> 置入原版冷却。 */
+    private fun handleUse(player: Player, item: ItemStack, block: Block) {
+        // 原版冷却为唯一真相源: 处于冷却期直接忽略 (物品栏遮罩已给出可视提示)
+        if (player.hasCooldown(item)) return
 
         player.sendMessage("§6[勘察尺] §7坐标 §f${block.x}, ${block.y}, ${block.z} §7下方矿脉预估:")
         for (tier in tiers) {
             reportTier(player, block, tier)
         }
+
+        // 置入冷却 (tick): 触发物品栏冷却遮罩可视化
+        player.setCooldown(item, COOLDOWN_TICKS)
     }
 
     /** 扫描并输出单个层级的结果。 */
@@ -83,7 +76,7 @@ class SurveyRuler(
     }
 
     companion object {
-        /** 勘察冷却 (毫秒)。 */
-        private const val COOLDOWN_MILLIS = 5_000L
+        /** 勘察冷却 (tick); 5 秒 = 100 tick, 与物品说明一致。 */
+        private const val COOLDOWN_TICKS = 100
     }
 }
