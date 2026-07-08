@@ -1,0 +1,16 @@
+name: SlimeEasy
+version: '${version}'
+
+main: top.maplex.slimeEasy.SlimeEasy
+bootstrapper: top.maplex.slimeEasy.SlimeEasyBootstrap
+loader: top.maplex.slimeEasy.SlimeEasyLoader
+api-version: '26.2'
+load: POSTWORLD
+
+# 依赖声明: Slimefun 必须先于本插件加载, 且本插件需访问其 API 类路径
+dependencies:
+  server:
+    Slimefun:
+      load: BEFORE
+      required: true
+      join-classpath: true

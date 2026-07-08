@@ -1,0 +1,21 @@
+# Gradle
+.gradle/
+build/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# run-paper 生成的本地测试服目录
+run/
+run-server.log
+
+# 工具生成的本地索引
+.codegraph/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 注意: libs/ 不忽略 —— 其中的 Slimefun jar 是编译期依赖, CI 构建需要它

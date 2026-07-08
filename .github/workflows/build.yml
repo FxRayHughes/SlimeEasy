@@ -1,0 +1,39 @@
+name: Build
+
+# 每次推送 (任意分支) 与手动触发时构建插件, 产物作为 Artifact 上传
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 JDK 25 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: 配置 Gradle (含依赖缓存)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 赋予 gradlew 执行权限
+        run: chmod +x ./gradlew
+
+      - name: 构建 (shadowJar)
+        run: ./gradlew build --no-daemon --stacktrace
+
+      - name: 上传插件 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # 名称带 commit 短 SHA, 便于区分不同构建
+          name: SlimeEasy-${{ github.sha }}
+          # 仅上传 shadow 打包的可用插件 (含 Kotlin 运行时), 排除瘦 jar
+          path: build/libs/*-all.jar
+          if-no-files-found: error
+          retention-days: 90
