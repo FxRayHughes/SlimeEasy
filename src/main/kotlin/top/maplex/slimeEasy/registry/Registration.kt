@@ -3,8 +3,11 @@ package top.maplex.slimeEasy.registry
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
 import io.github.thebusybiscuit.slimefun4.api.researches.Research
+import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import top.maplex.slimeEasy.SlimeEasy
+import top.maplex.slimeEasy.feature.ward.CreeperSpawnListener
+import top.maplex.slimeEasy.feature.ward.CreeperWard
 import top.maplex.slimeEasy.machine.breaker.AutoBreaker
 import top.maplex.slimeEasy.machine.placer.AutoPlacer
 
@@ -21,6 +24,9 @@ object Registration {
 
     /** 自动放置机研究解锁所需经验等级。 */
     private const val AUTO_PLACER_RESEARCH_COST = 10
+
+    /** 苦力怕驱逐方块研究解锁所需经验等级。 */
+    private const val CREEPER_WARD_RESEARCH_COST = 10
 
     /**
      * 执行全部注册。
@@ -70,5 +76,31 @@ object Registration {
             addItems(autoPlacer)
             register()
         }
+
+        // 6. 注册苦力怕驱逐方块 (增强工作台配方)
+        val creeperWard = CreeperWard(
+            Groups.UTILITY_MACHINES,
+            Items.CREEPER_WARD,
+            RecipeType.ENHANCED_CRAFTING_TABLE,
+            Items.CREEPER_WARD_RECIPE
+        )
+        creeperWard.register(addon)
+
+        // 7. 绑定驱逐方块研究: 花费 10 级经验解锁
+        Research(
+            NamespacedKey(SlimeEasy.instance, "creeper_ward"),
+            9003,
+            "苦力怕驱逐方块",
+            CREEPER_WARD_RESEARCH_COST
+        ).apply {
+            addItems(creeperWard)
+            register()
+        }
+
+        // 8. 注册苦力怕生成拦截监听器
+        Bukkit.getPluginManager().registerEvents(
+            CreeperSpawnListener(),
+            SlimeEasy.instance
+        )
     }
 }

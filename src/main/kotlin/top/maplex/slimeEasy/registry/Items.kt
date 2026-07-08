@@ -79,4 +79,35 @@ object Items {
         ItemStack(Material.STICKY_PISTON), ItemStack(Material.WAXED_COPPER_CHEST), ItemStack(Material.STICKY_PISTON),
         ItemStack(Material.REDSTONE_BLOCK), ItemStack(Material.IRON_BLOCK), ItemStack(Material.REDSTONE_BLOCK)
     )
+
+    /** 苦力怕驱逐方块的全局唯一 ID。 */
+    const val CREEPER_WARD_ID = "SE_CREEPER_WARD"
+
+    /**
+     * 苦力怕驱逐方块物品模板。
+     *
+     * 使用绿色地毯作为外观: 平铺于地面, 象征一片"苦力怕的禁区"。
+     */
+    val CREEPER_WARD: SlimefunItemStack = SlimefunItemStack(
+        CREEPER_WARD_ID,
+        Material.GREEN_CARPET,
+        "&a苦力怕驱逐方块",
+        "",
+        "&7放置后, 其所在区块及周围一圈",
+        "&7共 &f3x3 个区块 &7内不再自然生成苦力怕,",
+        "&7已进入范围的苦力怕会被持续推开。",
+        "",
+        "&7保护随方块存在而持续, 破坏后失效。"
+    )
+
+    /**
+     * 增强工作台配方 (3x3)。
+     *
+     * 铁剑镇于中央 (驱逐之力), 仙人掌环绕 (带刺排斥), 呼应"驱赶苦力怕"的主题。
+     */
+    val CREEPER_WARD_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.CACTUS), ItemStack(Material.CACTUS), ItemStack(Material.CACTUS),
+        ItemStack(Material.CACTUS), ItemStack(Material.IRON_SWORD), ItemStack(Material.CACTUS),
+        ItemStack(Material.CACTUS), ItemStack(Material.CACTUS), ItemStack(Material.CACTUS)
+    )
 }

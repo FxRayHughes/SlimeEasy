@@ -1,9 +1,14 @@
 name: Build
 
-# 每次推送 (任意分支) 与手动触发时构建插件, 产物作为 Artifact 上传
+# 每次推送 (任意分支) 与手动触发时构建插件。
+# 推送到 main 且构建成功后, 自动发布为滚动版本 (标签 latest)。
 on:
   push:
   workflow_dispatch:
+
+# 发布 Release 需要写入仓库内容的权限
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -37,3 +42,19 @@ jobs:
           path: build/libs/*-all.jar
           if-no-files-found: error
           retention-days: 90
+
+      # 仅 main 分支的成功构建才发布滚动版本, 避免特性分支污染 Releases
+      - name: 发布滚动版本 (latest)
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA_SHORT="${GITHUB_SHA::7}"
+          # 删除旧的 latest 发布与标签 (若存在), 以当前提交重建, 保证标签指向最新构建
+          gh release delete latest --yes --cleanup-tag 2>/dev/null || true
+          gh release create latest build/libs/*-all.jar \
+            --title "开发版 (latest)" \
+            --notes "由 commit \`${SHA_SHORT}\` 自动构建。这是随 main 分支滚动更新的最新开发版本。" \
+            --prerelease \
+            --target "${GITHUB_SHA}"
