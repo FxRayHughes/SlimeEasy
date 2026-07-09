@@ -6,6 +6,7 @@ import io.github.thebusybiscuit.slimefun4.api.researches.Research
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import top.maplex.slimeEasy.SlimeEasy
+import top.maplex.slimeEasy.feature.survey.SurveyDisplayListener
 import top.maplex.slimeEasy.feature.survey.SurveyRuler
 import top.maplex.slimeEasy.feature.survey.SurveyTier
 import top.maplex.slimeEasy.feature.ward.CreeperControlListener
@@ -135,7 +136,7 @@ object Registration {
             register()
         }
 
-        // 10. 注册进阶矿物勘察尺 (进阶 + 普通两种范围, 分区展示)
+        // 10. 注册进阶矿物勘察尺 (进阶 + 普通两种范围, 潜行右键空气切换)
         val advancedSurveyRuler = SurveyRuler(
             Groups.UTILITY_TOOLS,
             Items.ADVANCED_SURVEY_RULER,
@@ -157,5 +158,11 @@ object Registration {
             addItems(advancedSurveyRuler)
             register()
         }
+
+        // 11. 注册勘察尺左键监听器 (潜行左键切换展示形式: 聊天栏 / 箱子界面)
+        Bukkit.getPluginManager().registerEvents(
+            SurveyDisplayListener(),
+            SlimeEasy.instance
+        )
     }
 }
