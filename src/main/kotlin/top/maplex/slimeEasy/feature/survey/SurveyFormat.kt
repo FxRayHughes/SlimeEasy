@@ -24,7 +24,7 @@ object SurveyFormat {
      */
     fun fuelSummary(total: Int): String =
         "§7共§a$total§7个 " +
-            "§8(§a$total§7/§f$PER_BUCKET§8)§7桶 " +
-            "§8(§a$total§7/§f$PER_RAW§8)§7原 " +
-            "§8(§a$total§7/§f$PER_FUEL§8)§7燃"
+            "§8(§a${total/PER_BUCKET}§8)§7桶 " +
+            "§8(§a${total/PER_RAW}§8)§7原 " +
+            "§8(§a${total/PER_FUEL}§8)§7燃"
 }
