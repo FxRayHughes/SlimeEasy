@@ -134,8 +134,9 @@ object StorageItems {
     val MAGNET_UPGRADE_RECIPE = surround(Material.IRON_NUGGET, Material.HEAVY_WEIGHTED_PRESSURE_PLATE)
 
     val VOID_UPGRADE = upgrade("SE_VOID_UPGRADE", Material.LAVA_BUCKET, "&8虚空升级",
-        "&7命中销毁列表的物品在入库前 &c湮灭&7;",
-        "&7在升级 GUI 中配置销毁列表。")
+        "&7命中销毁列表的物品在容器内 &f封顶到保留数量&7,",
+        "&7超出部分入库前 &c湮灭&7 (保留 0 即全毁);",
+        "&7在升级 GUI 中配置列表与保留数量。")
     val VOID_UPGRADE_RECIPE = surround(Material.LAVA_BUCKET, Material.OBSIDIAN)
 
     val PAGE_UPGRADE = upgrade("SE_PAGE_UPGRADE", Material.BOOK, "&d翻页扩容",

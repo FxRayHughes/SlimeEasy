@@ -6,6 +6,7 @@ import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
 import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.storage.core.CargoBufferBlock
+import top.maplex.slimeEasy.storage.core.ItemKey
 import top.maplex.slimeEasy.storage.core.VirtualStorage
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
 import top.maplex.slimeEasy.storage.upgrade.VoidFilter
@@ -51,10 +52,12 @@ class PagedBox(
     }
 
     override fun filterInsert(block: Block, item: ItemStack, amount: Long): Long {
-        val upgrades = UpgradeStore.resolve(block.location)
-        if (upgrades.hasVoid && VoidFilter.contains(block.location, item)) return 0
-        syncStorage(block, storageAt(block))
-        return amount
+        val storage = storageAt(block)
+        syncStorage(block, storage)
+        if (!UpgradeStore.resolve(block.location).hasVoid) return amount
+        // 虚空过滤: 封顶到保留数量, 超出部分湮灭 (未标记则原样放入)
+        val key = ItemKey.of(item) ?: return amount
+        return VoidFilter.admit(block.location, item, storage.count(key), amount)
     }
 
     // 经验模式: 拒绝物品货运进出 (容器改存经验)

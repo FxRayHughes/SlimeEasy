@@ -32,16 +32,21 @@ object DrawerInteract {
     private fun deposit(drawer: Drawer, block: Block, player: Player, stacks: List<ItemStack>) {
         val storage = drawer.storageAt(block)
         val hasVoid = UpgradeStore.resolve(block.location).hasVoid
-        var changed = false
+        var storageChanged = false
+        var handChanged = false
         for (stack in stacks) {
             if (stack.type.isAir || stack.amount <= 0) continue
-            if (hasVoid && VoidFilter.contains(block.location, stack)) { stack.amount = 0; changed = true; continue }
             drawer.refreshCapacity(block, storage, stack)
-            val leftover = storage.insert(stack, stack.amount.toLong(), simulate = false)
-            val consumed = stack.amount - leftover.toInt()
-            if (consumed > 0) { stack.amount = leftover.toInt(); changed = true }
+            val key = ItemKey.of(stack) ?: continue
+            // 虚空过滤: 封顶到保留数量, 超出部分湮灭 (未标记则原样尝试入库)
+            val admit = if (hasVoid) VoidFilter.admit(block.location, stack, storage.count(key), stack.amount.toLong())
+                        else stack.amount.toLong()
+            val leftover = if (admit > 0) storage.insert(stack, admit, simulate = false).toInt() else 0
+            if (admit - leftover > 0) storageChanged = true // 真正入库 (排除仅湮灭)
+            if (leftover != stack.amount) { stack.amount = leftover; handChanged = true } // 剩余 = 未入库部分 (湮灭部分已消失)
         }
-        if (changed) { drawer.saveStorage(block, storage); player.updateInventory() }
+        if (storageChanged) drawer.saveStorage(block, storage)
+        if (handChanged) player.updateInventory()
     }
 
     /** 左键: 取出一个。 */

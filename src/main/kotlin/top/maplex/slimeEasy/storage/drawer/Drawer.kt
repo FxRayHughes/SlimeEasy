@@ -70,11 +70,13 @@ class Drawer(
     }
 
     override fun filterInsert(block: Block, item: ItemStack, amount: Long): Long {
-        val upgrades = UpgradeStore.resolve(block.location)
-        if (upgrades.hasVoid && VoidFilter.contains(block.location, item)) return 0
+        val storage = storageAt(block)
         // 借货运插入前的时机, 顺带按来料重算容量
-        refreshCapacity(block, storageAt(block), item)
-        return amount
+        refreshCapacity(block, storage, item)
+        if (!UpgradeStore.resolve(block.location).hasVoid) return amount
+        // 虚空过滤: 封顶到保留数量, 超出部分湮灭 (未标记则原样放入)
+        val key = ItemKey.of(item) ?: return amount
+        return VoidFilter.admit(block.location, item, storage.count(key), amount)
     }
 
     override fun onStorageChanged(block: Block, storage: VirtualStorage) {

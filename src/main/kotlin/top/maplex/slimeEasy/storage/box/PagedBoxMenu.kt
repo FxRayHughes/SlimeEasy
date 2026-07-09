@@ -116,16 +116,18 @@ object PagedBoxMenu {
             val key = top.maplex.slimeEasy.storage.core.ItemKey.of(item) ?: return
             val loc = block.location
             val upgrades = top.maplex.slimeEasy.storage.upgrade.UpgradeStore.resolve(loc)
-            if (upgrades.hasVoid && top.maplex.slimeEasy.storage.upgrade.VoidFilter.contains(loc, item)) {
-                top.maplex.slimeEasy.storage.core.InventoryOps.remove(player, key, item.amount); refreshAll(block); return
-            }
             val storage = box.storageAt(block)
             box.prepareForInsert(block, item) // 同步槽位预算与倍率
-            val leftover = storage.insert(item, item.amount.toLong(), simulate = false)
-            val stored = item.amount - leftover.toInt()
-            if (stored > 0) {
-                top.maplex.slimeEasy.storage.core.InventoryOps.remove(player, key, stored)
-                box.saveStorage(block, storage)
+            // 虚空过滤: 封顶到保留数量, 超出部分湮灭 (未标记则原样尝试入库)
+            val admit = if (upgrades.hasVoid)
+                top.maplex.slimeEasy.storage.upgrade.VoidFilter.admit(loc, item, storage.count(key), item.amount.toLong())
+            else item.amount.toLong()
+            val leftover = if (admit > 0) storage.insert(item, admit, simulate = false) else admit
+            val stored = (admit - leftover).toInt()
+            val consumed = item.amount - leftover.toInt() // 离开背包 = 真正入库 + 湮灭
+            if (consumed > 0) {
+                top.maplex.slimeEasy.storage.core.InventoryOps.remove(player, key, consumed)
+                if (stored > 0) box.saveStorage(block, storage) // 有真正入库才落盘
                 refreshAll(block)
             }
         }
