@@ -1,10 +1,13 @@
 package top.maplex.slimeEasy.registry
 
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
 import io.github.thebusybiscuit.slimefun4.api.researches.Research
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
+import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.SlimeEasy
 import top.maplex.slimeEasy.feature.survey.SurveyDisplayListener
 import top.maplex.slimeEasy.feature.survey.SurveyRuler
@@ -13,6 +16,13 @@ import top.maplex.slimeEasy.feature.ward.CreeperControlListener
 import top.maplex.slimeEasy.feature.ward.CreeperWard
 import top.maplex.slimeEasy.machine.breaker.AutoBreaker
 import top.maplex.slimeEasy.machine.placer.AutoPlacer
+import top.maplex.slimeEasy.storage.box.PagedBox
+import top.maplex.slimeEasy.storage.drawer.Drawer
+import top.maplex.slimeEasy.storage.drawer.DrawerListener
+import top.maplex.slimeEasy.storage.network.NetworkConnector
+import top.maplex.slimeEasy.storage.network.NetworkController
+import top.maplex.slimeEasy.storage.network.NetworkPort
+import top.maplex.slimeEasy.storage.network.RemoteTerminal
 
 /**
  * 内容注册总入口。
@@ -33,6 +43,12 @@ object Registration {
 
     /** 矿物勘察尺 (普通/进阶) 研究解锁所需经验等级。 */
     private const val SURVEY_RULER_RESEARCH_COST = 10
+
+    /** 存储系统各研究解锁所需经验等级 (按进阶程度递增)。 */
+    private const val DRAWER_RESEARCH_COST = 8          // 入门: 单一物品抽屉
+    private const val BOX_RESEARCH_COST = 15            // 进阶: 多物品翻页箱
+    private const val STORAGE_UPGRADE_RESEARCH_COST = 20 // 增强: 各类升级组件
+    private const val NETWORK_RESEARCH_COST = 30        // 高阶: 存储网络
 
     /** 普通工业矿机采掘半径 (7×7)。 */
     private const val MINER_RANGE = 3
@@ -164,5 +180,60 @@ object Registration {
             SurveyDisplayListener(),
             SlimeEasy.instance
         )
+
+        // 12. 注册存储系统
+        registerStorage(addon)
+    }
+
+    /** 注册存储系统: 分类、存储方块、网络方块、升级组件、研究解锁与相关监听器。 */
+    private fun registerStorage(addon: SlimefunAddon) {
+        Groups.STORAGE.register(addon)
+        val et = RecipeType.ENHANCED_CRAFTING_TABLE
+
+        val drawer = Drawer(Groups.STORAGE, StorageItems.DRAWER, et, StorageItems.DRAWER_RECIPE).also { it.register(addon) }
+        val box = PagedBox(Groups.STORAGE, StorageItems.BOX, et, StorageItems.BOX_RECIPE).also { it.register(addon) }
+        val controller = NetworkController(Groups.STORAGE, StorageItems.CONTROLLER, et, StorageItems.CONTROLLER_RECIPE).also { it.register(addon) }
+        val connector = NetworkConnector(Groups.STORAGE, StorageItems.CONNECTOR, et, StorageItems.CONNECTOR_RECIPE).also { it.register(addon) }
+        val inputPort = NetworkPort(Groups.STORAGE, StorageItems.INPUT_PORT, et, StorageItems.INPUT_PORT_RECIPE, true).also { it.register(addon) }
+        val outputPort = NetworkPort(Groups.STORAGE, StorageItems.OUTPUT_PORT, et, StorageItems.OUTPUT_PORT_RECIPE, false).also { it.register(addon) }
+        val remoteTerminal = RemoteTerminal(Groups.STORAGE, StorageItems.REMOTE_TERMINAL, et, StorageItems.REMOTE_TERMINAL_RECIPE).also { it.register(addon) }
+
+        // 升级组件 (无自定义行为的普通 Slimefun 物品)
+        fun plain(stack: SlimefunItemStack, recipe: Array<ItemStack?>): SlimefunItem =
+            SlimefunItem(Groups.STORAGE, stack, et, recipe).also { it.register(addon) }
+        val stackI = plain(StorageItems.STACK_I, StorageItems.STACK_I_RECIPE)
+        val stackII = plain(StorageItems.STACK_II, StorageItems.STACK_II_RECIPE)
+        val stackIII = plain(StorageItems.STACK_III, StorageItems.STACK_III_RECIPE)
+        val expUp = plain(StorageItems.EXP_UPGRADE, StorageItems.EXP_UPGRADE_RECIPE)
+        val magnetUp = plain(StorageItems.MAGNET_UPGRADE, StorageItems.MAGNET_UPGRADE_RECIPE)
+        val voidUp = plain(StorageItems.VOID_UPGRADE, StorageItems.VOID_UPGRADE_RECIPE)
+        val pageUp = plain(StorageItems.PAGE_UPGRADE, StorageItems.PAGE_UPGRADE_RECIPE)
+        val wiseUp = plain(StorageItems.WISE_UPGRADE, StorageItems.WISE_UPGRADE_RECIPE)
+        val enderWiseUp = plain(StorageItems.ENDER_WISE_UPGRADE, StorageItems.ENDER_WISE_UPGRADE_RECIPE)
+
+        // 研究解锁 (按主题分组, 成本随进阶递增)
+        research("storage_drawer", 9006, "海量抽屉", DRAWER_RESEARCH_COST, drawer)
+        research("storage_box", 9007, "翻页存储箱", BOX_RESEARCH_COST, box)
+        research("storage_upgrades", 9008, "存储升级组件", STORAGE_UPGRADE_RESEARCH_COST,
+            stackI, stackII, stackIII, expUp, magnetUp, voidUp, pageUp, wiseUp, enderWiseUp)
+        research("storage_network", 9009, "存储网络", NETWORK_RESEARCH_COST,
+            controller, connector, inputPort, outputPort, remoteTerminal)
+
+        // 抽屉展示框交互监听器 + 存储缓存区块卸载清理监听器 + 经验球拦截监听器
+        Bukkit.getPluginManager().registerEvents(DrawerListener(), SlimeEasy.instance)
+        Bukkit.getPluginManager().registerEvents(
+            top.maplex.slimeEasy.storage.core.StorageChunkListener(), SlimeEasy.instance
+        )
+        Bukkit.getPluginManager().registerEvents(
+            top.maplex.slimeEasy.storage.drawer.MagnetOrbListener(), SlimeEasy.instance
+        )
+    }
+
+    /** 绑定一个存储系统研究: 指定经验等级成本, 归入若干物品。 */
+    private fun research(key: String, id: Int, name: String, cost: Int, vararg items: SlimefunItem) {
+        Research(NamespacedKey(SlimeEasy.instance, key), id, name, cost).apply {
+            addItems(*items)
+            register()
+        }
     }
 }

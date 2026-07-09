@@ -89,7 +89,8 @@ class SurveyRuler(
         player.sendMessage("§6[勘察尺] §7坐标 §f${block.x}, ${block.y}, ${block.z} §7下方矿脉预估:")
         val side = tier.range * 2 + 1
         val counts = SurveyScanner.scan(block, tier.range)
-        player.sendMessage("§b— ${tier.label} §7(${side}×${side})")
+        val total = counts.values.sum()
+        player.sendMessage("§b— ${tier.label} §7(${side}×${side}) ${SurveyFormat.fuelSummary(total)}")
         if (counts.isEmpty()) {
             player.sendMessage("  §8未探测到可开采矿石")
             return

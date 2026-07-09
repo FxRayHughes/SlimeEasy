@@ -45,4 +45,20 @@ object Groups {
             "&7各类手持辅助工具"
         )
     )
+
+    /**
+     * "存储系统" 分类。
+     *
+     * 图标使用木桶, 涵盖抽屉 / 翻页箱 / 存储网络 (控制器·连接器·端口) 与各类升级组件。
+     */
+    val STORAGE: ItemGroup = ItemGroup(
+        NamespacedKey(SlimeEasy.instance, "storage"),
+        SlimefunItemStack(
+            "SE_GROUP_STORAGE",
+            Material.BARREL,
+            "&b存储系统",
+            "",
+            "&7海量存储抽屉、翻页箱与存储网络"
+        )
+    )
 }

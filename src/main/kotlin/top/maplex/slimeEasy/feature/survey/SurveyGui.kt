@@ -32,7 +32,9 @@ object SurveyGui {
     fun open(player: Player, block: Block, tier: SurveyTier) {
         val side = tier.range * 2 + 1
         val counts = SurveyScanner.scan(block, tier.range)
-        val title = "§b${tier.label} §7(${side}×${side}) §8@ ${block.x},${block.y},${block.z}"
+        val total = counts.values.sum()
+        // 标题披露总量与三种燃料用量估算, 方便对照材料规划
+        val title = "§b${tier.label} §7(${side}×${side}) ${SurveyFormat.fuelSummary(total)}"
 
         val menu = ChestMenu(title)
         menu.setEmptySlotsClickable(false)
