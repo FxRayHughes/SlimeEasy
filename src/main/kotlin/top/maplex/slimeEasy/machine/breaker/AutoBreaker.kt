@@ -5,11 +5,14 @@ import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
+import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker
 import org.bukkit.block.Block
+import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.machine.common.BlockEffect
 import top.maplex.slimeEasy.machine.common.FrequencyResolver
+import top.maplex.slimeEasy.machine.common.MachineProtection
 import top.maplex.slimeEasy.machine.common.PistonSupport
 import java.util.concurrent.ConcurrentHashMap
 
@@ -39,6 +42,12 @@ class AutoBreaker(
     private val counters = ConcurrentHashMap<String, Int>()
 
     override fun preRegister() {
+        // 放置时记录所有者, 供 tick 时以其身份做领地保护校验
+        addItemHandler(object : BlockPlaceHandler(false) {
+            override fun onPlayerPlace(e: BlockPlaceEvent) {
+                MachineProtection.recordOwner(e.block, e.player)
+            }
+        })
         addItemHandler(object : BlockTicker() {
             override fun tick(b: Block, item: SlimefunItem, data: SlimefunBlockData) {
                 onTick(b)
@@ -67,6 +76,8 @@ class AutoBreaker(
         counters[key] = 0
 
         val target = PistonSupport.resolveTarget(piston) ?: return
+        // 领地保护: 机器所有者无破坏权限时跳过 (尊重 WorldGuard 等保护插件)
+        if (!MachineProtection.canBreak(machine, target)) return
         // 破坏前捕获方块数据: 破坏后目标变为空气, 音效与粒子需据此还原外观
         val brokenData = target.blockData
         if (BreakerLogic.tryBreak(machine, target)) {
