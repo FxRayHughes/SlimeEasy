@@ -23,8 +23,8 @@ import top.maplex.slimeEasy.villager.core.WorkstationMap
 /**
  * 村民交易器。
  *
- * 外观为透明玻璃 (GLASS), 内嵌一只缩小的展示村民 (真实生物实体)。放入村民后玩家可通过
- * 虚拟商人与之交易, 无需操心保护实体村民 (交易器交互见 [TraderListener])。
+ * 外观为透明玻璃 (GLASS), 内嵌一只缩小的展示村民 (真实生物实体)。放入村民后玩家右键交易,
+ * 由 [TraderMerchant] 生成世界底部的临时代理村民承载原版交易与升级 (交互见 [TraderListener])。
  *
  * 随 Slimefun 原生 ticker 运行, 仅做两件事: 保障展示实体存在 / 与装配村民职业一致; 按配置间隔
  * 补货 —— 当装配村民职业与工作站方块匹配, 且距上次补货超过配置秒数时, 把所有交易 uses 重置为 0。
@@ -60,6 +60,8 @@ class VillagerTrader(
         TraderStore.getVillager(block)?.let { drops.add(VillagerCatcher.fill(it)) }
         TraderStore.getWorkstation(block)?.let { drops.add(ItemStack(it)) }
         removeDisplay(block)
+        // 兜底: 按方块空间清理可能的孤儿展示实体 (UUID 链断裂时 removeDisplay 删不到)
+        VillagerDisplay.sweepAt(block)
     }
 
     /** 单个交易器一次 tick: 维护展示实体 + 补货判定。 */

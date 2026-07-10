@@ -1,49 +1,102 @@
 package top.maplex.slimeEasy.villager.trader
 
-import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
-import org.bukkit.inventory.MerchantInventory
+import org.bukkit.entity.Villager
 import top.maplex.slimeEasy.villager.core.VillagerData
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /**
- * 村民交易器的"虚拟商人"。
+ * 村民交易器的"临时代理村民"会话管理。
  *
- * 交易走 Bukkit [org.bukkit.inventory.Merchant], 玩家不直接接触实体村民 —— 故"无需操心保护村民"。
- * 打开时由装配村民的 [VillagerData.recipes] 构建商人; 关闭时从商人回读各交易 uses 并回存, 保持库存进度。
+ * 弃用虚拟 [org.bukkit.inventory.Merchant] —— 它既不累加村民经验、也无法解锁新交易, 导致交易
+ * 内容与等级被永久冻结。改为交易时在**交易器同列的世界底部** (玩家不可见, 且与方块同区块必加载)
+ * 生成一只真实 [Villager] 作代理: 由 [VillagerData.applyTo] 还原职业 / 类型 / 等级 / 经验 / 交易,
+ * 关 AI / 无敌 / 无重力 / 不持久, 玩家直接与之交易 —— 原版逻辑接管, 自然累加 uses 与交易经验。
+ *
+ * 关闭时按原版经验阈值驱动 [Villager.increaseLevel] 升级并解锁新交易, 再 [VillagerData.capture]
+ * 重抓快照回存方块, 移除代理并刷新展示实体外观。所有方法须在主线程调用。
  */
 object TraderMerchant {
 
     /**
-     * 依装配村民的交易列表打开虚拟商人界面。
+     * 升到 (index+1)+1 级所需的**累计**交易经验 (原版值): 1→2=10, 2→3=70, 3→4=150, 4→5=250。
+     * 数组下标为"当前等级-1", 取值即"从当前等级升到下一级所需的累计经验门槛"。
+     */
+    private val XP_FOR_NEXT = intArrayOf(10, 70, 150, 250)
+
+    /**
+     * 玩家当前打开的代理会话。
      *
-     * [Bukkit.createMerchant] 与 [Player.openMerchant] 在当前 Paper 标为 deprecated, 但为
-     * 打开虚拟商人的唯一标准 API 且功能正常, 无非弃用替代, 故显式抑制告警。
+     * 保留 [origin] 原始快照: 回存时以它的职业 / 变种类型兜底 —— 交易器内村民的身份本就不该改变
+     * (升级只追加交易), 且原版对"等级 1 无经验 / 失去职业方块 POI"的村民有掉职业风险, 故不信任
+     * 代理实体回读的职业, 一律锁回原始值, 仅采纳升级得来的等级 / 经验 / 交易。
+     */
+    private data class Session(val block: Block, val villagerId: UUID, val origin: VillagerData)
+
+    private val sessions = ConcurrentHashMap<UUID, Session>()
+
+    /**
+     * 打开交易: 生成代理村民并让玩家与之交易。
+     *
+     * 若玩家已有会话 (异常并发) 先幂等关闭。代理村民生成在交易器同列世界底面, 玩家不可见。
+     *
+     * [Player.openMerchant] 在当前 Paper 标为 deprecated 但为打开交易界面的标准 API, 显式抑制告警。
      */
     @Suppress("DEPRECATION")
-    fun open(player: Player, data: VillagerData) {
-        val merchant = Bukkit.createMerchant(Component.text("村民交易器"))
-        // recipes 为 VillagerData 中已解码的新对象; openMerchant 前必须先 setRecipes
-        merchant.recipes = data.recipes
-        player.openMerchant(merchant, true)
+    fun open(player: Player, block: Block, data: VillagerData) {
+        close(player) // 幂等: 清理可能残留的上一个会话
+        val world = block.world
+        // 同列世界底面: 与交易器同区块 (必加载), 深埋虚空玩家不可见
+        val at = block.location.clone().apply { y = world.minHeight.toDouble() }
+        val villager = world.spawn(at, Villager::class.java) { v ->
+            v.setAI(false)
+            v.isAware = false
+            v.setGravity(false)
+            v.isInvulnerable = true
+            v.isSilent = true
+            v.isCollidable = false
+            v.isPersistent = false // 重启 / 卸载自动清除, 不落存档
+            data.applyTo(v) // 还原职业 / 类型 / 等级 / 经验 / 成年 / 交易
+        }
+        sessions[player.uniqueId] = Session(block, villager.uniqueId, data)
+        player.openMerchant(villager, true)
     }
 
     /**
-     * 从一个交易界面回读交易进度并回存到方块。
+     * 关闭交易 (界面关闭 / 玩家退出时调用, 幂等)。
      *
-     * 以方块当前装配村民为基准, 仅替换交易列表 (含更新后的 uses), 保持职业 / 类型 / 等级不变。
+     * 从代理村民驱动升级 → 重抓快照回存方块 → 刷新展示外观 → 移除代理。
+     * 代理实体已卸载 (区块问题) 时跳过回存, 仅清理会话, 避免覆盖丢失数据。
      */
-    fun syncBack(block: Block, inventory: MerchantInventory) {
-        val base = TraderStore.getVillager(block) ?: return
-        val updated = VillagerData(
-            professionKey = base.professionKey,
-            typeKey = base.typeKey,
-            level = base.level,
-            experience = base.experience,
-            adult = base.adult,
-            recipes = inventory.merchant.recipes
+    fun close(player: Player) {
+        val session = sessions.remove(player.uniqueId) ?: return
+        val villager = org.bukkit.Bukkit.getEntity(session.villagerId) as? Villager ?: return
+        driveLevelUp(villager)
+        // 采纳升级后的等级 / 经验 / 交易; 职业与变种类型锁回原始快照, 防代理村民意外掉职业
+        val captured = VillagerData.capture(villager)
+        val updated = captured.copy(
+            professionKey = session.origin.professionKey,
+            typeKey = session.origin.typeKey
         )
-        TraderStore.setVillager(block, updated)
+        TraderStore.setVillager(session.block, updated)
+        // 立即按新等级刷新展示实体外观 (等级徽章 / 职业)
+        VillagerTrader.spawnDisplay(session.block, updated)
+        villager.remove()
+    }
+
+    /**
+     * 按累计交易经验驱动升级: 代理村民 AI 关闭不会自行 tick 升级, 故手动补足。
+     *
+     * 逐级调用 [Villager.increaseLevel] (它会解锁新交易, 区别于 [Villager.setVillagerLevel]),
+     * 直到等级达到经验对应的上限或封顶 5 级。以等级推进为循环条件, 天然防止死循环。
+     */
+    private fun driveLevelUp(villager: Villager) {
+        val xp = villager.villagerExperience
+        while (villager.villagerLevel < 5 && xp >= XP_FOR_NEXT[villager.villagerLevel - 1]) {
+            val before = villager.villagerLevel
+            if (!villager.increaseLevel(1) || villager.villagerLevel == before) break
+        }
     }
 }

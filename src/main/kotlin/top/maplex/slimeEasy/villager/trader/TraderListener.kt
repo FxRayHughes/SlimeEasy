@@ -20,7 +20,6 @@ import top.maplex.slimeEasy.villager.catcher.VillagerCatcher
 import top.maplex.slimeEasy.villager.core.VillagerConfig
 import top.maplex.slimeEasy.villager.core.VillagerDisplay
 import top.maplex.slimeEasy.villager.core.WorkstationMap
-import java.util.UUID
 
 /**
  * 村民交易器的方块交互监听。
@@ -33,9 +32,6 @@ import java.util.UUID
  * 交易界面关闭 ([InventoryCloseEvent]) 时把交易进度 (uses) 回存到方块。
  */
 class TraderListener : Listener {
-
-    /** 玩家当前打开的交易器方块 (用于关闭时回存)。 */
-    private val openTraders = HashMap<UUID, Block>()
 
     @EventHandler
     fun onInteract(e: PlayerInteractEvent) {
@@ -99,10 +95,7 @@ class TraderListener : Listener {
             VillagerCatcher.isFilled(hand) && stored == null -> insertVillager(block, player, hand)
             WorkstationMap.isWorkstation(hand.type) && TraderStore.getWorkstation(block) == null ->
                 insertWorkstation(block, player, hand)
-            stored != null -> {
-                TraderMerchant.open(player, stored)
-                openTraders[player.uniqueId] = block
-            }
+            stored != null -> TraderMerchant.open(player, block, stored)
             else -> player.sendMessage("§7[交易器] 右键放入 §f村民(满捕捉器) §7或 §f工作站方块§7。")
         }
     }
@@ -123,17 +116,17 @@ class TraderListener : Listener {
         player.sendMessage("§a[交易器] §7已放入工作站方块 (§f${hand.type.name}§7); 与村民匹配即每 §f${VillagerConfig.traderRestockMillis / 1000}s §7补货。")
     }
 
-    /** 交易界面关闭: 回存交易进度。 */
+    /** 交易界面关闭: 驱动升级、回存快照并移除代理村民。 */
     @EventHandler
     fun onClose(e: InventoryCloseEvent) {
-        val block = openTraders.remove(e.player.uniqueId) ?: return
-        val inv = e.inventory as? MerchantInventory ?: return
-        TraderMerchant.syncBack(block, inv)
+        val player = e.player as? Player ?: return
+        if (e.inventory !is MerchantInventory) return
+        TraderMerchant.close(player)
     }
 
     @EventHandler
     fun onQuit(e: PlayerQuitEvent) {
-        openTraders.remove(e.player.uniqueId)
+        TraderMerchant.close(e.player)
     }
 
     /** 主手当前物品 -1。 */
