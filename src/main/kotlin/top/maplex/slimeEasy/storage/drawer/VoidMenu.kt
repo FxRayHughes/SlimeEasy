@@ -13,7 +13,8 @@ import top.maplex.slimeEasy.storage.upgrade.VoidFilter
 /**
  * 虚空升级的销毁列表配置 GUI (带保留数量)。
  *
- * - 手持物品点击底部"标记"按钮 → 把该物品加入 / 移出销毁列表 (加入时默认保留 0);
+ * - 手持物品点击底部"标记"按钮, 或直接点击背包内的物品 → 把该物品加入 / 移出销毁列表
+ *   (加入时默认保留 0);
  * - 点击已列出的物品图标调整其**保留数量**:
  *   左键 +64 / 右键 -64 / 潜行左键 +1 / 潜行右键 -1; 保留为 0 时潜行右键移除。
  *
@@ -29,6 +30,11 @@ object VoidMenu {
     fun open(block: Block, player: Player) {
         val menu = ChestMenu("§8虚空销毁列表")
         menu.setEmptySlotsClickable(false)
+        // 点击背包内的物品也可加入 / 移出销毁列表 (不必手持)
+        menu.addPlayerInventoryClickHandler { _, _, item, _ ->
+            if (!item.type.isAir) { VoidFilter.toggle(block.location, item); render(menu, block) }
+            false
+        }
         render(menu, block)
         menu.open(player)
     }
@@ -46,8 +52,8 @@ object VoidMenu {
                 menu.addItem(slot, GuiItems.BACKGROUND) { _, _, _, _ -> false }
             }
         }
-        menu.addItem(MARK_SLOT, GuiItems.named(Material.LAVA_BUCKET, "§c标记手持物品",
-            "§7手持物品点击加入 / 移出销毁列表", "§7加入时默认保留 §e0 §7(全部销毁)")) { p, _, _, _ ->
+        menu.addItem(MARK_SLOT, GuiItems.named(Material.LAVA_BUCKET, "§c标记物品",
+            "§7手持物品点击, 或直接点击背包内物品", "§7加入 / 移出销毁列表 (默认保留 §e0 §7全毁)")) { p, _, _, _ ->
             val hand = p.inventory.itemInMainHand
             if (!hand.type.isAir) { VoidFilter.toggle(block.location, hand); render(menu, block) }
             false

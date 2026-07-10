@@ -6,6 +6,7 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.storage.core.ItemKey
+import top.maplex.slimeEasy.storage.core.StorageChangeBus
 
 /**
  * 抽屉的经验存储 (经验存储升级启用时)。
@@ -75,6 +76,7 @@ object DrawerExp {
     private fun set(block: Block, value: Long) {
         StorageCacheUtils.setData(block.location, DATA_KEY, value.toString())
         DrawerDisplay.update(block, if (value > 0) EXP_ICON else null, value)
+        StorageChangeBus.fire(block) // 广播变更, 供打开中的经验界面实时重绘 (磁铁后台吸入等)
     }
 
     /** 按当前存量重绘展示 (展示实体重建后调用)。 */

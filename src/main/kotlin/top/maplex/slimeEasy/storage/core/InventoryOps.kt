@@ -31,4 +31,26 @@ object InventoryOps {
         }
         player.updateInventory()
     }
+
+    /**
+     * 从玩家背包**指定槽位** [slot] 精确移除 [amount] 个物品 (点击存入用: 点哪组就扣哪组)。
+     *
+     * [slot] 为 [org.bukkit.event.inventory.InventoryClickEvent.getSlot] 语义 —— 玩家背包内的
+     * 槽位下标, 可直接用于 [org.bukkit.inventory.PlayerInventory.getItem]。仅当该槽物品与 [key]
+     * 同类时才从该槽扣除, 规避槽位异常时误删其它格; 该槽不足的余量再按物品身份 ([remove]) 从
+     * 其余同类槽补扣, 保证背包扣除总量与实际入库一致。
+     */
+    fun removeFromSlot(player: Player, slot: Int, key: ItemKey, amount: Int) {
+        if (amount <= 0) return
+        var remaining = amount
+        val stack = player.inventory.getItem(slot)
+        if (key.matches(stack)) {
+            val take = minOf(remaining, stack!!.amount)
+            stack.amount -= take
+            player.inventory.setItem(slot, if (stack.amount <= 0) null else stack)
+            remaining -= take
+        }
+        if (remaining > 0) remove(player, key, remaining) // 点击槽不足, 余量按身份补扣
+        player.updateInventory()
+    }
 }

@@ -47,28 +47,56 @@ object NetworkMenu {
         init {
             menu.setEmptySlotsClickable(false)
             menu.setPlayerInventoryClickable(true)
-            menu.addPlayerInventoryClickHandler { p, _, item, _ -> deposit(p, item); false }
+            menu.addPlayerInventoryClickHandler { p, slot, item, _ -> deposit(p, slot, item); false }
             openViews.add(this)
             menu.addMenuCloseHandler { openViews.remove(this) }
             render()
         }
 
-        fun render() {
+        /**
+         * 冻结的显示顺序 (key 序列)。
+         *
+         * 取出**不重排**: 沿用本快照, 取空的物品以空占位留在原位、其余位置不动, 避免
+         * 连续取出时图标跳动、玩家翻页找不到。仅排序切换 / 存入等操作 ([render] resort=true)
+         * 按最新排序偏好重建, 顺带清理取空的占位。
+         */
+        private var order: MutableList<ItemKey>? = null
+
+        /**
+         * 重绘界面。
+         *
+         * @param resort true 时按当前排序偏好重建显示顺序 (清理取空占位); false (默认) 沿用
+         *   冻结顺序, 仅刷新数量、取空处留空占位、外部新增物品追加末尾 —— 保证连续取出时
+         *   其余物品位置稳定。
+         */
+        fun render(resort: Boolean = false) {
             // 聚合显示: 全网合并后**一种物品一个图标** (总量写入 lore), 不按堆叠拆格平铺;
-            // 分组拆格的多格展示留给成员容器 (翻页箱) 自身界面。按玩家的持久化排序偏好排列。
-            val entries = sortEntries(net.aggregate())
-            val pages = maxOf(1, (entries.size + PAGE_SIZE - 1) / PAGE_SIZE)
+            // 分组拆格的多格展示留给成员容器 (翻页箱) 自身界面。
+            val agg = net.aggregate()
+            val amountByKey = HashMap<ItemKey, Long>(agg.size * 2)
+            for ((k, v) in agg) amountByKey[k] = v
+
+            val order = if (resort || this.order == null) {
+                // 重排: 按玩家持久化排序偏好重建, 仅含当前有量的物品 (清理空占位)
+                sortEntries(agg).map { it.first }.toMutableList().also { this.order = it }
+            } else this.order!!.also { ord ->
+                // 稳定: 外部新增物品 (别处存入 / 货运) 追加末尾, 不打乱既有布局
+                val known = ord.toHashSet()
+                for ((k, _) in agg) if (k !in known) ord.add(k)
+            }
+
+            val pages = maxOf(1, (order.size + PAGE_SIZE - 1) / PAGE_SIZE)
             page = page.coerceIn(0, pages - 1)
             val from = page * PAGE_SIZE
             for (i in 0 until PAGE_SIZE) {
-                val entry = entries.getOrNull(from + i)
-                if (entry != null) {
-                    val (key, total) = entry
+                val key = order.getOrNull(from + i)
+                val total = if (key != null) amountByKey[key] ?: 0L else 0L
+                if (key != null && total > 0) {
                     menu.addItem(i, StorageDisplay.aggregatedIcon(key, total)) { p, _, _, act ->
                         // 左键取一组 (原版堆叠), 右键取一个
                         withdraw(p, key, if (act.isRightClicked) 1 else key.vanillaMaxStack); false
                     }
-                } else menu.addItem(i, GuiItems.BACKGROUND) { _, _, _, _ -> false }
+                } else menu.addItem(i, GuiItems.BACKGROUND) { _, _, _, _ -> false } // 取空占位, 位置保留
             }
             renderNav(pages)
         }
@@ -87,12 +115,12 @@ object NetworkMenu {
             val fieldName = if (TerminalSortState.field(player) == TerminalSortState.Field.NAME) "名称" else "存量"
             menu.addItem(SORT_FIELD_SLOT, GuiItems.named(org.bukkit.Material.NAME_TAG,
                 "§b排序: §f$fieldName", "§7点击切换 名称 / 存量")) { _, _, _, _ ->
-                TerminalSortState.cycleField(player); render(); false
+                TerminalSortState.cycleField(player); render(resort = true); false
             }
             val dirName = if (TerminalSortState.descending(player)) "倒序 ↓" else "正序 ↑"
             menu.addItem(SORT_DIR_SLOT, GuiItems.named(org.bukkit.Material.COMPARATOR,
                 "§b顺序: §f$dirName", "§7点击切换 正序 / 倒序")) { _, _, _, _ ->
-                TerminalSortState.toggleDir(player); render(); false
+                TerminalSortState.toggleDir(player); render(resort = true); false
             }
         }
 
@@ -122,15 +150,15 @@ object NetworkMenu {
             render()
         }
 
-        /** 按物品身份从背包移除实际入库数量 (不依赖 slot 下标语义)。 */
-        private fun deposit(player: Player, item: ItemStack?) {
+        /** 从玩家**点击的那一槽** [slot] 精确扣除实际入库数量 (点哪组扣哪组)。 */
+        private fun deposit(player: Player, slot: Int, item: ItemStack?) {
             if (item == null || item.type.isAir) return
             val key = ItemKey.of(item) ?: return
             val leftover = net.insert(key, item.amount.toLong())
             val stored = item.amount - leftover.toInt()
             if (stored > 0) {
-                top.maplex.slimeEasy.storage.core.InventoryOps.remove(player, key, stored)
-                render()
+                top.maplex.slimeEasy.storage.core.InventoryOps.removeFromSlot(player, slot, key, stored)
+                render(resort = true) // 存入属主动操作, 按排序归位
             }
         }
     }

@@ -8,6 +8,7 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import top.maplex.slimeEasy.storage.core.CargoBufferBlock
 import top.maplex.slimeEasy.storage.core.GuiItems
+import top.maplex.slimeEasy.storage.core.StorageChangeBus
 import top.maplex.slimeEasy.storage.core.UpgradeMenu
 
 /**
@@ -16,6 +17,9 @@ import top.maplex.slimeEasy.storage.core.UpgradeMenu
  * 布局: 中央经验瓶显示当前存量 (点数 + 约合等级); 一行"存入全部"按钮; 一行
  * 按等级取出的按钮 (1/5/10/20/30/40/50)。取出按玩家**当前等级**换算所需点数,
  * 不足则取尽库存。经验模式下抽屉不接受 / 不输出物品, 故此界面不涉及物品格。
+ *
+ * 打开中的界面订阅 [StorageChangeBus] 实时刷新: 磁铁在后台吸入经验、或别处存取时,
+ * 存量显示即时更新。
  */
 object ExpMenu {
 
@@ -29,48 +33,67 @@ object ExpMenu {
     private const val DEPOSIT_SLOT = 13
     private const val UPGRADE_SLOT = 8
 
-    fun open(block: Block, player: Player) {
-        val menu = ChestMenu("§9经验存储")
-        menu.setEmptySlotsClickable(false)
-        for (i in 0 until 27) menu.addItem(i, GuiItems.BACKGROUND) { _, _, _, _ -> false }
-        render(menu, block)
-        menu.open(player)
+    /** 位置键 → 打开中的界面 (实时刷新用)。 */
+    private val openViews = java.util.concurrent.ConcurrentHashMap<String, MutableSet<View>>()
+
+    init {
+        StorageChangeBus.subscribe { block ->
+            openViews[key(block)]?.toList()?.forEach { it.render() }
+        }
     }
 
-    private fun render(menu: ChestMenu, block: Block) {
-        val points = DrawerExp.get(block)
-        val levels = ExpUtil.levelsFromPoints(points)
-        menu.replaceExistingItem(
-            INFO_SLOT,
-            GuiItems.named(Material.EXPERIENCE_BOTTLE, "§a已存经验", "§7点数: §f$points", "§7约合: §f$levels §7级")
-        )
-        menu.addMenuClickHandler(INFO_SLOT) { _, _, _, _ -> false }
+    private fun key(b: Block) = "${b.world.name}:${b.x}:${b.y}:${b.z}"
 
-        menu.replaceExistingItem(
-            DEPOSIT_SLOT,
-            GuiItems.named(Material.LIME_STAINED_GLASS_PANE, "§a存入全部经验", "§7点击把你身上的全部经验存入")
-        )
-        menu.addMenuClickHandler(DEPOSIT_SLOT) { p, _, _, _ ->
-            DrawerExp.deposit(block, p); render(menu, block); false
+    fun open(block: Block, player: Player) {
+        View(block).apply { menu.open(player) }
+    }
+
+    private class View(val block: Block) {
+        val menu = ChestMenu("§9经验存储")
+
+        init {
+            menu.setEmptySlotsClickable(false)
+            for (i in 0 until 27) menu.addItem(i, GuiItems.BACKGROUND) { _, _, _, _ -> false }
+            openViews.computeIfAbsent(key(block)) { java.util.concurrent.ConcurrentHashMap.newKeySet() }.add(this)
+            menu.addMenuCloseHandler { openViews[key(block)]?.remove(this) }
+            render()
         }
 
-        // 升级入口: 经验模式下右键只开本页, 需在此提供管理升级组件的入口
-        menu.replaceExistingItem(UPGRADE_SLOT, GuiItems.UPGRADE_ENTRY)
-        menu.addMenuClickHandler(UPGRADE_SLOT) { p, _, _, _ ->
-            val logic = StorageCacheUtils.getBlock(block.location)?.sfId
-                ?.let { SlimefunItem.getById(it) } as? CargoBufferBlock
-            if (logic != null) UpgradeMenu.open(logic, block, p, "§9存储升级")
-            false
-        }
-
-        for ((idx, lv) in WITHDRAW_LEVELS.withIndex()) {
-            val slot = WITHDRAW_SLOTS[idx]
+        fun render() {
+            val points = DrawerExp.get(block)
+            val levels = ExpUtil.levelsFromPoints(points)
             menu.replaceExistingItem(
-                slot,
-                GuiItems.named(Material.EXPERIENCE_BOTTLE, "§e取出 $lv 级", "§7按你当前等级换算所需点数取出", "§7不足则取尽库存")
+                INFO_SLOT,
+                GuiItems.named(Material.EXPERIENCE_BOTTLE, "§a已存经验", "§7点数: §f$points", "§7约合: §f$levels §7级")
             )
-            menu.addMenuClickHandler(slot) { p, _, _, _ ->
-                DrawerExp.withdrawLevels(block, p, lv); render(menu, block); false
+            menu.addMenuClickHandler(INFO_SLOT) { _, _, _, _ -> false }
+
+            menu.replaceExistingItem(
+                DEPOSIT_SLOT,
+                GuiItems.named(Material.LIME_STAINED_GLASS_PANE, "§a存入全部经验", "§7点击把你身上的全部经验存入")
+            )
+            menu.addMenuClickHandler(DEPOSIT_SLOT) { p, _, _, _ ->
+                DrawerExp.deposit(block, p); render(); false
+            }
+
+            // 升级入口: 经验模式下右键只开本页, 需在此提供管理升级组件的入口
+            menu.replaceExistingItem(UPGRADE_SLOT, GuiItems.UPGRADE_ENTRY)
+            menu.addMenuClickHandler(UPGRADE_SLOT) { p, _, _, _ ->
+                val logic = StorageCacheUtils.getBlock(block.location)?.sfId
+                    ?.let { SlimefunItem.getById(it) } as? CargoBufferBlock
+                if (logic != null) UpgradeMenu.open(logic, block, p, "§9存储升级")
+                false
+            }
+
+            for ((idx, lv) in WITHDRAW_LEVELS.withIndex()) {
+                val slot = WITHDRAW_SLOTS[idx]
+                menu.replaceExistingItem(
+                    slot,
+                    GuiItems.named(Material.EXPERIENCE_BOTTLE, "§e取出 $lv 级", "§7按你当前等级换算所需点数取出", "§7不足则取尽库存")
+                )
+                menu.addMenuClickHandler(slot) { p, _, _, _ ->
+                    DrawerExp.withdrawLevels(block, p, lv); render(); false
+                }
             }
         }
     }

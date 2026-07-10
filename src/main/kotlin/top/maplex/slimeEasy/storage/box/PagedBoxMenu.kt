@@ -56,29 +56,70 @@ object PagedBoxMenu {
             menu.setEmptySlotsClickable(false)
             // 玩家点击自己背包的物品 → 存入
             menu.setPlayerInventoryClickable(true)
-            menu.addPlayerInventoryClickHandler { p, _, item, _ -> depositFromInventory(p, item); false }
+            menu.addPlayerInventoryClickHandler { p, slot, item, _ -> depositFromInventory(p, slot, item); false }
             openViews.computeIfAbsent(locKey(block)) { java.util.concurrent.ConcurrentHashMap.newKeySet() }.add(this)
             menu.addMenuCloseHandler { openViews[locKey(block)]?.remove(this) }
             render()
         }
 
-        fun render() {
+        /**
+         * 冻结的每格 key 布局 (第 i 格显示哪种物品)。
+         *
+         * 取出**不重排**: 同一物品的多格从尾部消耗, 取空的格以空占位留在原位、其余格位置
+         * 不动, 避免连续取出时物品跳格、玩家翻页找不到。仅存入 / 升级变更等操作
+         * ([render] resort=true) 按库存顺序重建, 顺带清理空占位。
+         */
+        private var slotKeys: MutableList<ItemKey>? = null
+
+        /**
+         * 重绘界面。
+         *
+         * @param resort true 时按库存插入序重建每格布局 (清理取空占位); false (默认) 沿用
+         *   冻结布局, 仅刷新各格数量、取空处留空占位、外部新增物品追加末尾。
+         */
+        fun render(resort: Boolean = false) {
             // 拆格显示: 单格容量 = 原版堆叠 × 堆叠升级倍率; 超出溢出到新格
             val storage = box.storageAt(block)
-            val cells = StorageDisplay.toCells(storage.entries()) { storage.cellCapacity(it) }
+            val entries = storage.entries()
+            val cap: (ItemKey) -> Long = { storage.cellCapacity(it) }
+            val countByKey = HashMap<ItemKey, Long>(entries.size * 2)
+            for ((k, c) in entries) countByKey[k] = c
+
+            val slots = if (resort || slotKeys == null) {
+                StorageDisplay.toCells(entries, cap).map { it.key }.toMutableList().also { slotKeys = it }
+            } else slotKeys!!.also { sk ->
+                // 稳定: 外部新增 / 增多的物品按实时所需格数在末尾补足, 不打乱既有布局
+                val alloc = HashMap<ItemKey, Int>()
+                for (k in sk) alloc[k] = (alloc[k] ?: 0) + 1
+                for ((k, c) in entries) {
+                    val need = ((c + cap(k) - 1) / cap(k)).toInt()
+                    repeat((need - (alloc[k] ?: 0)).coerceAtLeast(0)) { sk.add(k) }
+                }
+            }
+
+            // 逐格按物品剩余量分摊: 同一物品的连续格前面填满单格容量, 尾部留空 (取出从尾部消耗)
+            val remain = HashMap<ItemKey, Long>(countByKey)
+            val amounts = LongArray(slots.size)
+            for (idx in slots.indices) {
+                val r = remain[slots[idx]] ?: 0L
+                if (r > 0L) { val n = minOf(r, cap(slots[idx])); amounts[idx] = n; remain[slots[idx]] = r - n }
+            }
+
             // 页数由翻页扩容决定 (总槽位 = 页数×45, 插入已被约束在此预算内)
             val pages = box.pages(block)
             page = page.coerceIn(0, pages - 1)
             val from = page * PAGE_SIZE
             for (i in 0 until PAGE_SIZE) {
-                val cell = cells.getOrNull(from + i)
-                if (cell != null) {
-                    menu.addItem(i, StorageDisplay.icon(cell)) { p, _, _, action ->
+                val gi = from + i
+                val key = slots.getOrNull(gi)
+                val amt = if (gi < amounts.size) amounts[gi] else 0L
+                if (key != null && amt > 0L) {
+                    menu.addItem(i, StorageDisplay.icon(StorageDisplay.Cell(key, amt, countByKey[key] ?: amt))) { p, _, _, action ->
                         // 左键取一组 (原版堆叠), 右键取一个
-                        withdraw(p, cell.key, if (action.isRightClicked) 1 else cell.key.vanillaMaxStack); false
+                        withdraw(p, key, if (action.isRightClicked) 1 else key.vanillaMaxStack); false
                     }
                 } else {
-                    menu.addItem(i, GuiItems.BACKGROUND) { _, _, _, _ -> false }
+                    menu.addItem(i, GuiItems.BACKGROUND) { _, _, _, _ -> false } // 取空占位, 位置保留
                 }
             }
             renderNav(pages)
@@ -107,11 +148,11 @@ object PagedBoxMenu {
         }
 
         /**
-         * 把玩家背包中点击的物品整组存入箱子。
+         * 把玩家**点击的那一槽** [slot] 物品存入箱子。
          *
-         * 按物品身份从背包移除实际入库的数量 (不依赖 slot 下标语义, 详见 [InventoryOps])。
+         * 从点击槽位精确扣除实际离开背包的数量 (点哪组扣哪组), 详见 [InventoryOps.removeFromSlot]。
          */
-        private fun depositFromInventory(player: Player, item: ItemStack?) {
+        private fun depositFromInventory(player: Player, slot: Int, item: ItemStack?) {
             if (item == null || item.type.isAir) return
             val key = top.maplex.slimeEasy.storage.core.ItemKey.of(item) ?: return
             val loc = block.location
@@ -126,9 +167,9 @@ object PagedBoxMenu {
             val stored = (admit - leftover).toInt()
             val consumed = item.amount - leftover.toInt() // 离开背包 = 真正入库 + 湮灭
             if (consumed > 0) {
-                top.maplex.slimeEasy.storage.core.InventoryOps.remove(player, key, consumed)
-                if (stored > 0) box.saveStorage(block, storage) // 有真正入库才落盘
-                refreshAll(block)
+                top.maplex.slimeEasy.storage.core.InventoryOps.removeFromSlot(player, slot, key, consumed)
+                if (stored > 0) box.saveStorage(block, storage) // 有真正入库才落盘 (并广播刷新其它视图)
+                render(resort = true) // 存入属主动操作, 本视图按库存顺序重排归位
             }
         }
     }
