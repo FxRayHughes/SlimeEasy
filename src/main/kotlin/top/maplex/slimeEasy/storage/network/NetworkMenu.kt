@@ -1,9 +1,12 @@
 package top.maplex.slimeEasy.storage.network
 
+import io.github.thebusybiscuit.slimefun4.libraries.dough.chat.ChatInput
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.SlimeEasy
 import top.maplex.slimeEasy.storage.core.GuiItems
 import top.maplex.slimeEasy.storage.core.ItemKey
 import top.maplex.slimeEasy.storage.core.StorageChangeBus
@@ -25,6 +28,7 @@ object NetworkMenu {
     private const val SORT_FIELD_SLOT = 46
     private const val SORT_DIR_SLOT = 47
     private const val INFO_SLOT = 48
+    private const val SEARCH_SLOT = 49
     private const val NEXT_SLOT = 53
 
     /** 当前打开中的全部终端视图 (用于库存变更时实时重绘)。 */
@@ -44,15 +48,6 @@ object NetworkMenu {
         val menu = ChestMenu("§9存储网络终端")
         var page = 0
 
-        init {
-            menu.setEmptySlotsClickable(false)
-            menu.setPlayerInventoryClickable(true)
-            menu.addPlayerInventoryClickHandler { p, slot, item, _ -> deposit(p, slot, item); false }
-            openViews.add(this)
-            menu.addMenuCloseHandler { openViews.remove(this) }
-            render()
-        }
-
         /**
          * 冻结的显示顺序 (key 序列)。
          *
@@ -61,6 +56,25 @@ object NetworkMenu {
          * 按最新排序偏好重建, 顺带清理取空的占位。
          */
         private var order: MutableList<ItemKey>? = null
+
+        /**
+         * 搜索关键词 (瞬时视图状态, 不持久化)。空串表示无过滤。
+         *
+         * 纯显示层过滤: 仅影响本次渲染筛选出的 key, 不改动冻结顺序 [order] —— 清空搜索后
+         * 原布局原样恢复。符合"搜索是临时筛选"的语义, 故不写入玩家 PDC。
+         */
+        private var filter: String = ""
+
+        // init 须在上述属性声明之后: init 中的 render() 会读 filter/order, Kotlin 按声明顺序
+        // 初始化, 声明在 init 之后则执行时它们尚为 JVM 默认值 (非空 filter 读到 null → NPE)。
+        init {
+            menu.setEmptySlotsClickable(false)
+            menu.setPlayerInventoryClickable(true)
+            menu.addPlayerInventoryClickHandler { p, slot, item, _ -> deposit(p, slot, item); false }
+            openViews.add(this)
+            menu.addMenuCloseHandler { openViews.remove(this) }
+            render()
+        }
 
         /**
          * 重绘界面。
@@ -85,11 +99,16 @@ object NetworkMenu {
                 for ((k, _) in agg) if (k !in known) ord.add(k)
             }
 
-            val pages = maxOf(1, (order.size + PAGE_SIZE - 1) / PAGE_SIZE)
+            // 纯显示层过滤: 从冻结顺序中筛出名称匹配关键词者 (不改动 order 本身);
+            // 无关键词时即完整顺序。取空占位 (总量 0) 在有搜索时一并剔除, 避免搜索结果留空格。
+            val view = if (filter.isEmpty()) order
+            else order.filter { (amountByKey[it] ?: 0L) > 0 && sortName(it).contains(filter) }
+
+            val pages = maxOf(1, (view.size + PAGE_SIZE - 1) / PAGE_SIZE)
             page = page.coerceIn(0, pages - 1)
             val from = page * PAGE_SIZE
             for (i in 0 until PAGE_SIZE) {
-                val key = order.getOrNull(from + i)
+                val key = view.getOrNull(from + i)
                 val total = if (key != null) amountByKey[key] ?: 0L else 0L
                 if (key != null && total > 0) {
                     menu.addItem(i, StorageDisplay.aggregatedIcon(key, total)) { p, _, _, act ->
@@ -108,6 +127,43 @@ object NetworkMenu {
             menu.addItem(INFO_SLOT, GuiItems.named(org.bukkit.Material.PAPER,
                 "§e第 ${page + 1}/$pages 页", "§7成员: ${net.members.size}")) { _, _, _, _ -> false }
             renderSortButtons()
+            renderSearchButton()
+        }
+
+        /** 渲染搜索按钮: 左键输入关键词, 有关键词时右键清空。 */
+        private fun renderSearchButton() {
+            val icon = if (filter.isEmpty())
+                GuiItems.named(org.bukkit.Material.SPYGLASS, "§b搜索物品", "§7左键点击, 在聊天栏输入关键词")
+            else
+                GuiItems.named(org.bukkit.Material.SPYGLASS,
+                    "§b搜索: §f$filter", "§7左键重新搜索", "§7右键清空搜索")
+            menu.addItem(SEARCH_SLOT, icon) { _, _, _, act ->
+                if (filter.isNotEmpty() && act.isRightClicked) { filter = ""; page = 0; render() }
+                else promptSearch()
+                false
+            }
+        }
+
+        /**
+         * 关闭界面并等待玩家在聊天栏输入搜索关键词。
+         *
+         * 复用 Slimefun 自带的 [ChatInput] (其指南搜索同款输入机制)。回调在异步聊天线程,
+         * 故 [Bukkit.getScheduler] 切回主线程再操作 GUI: 设关键词、复位到首页、重开界面。
+         * 玩家离线则丢弃。关闭期间本视图已从 [openViews] 移除, 不受库存变更重绘干扰。
+         */
+        private fun promptSearch() {
+            player.sendMessage("§b[网络终端] §7请在聊天栏输入搜索关键词 (输入 §fcancel §7取消):")
+            player.closeInventory()
+            ChatInput.waitForPlayer(SlimeEasy.instance, player) { input ->
+                Bukkit.getScheduler().runTask(SlimeEasy.instance, Runnable {
+                    if (!player.isOnline) return@Runnable
+                    filter = if (input.equals("cancel", ignoreCase = true)) "" else input.trim().lowercase()
+                    page = 0
+                    openViews.add(this) // 关界面时 close handler 已移除本视图, 重开前重新登记以恢复实时重绘
+                    render()
+                    menu.open(player)
+                })
+            }
         }
 
         /** 渲染排序控制按钮 (字段切换 + 方向切换); 点击后写回玩家偏好并重绘。 */
