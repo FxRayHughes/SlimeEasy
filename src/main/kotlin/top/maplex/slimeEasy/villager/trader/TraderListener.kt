@@ -1,0 +1,150 @@
+package top.maplex.slimeEasy.villager.trader
+
+import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
+import org.bukkit.Sound
+import org.bukkit.block.Block
+import org.bukkit.entity.Player
+import org.bukkit.entity.Villager
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.block.Action
+import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.player.PlayerInteractEntityEvent
+import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.MerchantInventory
+import top.maplex.slimeEasy.registry.VillagerItems
+import top.maplex.slimeEasy.villager.catcher.VillagerCatcher
+import top.maplex.slimeEasy.villager.core.VillagerConfig
+import top.maplex.slimeEasy.villager.core.VillagerDisplay
+import top.maplex.slimeEasy.villager.core.WorkstationMap
+import java.util.UUID
+
+/**
+ * 村民交易器的方块交互监听。
+ *
+ * 右键本方块 (原版 [PlayerInteractEvent]):
+ * - **潜行 + 右键**: 取出 —— 有村民则退还满捕捉器并移除展示; 否则有工作站方块则退还该方块。
+ * - **右键 (非潜行)**: 手持满捕捉器且未装村民 → 放入村民; 手持工作站方块且未装工作站 → 放入工作站;
+ *   已装村民 → 打开虚拟交易界面。
+ *
+ * 交易界面关闭 ([InventoryCloseEvent]) 时把交易进度 (uses) 回存到方块。
+ */
+class TraderListener : Listener {
+
+    /** 玩家当前打开的交易器方块 (用于关闭时回存)。 */
+    private val openTraders = HashMap<UUID, Block>()
+
+    @EventHandler
+    fun onInteract(e: PlayerInteractEvent) {
+        if (e.hand != EquipmentSlot.HAND) return
+        if (e.action != Action.RIGHT_CLICK_BLOCK) return
+        val block = e.clickedBlock ?: return
+        if (StorageCacheUtils.getBlock(block.location)?.sfId != VillagerItems.VILLAGER_TRADER_ID) return
+
+        e.isCancelled = true // 接管交互, 阻止手持物品放置等原版行为
+        route(block, e.player)
+    }
+
+    /**
+     * 右键内嵌展示村民的重定向。
+     *
+     * 展示村民站在方块中心, 玩家右键往往先命中实体而非方块 (触发 [PlayerInteractEntityEvent]),
+     * 导致方块交互失效。此处把"点到本交易器展示村民"等同于"右键交易器方块"。
+     */
+    @EventHandler
+    fun onDisplayInteract(e: PlayerInteractEntityEvent) {
+        if (e.hand != EquipmentSlot.HAND) return
+        val villager = e.rightClicked as? Villager ?: return
+        if (!VillagerDisplay.isDisplay(villager)) return
+        val block = villager.location.block
+        if (StorageCacheUtils.getBlock(block.location)?.sfId != VillagerItems.VILLAGER_TRADER_ID) return
+        e.isCancelled = true
+        route(block, e.player)
+    }
+
+    /** 交互路由: 潜行取出, 否则放入 / 交易。 */
+    private fun route(block: Block, player: Player) {
+        if (player.isSneaking) extract(block, player) else insertOrTrade(block, player)
+    }
+
+    /** 潜行取出: 村民优先, 其次工作站。 */
+    private fun extract(block: Block, player: Player) {
+        val villager = TraderStore.getVillager(block)
+        if (villager != null) {
+            give(player, VillagerCatcher.fill(villager))
+            TraderStore.setVillager(block, null)
+            VillagerTrader.removeDisplay(block)
+            player.playSound(block.location, Sound.ENTITY_ITEM_PICKUP, 1f, 0.8f)
+            player.sendMessage("§a[交易器] §7已取出村民 (§f${villager.professionLabel}§7)。")
+            return
+        }
+        val workstation = TraderStore.getWorkstation(block)
+        if (workstation != null) {
+            give(player, ItemStack(workstation))
+            TraderStore.setWorkstation(block, null)
+            player.sendMessage("§a[交易器] §7已取出工作站方块 (§f${workstation.name}§7)。")
+            return
+        }
+        player.sendMessage("§7[交易器] 里面是空的。")
+    }
+
+    /** 右键: 放入村民 / 工作站, 或打开交易。 */
+    private fun insertOrTrade(block: Block, player: Player) {
+        val hand = player.inventory.itemInMainHand
+        val stored = TraderStore.getVillager(block)
+        when {
+            VillagerCatcher.isFilled(hand) && stored == null -> insertVillager(block, player, hand)
+            WorkstationMap.isWorkstation(hand.type) && TraderStore.getWorkstation(block) == null ->
+                insertWorkstation(block, player, hand)
+            stored != null -> {
+                TraderMerchant.open(player, stored)
+                openTraders[player.uniqueId] = block
+            }
+            else -> player.sendMessage("§7[交易器] 右键放入 §f村民(满捕捉器) §7或 §f工作站方块§7。")
+        }
+    }
+
+    private fun insertVillager(block: Block, player: Player, hand: ItemStack) {
+        val data = VillagerCatcher.dataOf(hand) ?: return
+        TraderStore.setVillager(block, data)
+        TraderStore.setLastRestock(block, System.currentTimeMillis()) // 起算补货计时
+        VillagerTrader.spawnDisplay(block, data)
+        consumeOne(player)
+        player.playSound(block.location, Sound.ENTITY_VILLAGER_AMBIENT, 1f, 1f)
+        player.sendMessage("§a[交易器] §7已放入村民 (§f${data.professionLabel}§7)。")
+    }
+
+    private fun insertWorkstation(block: Block, player: Player, hand: ItemStack) {
+        TraderStore.setWorkstation(block, hand.type)
+        consumeOne(player)
+        player.sendMessage("§a[交易器] §7已放入工作站方块 (§f${hand.type.name}§7); 与村民匹配即每 §f${VillagerConfig.traderRestockMillis / 1000}s §7补货。")
+    }
+
+    /** 交易界面关闭: 回存交易进度。 */
+    @EventHandler
+    fun onClose(e: InventoryCloseEvent) {
+        val block = openTraders.remove(e.player.uniqueId) ?: return
+        val inv = e.inventory as? MerchantInventory ?: return
+        TraderMerchant.syncBack(block, inv)
+    }
+
+    @EventHandler
+    fun onQuit(e: PlayerQuitEvent) {
+        openTraders.remove(e.player.uniqueId)
+    }
+
+    /** 主手当前物品 -1。 */
+    private fun consumeOne(player: Player) {
+        val hand = player.inventory.itemInMainHand
+        if (hand.amount <= 1) player.inventory.setItemInMainHand(null)
+        else { hand.amount -= 1; player.inventory.setItemInMainHand(hand) }
+    }
+
+    /** 给予物品, 背包满则地面掉落。 */
+    private fun give(player: Player, item: ItemStack) {
+        player.inventory.addItem(item).values.forEach { player.world.dropItemNaturally(player.location, it) }
+    }
+}

@@ -9,6 +9,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.storage.core.StorageDrops
 import top.maplex.slimeEasy.storage.network.NetworkRegistry
+import top.maplex.slimeEasy.storage.network.RemoteBind
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
 
 /**
@@ -42,6 +43,7 @@ object DrawerHandlers {
             StorageDrops.spill(block, drawer.storageAt(block), drops)
             DrawerDisplay.remove(block)
             MagnetRegistry.unmark(block)
+            RemoteBind.clear(block) // 清理远程绑定 (从挂靠控制器移除)
             drawer.clearCache(block)
             NetworkRegistry.invalidateAll() // 拓扑变更: 移除本抽屉后重建网络
         }

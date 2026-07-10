@@ -6,6 +6,7 @@ import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
 import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.storage.core.CargoBufferBlock
+import top.maplex.slimeEasy.storage.core.HopperExtract
 import top.maplex.slimeEasy.storage.core.ItemKey
 import top.maplex.slimeEasy.storage.core.VirtualStorage
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
@@ -89,6 +90,8 @@ class Drawer(
         if (DrawerDisplay.ensureCurrent(block)) refreshDisplay(block)
 
         val upgrades = UpgradeStore.resolve(block.location)
+        // 抽取升级: 从相邻六向漏斗主动提取物品入库 (经验模式下容器改存经验, 不抽物品)
+        if (upgrades.hasExtract && !upgrades.hasExpStorage) HopperExtract.pull(this, block)
         if (!upgrades.hasMagnet) return
         if (upgrades.hasExpStorage) {
             // 经验磁铁: ① 登记, 由 MagnetOrbListener 在球生成瞬间拦截 (抢在原版吸向玩家前);
@@ -127,6 +130,7 @@ class Drawer(
         val storage = storageAt(block)
         refreshCapacity(block, storage, null)
         saveStorage(block, storage)
+        top.maplex.slimeEasy.storage.network.RemoteBind.sync(block) // 同步远程升级的挂靠绑定
     }
 
     override fun capacityAllowsRemoval(block: Block, remainingStackMultiplier: Double): Boolean {

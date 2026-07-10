@@ -20,6 +20,8 @@ class SlimeEasy : JavaPlugin() {
 
     override fun onEnable() {
         instance = this
+        // 释放默认配置 (含简易村民各项时间间隔), 供 VillagerConfig 读取
+        saveDefaultConfig()
         Registration.registerAll(addon)
         logger.info("Successfully running SlimeEasy!")
     }

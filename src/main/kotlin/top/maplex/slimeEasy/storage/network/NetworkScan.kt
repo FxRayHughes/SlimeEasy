@@ -55,6 +55,10 @@ object NetworkScan {
                 }
             }
         }
+        // 追加远程成员 (远程升级挂靠的容器, 不在物理 BFS 范围内): 作叶子加入, 去重物理成员
+        for ((rb, rlogic) in RemoteBind.remoteMembersOf(controller)) {
+            if (members.none { it.first == rb }) members.add(rb to rlogic)
+        }
         return StorageNetwork(controller, members, inputs, outputs)
     }
 

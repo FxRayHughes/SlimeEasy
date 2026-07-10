@@ -28,6 +28,7 @@ object BoxHandlers {
     fun break_(box: PagedBox): BlockBreakHandler = object : BlockBreakHandler(false, false) {
         override fun onPlayerBreak(e: BlockBreakEvent, tool: ItemStack, drops: MutableList<ItemStack>) {
             StorageDrops.spill(e.block, box.storageAt(e.block), drops)
+            top.maplex.slimeEasy.storage.network.RemoteBind.clear(e.block) // 清理远程绑定 (从挂靠控制器移除)
             box.clearCache(e.block)
             NetworkRegistry.invalidateAll() // 拓扑变更: 移除本箱后重建网络
         }
