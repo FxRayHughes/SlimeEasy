@@ -257,4 +257,122 @@ object Items {
         ItemStack(Material.BLAZE_POWDER), ItemStack(Material.DIAMOND), ItemStack(Material.BLAZE_POWDER),
         ItemStack(Material.BLAZE_POWDER), ItemStack(Material.BLAZE_POWDER), ItemStack(Material.BLAZE_POWDER)
     )
+
+    /** 自动点击器的全局唯一 ID。 */
+    const val AUTO_CLICKER_ID = "SE_AUTO_CLICKER"
+
+    /**
+     * 自动点击器物品模板 (观察者外观)。
+     *
+     * 脸朝向 = 点击方向; 需红石激活, 激活后不断左键 / 右键正前方方块 (含 Slimefun 方块)。
+     * 内置一格容积, 点击时假玩家手持该物品交互, 可用漏斗补料。
+     */
+    val AUTO_CLICKER: SlimefunItemStack = SlimefunItemStack(
+        AUTO_CLICKER_ID,
+        Material.OBSERVER,
+        "&6自动点击器",
+        "",
+        "&7以假玩家身份, 不断 &f左键 / 右键 &7脸朝向正前方的方块。",
+        "",
+        "&c需红石激活&7: 通电时工作, 断电即停。",
+        "&7右键打开界面放入 &f一格物品&7: 点击时假玩家",
+        "&7手持该物品交互 (如骨粉施肥 / 桶取放液体), 消耗后回写。",
+        "&7物品可用 &f相邻漏斗 &7(输出对准本机) 或物流网络补充。",
+        "",
+        "&7支持点击 &fSlimefun (粘液) 方块&7, 且 &f绕过其研究解锁限制&7。",
+        "&8约每秒点击一次。"
+    )
+
+    /**
+     * 增强工作台配方 (3x3)。
+     *
+     * 观察者居中, 红石供能, 金料环绕 (自动点击装置)。
+     */
+    val AUTO_CLICKER_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.GOLD_INGOT), ItemStack(Material.GOLD_BLOCK), ItemStack(Material.GOLD_INGOT),
+        ItemStack(Material.REDSTONE), ItemStack(Material.OBSERVER), ItemStack(Material.REDSTONE),
+        ItemStack(Material.GOLD_INGOT), ItemStack(Material.REDSTONE_BLOCK), ItemStack(Material.GOLD_INGOT)
+    )
+
+    /** 生长抑制器的全局唯一 ID。 */
+    const val GROWTH_INHIBITOR_ID = "SE_GROWTH_INHIBITOR"
+
+    /**
+     * 生长抑制器物品模板 (史莱姆球外观)。
+     *
+     * 手持右键幼年生物 → 锁定其年龄, 永久保持幼小; 再次右键解除。
+     */
+    val GROWTH_INHIBITOR: SlimefunItemStack = SlimefunItemStack(
+        GROWTH_INHIBITOR_ID,
+        Material.SLIME_BALL,
+        "&a生长抑制器",
+        "",
+        "&7右键一只 &f幼年生物&7: 锁定其年龄,",
+        "&7使其 &f永远保持幼小&7、不再长大。",
+        "",
+        "&7再次右键 &f已锁定 &7的生物: 解除锁定, 恢复生长。",
+        "&8(仅对动物 / 村民等可繁殖生物有效)"
+    )
+
+    /**
+     * 增强工作台配方 (3x3): 蜂巢封存 + 史莱姆 (幼小) + 命名牌 (定格实体)。
+     */
+    val GROWTH_INHIBITOR_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.SLIME_BALL), ItemStack(Material.HONEYCOMB), ItemStack(Material.SLIME_BALL),
+        ItemStack(Material.HONEYCOMB), ItemStack(Material.NAME_TAG), ItemStack(Material.HONEYCOMB),
+        ItemStack(Material.SLIME_BALL), ItemStack(Material.HONEYCOMB), ItemStack(Material.SLIME_BALL)
+    )
+
+    // ============================ 战斗挽具 (给快乐恶魂/乐魂佩戴) ============================
+    // 基于原版 *_HARNESS 物品: 玩家右键乐魂即由原版装备, PDC 保留; 佩戴后由 HarnessCombat 驱动激光作战。
+
+    const val COMBAT_HARNESS_I_ID = "SE_COMBAT_HARNESS_I"
+    const val COMBAT_HARNESS_II_ID = "SE_COMBAT_HARNESS_II"
+    const val COMBAT_HARNESS_III_ID = "SE_COMBAT_HARNESS_III"
+    const val COMBAT_HARNESS_IV_ID = "SE_COMBAT_HARNESS_IV"
+
+    /** 构造某档战斗挽具模板 (统一说明佩戴与作战)。 */
+    private fun combatHarness(id: String, material: Material, name: String, damage: Int): SlimefunItemStack =
+        SlimefunItemStack(
+            id, material, name,
+            "",
+            "&7给 &f快乐恶魂 (乐魂) &7右键佩戴。",
+            "&7佩戴后乐魂以 &b守护者激光 &7主动攻击",
+            "&7周围 &f视线内 &7的敌对生物 (&c不穿透方块&7)。",
+            "",
+            "&7每次激光造成 &c$damage 点 &7伤害 (&d药水/魔法伤害, 无视护甲&7)。"
+        )
+
+    val COMBAT_HARNESS_I: SlimefunItemStack = combatHarness(COMBAT_HARNESS_I_ID, Material.WHITE_HARNESS, "&b战斗挽具 I", 5)
+    val COMBAT_HARNESS_II: SlimefunItemStack = combatHarness(COMBAT_HARNESS_II_ID, Material.LIME_HARNESS, "&a战斗挽具 II", 10)
+    val COMBAT_HARNESS_III: SlimefunItemStack = combatHarness(COMBAT_HARNESS_III_ID, Material.ORANGE_HARNESS, "&6战斗挽具 III", 20)
+    val COMBAT_HARNESS_IV: SlimefunItemStack = combatHarness(COMBAT_HARNESS_IV_ID, Material.RED_HARNESS, "&c战斗挽具 IV", 25)
+
+    /** I: 海晶碎片环绕白色挽具 (守护者激光之源)。 */
+    val COMBAT_HARNESS_I_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.PRISMARINE_SHARD), ItemStack(Material.PRISMARINE_SHARD), ItemStack(Material.PRISMARINE_SHARD),
+        ItemStack(Material.PRISMARINE_SHARD), ItemStack(Material.WHITE_HARNESS), ItemStack(Material.PRISMARINE_SHARD),
+        ItemStack(Material.PRISMARINE_SHARD), ItemStack(Material.PRISMARINE_SHARD), ItemStack(Material.PRISMARINE_SHARD)
+    )
+
+    /** II: 海晶砂粒环绕上一档。 */
+    val COMBAT_HARNESS_II_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.PRISMARINE_CRYSTALS), ItemStack(Material.PRISMARINE_CRYSTALS), ItemStack(Material.PRISMARINE_CRYSTALS),
+        ItemStack(Material.PRISMARINE_CRYSTALS), COMBAT_HARNESS_I.clone(), ItemStack(Material.PRISMARINE_CRYSTALS),
+        ItemStack(Material.PRISMARINE_CRYSTALS), ItemStack(Material.PRISMARINE_CRYSTALS), ItemStack(Material.PRISMARINE_CRYSTALS)
+    )
+
+    /** III: 海晶灯环绕上一档。 */
+    val COMBAT_HARNESS_III_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.SEA_LANTERN), ItemStack(Material.SEA_LANTERN), ItemStack(Material.SEA_LANTERN),
+        ItemStack(Material.SEA_LANTERN), COMBAT_HARNESS_II.clone(), ItemStack(Material.SEA_LANTERN),
+        ItemStack(Material.SEA_LANTERN), ItemStack(Material.SEA_LANTERN), ItemStack(Material.SEA_LANTERN)
+    )
+
+    /** IV: 下界之星镇顶 + 海晶砂粒环绕上一档。 */
+    val COMBAT_HARNESS_IV_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.PRISMARINE_CRYSTALS), ItemStack(Material.NETHER_STAR), ItemStack(Material.PRISMARINE_CRYSTALS),
+        ItemStack(Material.PRISMARINE_CRYSTALS), COMBAT_HARNESS_III.clone(), ItemStack(Material.PRISMARINE_CRYSTALS),
+        ItemStack(Material.PRISMARINE_CRYSTALS), ItemStack(Material.PRISMARINE_CRYSTALS), ItemStack(Material.PRISMARINE_CRYSTALS)
+    )
 }

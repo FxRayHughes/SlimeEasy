@@ -6,6 +6,7 @@ import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
 import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.storage.core.CargoBufferBlock
+import top.maplex.slimeEasy.storage.core.HopperExtract
 import top.maplex.slimeEasy.storage.core.ItemKey
 import top.maplex.slimeEasy.storage.core.VirtualStorage
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
@@ -71,6 +72,7 @@ class PagedBox(
         val storage = storageAt(block)
         syncStorage(block, storage) // 同步槽位预算 (翻页扩容) 与倍率 (堆叠升级)
         saveStorage(block, storage)
+        top.maplex.slimeEasy.storage.network.RemoteBind.sync(block) // 同步远程升级的挂靠绑定
         // 页数可能缩减: 通知已打开的界面即时重绘 (页码会被夹取到新范围)
         PagedBoxMenu.refreshAll(block)
     }
@@ -110,6 +112,8 @@ class PagedBox(
 
     override fun onCustomTick(block: Block) {
         val upgrades = UpgradeStore.resolve(block.location)
+        // 抽取升级: 从相邻六向漏斗主动提取物品入库 (经验模式下容器改存经验, 不抽物品)
+        if (upgrades.hasExtract && !upgrades.hasExpStorage) HopperExtract.pull(this, block)
         if (!upgrades.hasMagnet) return
         if (upgrades.hasExpStorage) {
             // 经验磁铁: 登记 + tick 主动吸取附近经验球

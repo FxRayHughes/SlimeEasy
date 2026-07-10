@@ -1,0 +1,30 @@
+# SlimeEasy 配置文件
+# 时间间隔均以「秒」为单位, 内部按墙钟时间判定, 不受服务器 tick / 重载影响。
+
+# 简易村民 - 村民交易器
+trader:
+  # 补货间隔 (秒): 装配的村民职业与工作站方块匹配时, 每隔该秒数将所有交易次数重置为可交易。
+  restock-interval-seconds: 30
+
+# 简易村民 - 胶囊刷铁机
+iron-farm:
+  # 产铁间隔 (秒): 村民 + 僵尸信号 + 食物三者齐全时, 每隔该秒数产出一次铁锭。
+  produce-interval-seconds: 20
+  # 每次产铁消耗的食物饱食度。
+  food-per-cycle: 1
+  # 每次产出的铁锭数量。
+  iron-per-cycle: 1
+  # 速度升级级数上限。
+  speed-upgrade-max-level: 5
+  # 速度升级每级缩短系数: 实际间隔 = 产铁间隔 / (1 + 级数 × 步长)。
+  speed-upgrade-step: 0.5
+
+# 简易村民 - 村民小学
+school:
+  # 傻子(呆滞)村民转化为无职业普通村民所需的秒数。
+  convert-seconds: 30
+
+# 简易村民 - 村民治愈机
+healer:
+  # 僵尸村民治愈为普通村民所需的秒数 (每次消耗一个普通金苹果)。
+  convert-seconds: 30

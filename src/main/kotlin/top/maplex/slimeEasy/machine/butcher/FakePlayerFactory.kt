@@ -1,5 +1,7 @@
 package top.maplex.slimeEasy.machine.butcher
 
+import io.github.thebusybiscuit.slimefun4.api.player.PlayerProfile
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.entity.Player
@@ -109,7 +111,26 @@ object FakePlayerFactory {
         markAsNpc(bukkitPlayer)
         // OP 恒 true 且不落盘: 反射注入内存 OP 名单 (跳过 add()/save())
         injectOpInMemory(nmsServer)
+        // 授予全部 Slimefun 研究: 使假玩家通过任何 canUse 研究门槛 (点击 / 掉落 / 交互均不受"未解锁"限制)
+        grantAllResearches(bukkitPlayer)
         return bukkitPlayer
+    }
+
+    /**
+     * 给假玩家授予 Slimefun 的**全部研究**, 使其对任何 [io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem.canUse]
+     * 研究门槛恒通过 —— 即"允许不解锁就使用"。
+     *
+     * 走公开 API [PlayerProfile.get] 异步加载存档后逐项 [PlayerProfile.setResearched]; 已解锁的跳过。
+     * 结果随 Slimefun 存档持久化 (重启后仍有效), 新增研究在下次构建假玩家时补授。失败静默 (非核心功能)。
+     */
+    private fun grantAllResearches(player: Player) {
+        runCatching {
+            PlayerProfile.get(player) { profile ->
+                for (research in Slimefun.getRegistry().researches) {
+                    if (!profile.hasUnlocked(research)) profile.setResearched(research, true)
+                }
+            }
+        }
     }
 
     /**

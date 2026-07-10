@@ -23,6 +23,12 @@ class UpgradeSet(val types: Set<UpgradeType>, val pageExpansionCount: Int = 0) {
     /** 是否启用虚空 (命中销毁表的物品入库前湮灭)。 */
     val hasVoid: Boolean get() = UpgradeType.VOID in types
 
+    /** 是否启用抽取 (每 tick 从相邻六向漏斗主动提取物品入库)。 */
+    val hasExtract: Boolean get() = UpgradeType.EXTRACT in types
+
+    /** 是否启用远程 (容器远程接入某控制器网络; 控制器坐标存于升级物品 PDC)。 */
+    val hasRemote: Boolean get() = UpgradeType.REMOTE in types
+
     /** 翻页箱页数: 基础 1 页, 每个扩容组件 +1, 封顶 [MAX_PAGES]。 */
     val boxPages: Int get() = (1 + pageExpansionCount).coerceIn(1, MAX_PAGES)
 

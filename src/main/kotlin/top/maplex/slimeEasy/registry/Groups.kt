@@ -61,4 +61,20 @@ object Groups {
             "&7海量存储抽屉、翻页箱与存储网络"
         )
     )
+
+    /**
+     * "简易村民" 分类。
+     *
+     * 图标使用村民刷怪蛋, 涵盖村民捕捉器、僵尸信号、村民交易器、胶囊刷铁机、村民小学与遗忘药剂。
+     */
+    val VILLAGER: ItemGroup = ItemGroup(
+        NamespacedKey(SlimeEasy.instance, "villager"),
+        SlimefunItemStack(
+            "SE_GROUP_VILLAGER",
+            Material.VILLAGER_SPAWN_EGG,
+            "&b简易村民",
+            "",
+            "&7与村民打交道而无需操心保护村民"
+        )
+    )
 }

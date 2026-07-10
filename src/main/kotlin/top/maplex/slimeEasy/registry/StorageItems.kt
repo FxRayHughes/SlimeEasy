@@ -158,6 +158,19 @@ object StorageItems {
         "&8(需与经验+磁铁升级同装)")
     val ENDER_WISE_UPGRADE_RECIPE: Array<ItemStack?> = surround(Material.ENDER_PEARL, talisman("ENDER_WISE_TALISMAN", Material.EMERALD))
 
+    val EXTRACT_UPGRADE = upgrade("SE_EXTRACT_UPGRADE", Material.HOPPER, "&e抽取升级",
+        "&7装入容器后, 每 tick 从相邻",
+        "&7六个方向的漏斗主动提取物品入库。",
+        "&8(经验模式下不生效)")
+    val EXTRACT_UPGRADE_RECIPE = surround(Material.HOPPER, Material.IRON_INGOT)
+
+    val REMOTE_UPGRADE = upgrade("SE_REMOTE_UPGRADE", Material.ENDER_EYE, "&d远程升级",
+        "&7手持右键网络控制器 &f选定目标&7,",
+        "&7再把本升级装入抽屉 / 箱子升级槽,",
+        "&7使其 &f远程接入 &7该控制器网络",
+        "&7(无视物理相邻范围)。")
+    val REMOTE_UPGRADE_RECIPE = surround(Material.ENDER_PEARL, Material.ENDER_EYE)
+
     /**
      * 取某 Slimefun 护身符的物品作为配方核心; 未加载到 (如版本无此物品) 则回退到
      * 一个原版占位物, 保证配方仍可注册不崩溃。
