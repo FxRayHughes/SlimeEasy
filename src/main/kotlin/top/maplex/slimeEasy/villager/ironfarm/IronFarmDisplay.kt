@@ -66,5 +66,7 @@ object IronFarmDisplay {
         VillagerDisplay.remove(block, KEY_VILLAGER)
         VillagerDisplay.remove(block, KEY_ZOMBIE)
         VillagerDisplay.remove(block, KEY_GOLEM)
+        // 兜底: 按方块空间清理可能的孤儿展示实体 (UUID 链断裂时按 key 删不到)
+        VillagerDisplay.sweepAt(block)
     }
 }

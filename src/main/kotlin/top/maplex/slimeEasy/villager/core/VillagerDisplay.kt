@@ -85,6 +85,21 @@ object VillagerDisplay {
         StorageCacheUtils.setData(block.location, dataKey, "")
     }
 
+    /**
+     * 兜底清理: 按**方块空间**扫描并移除该方块内所有本插件展示实体, 不依赖 BlockData 的 UUID 记录。
+     *
+     * 展示实体每 tick 由 ensureXxx 检查重建, 当其所在区块 / 实体临时不可达 (异步加载中) 时,
+     * [get] 返回 null 会被误判丢失并重建, 旧实体加载回来即成 BlockData 不再记录的孤儿, 按 UUID
+     * 的 [remove] 永远删不到。破坏方块时以此按位置补扫: 展示实体锚点严格落在方块 [0,1) 空间内
+     * (脚部方块底面、水平中心 ± 偏移、缩放后身高 < 1), 故以方块中心 ± 0.5 扫描恰好覆盖本方块且不触邻块。
+     */
+    fun sweepAt(block: Block) {
+        val center = block.location.add(0.5, 0.5, 0.5)
+        block.world.getNearbyEntities(center, 0.5, 0.5, 0.5)
+            .filter { isDisplay(it) }
+            .forEach { it.remove() }
+    }
+
     /** 把实体钉死为纯装饰: 关 AI / 感知、无敌、静音、无重力、不可碰撞、持久化、按 scale 缩小。 */
     private fun decorate(entity: LivingEntity, scale: Double) {
         entity.setAI(false)
