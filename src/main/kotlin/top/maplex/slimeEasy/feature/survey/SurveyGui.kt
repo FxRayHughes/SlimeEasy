@@ -12,8 +12,9 @@ import org.bukkit.inventory.ItemStack
  * 将某一层级的扫描结果以只读 [ChestMenu] 呈现: 每种矿石一个图标 (原矿方块外观),
  * 名称为中文矿名, 数量写入堆叠数 (封顶 64) 与 lore (精确值)。
  *
- * 只读保证: [ChestMenu.setEmptySlotsClickable] 置 false + 各图标不注册点击处理器
- * (默认拦截), 并禁用玩家背包联动点击, 玩家无法从界面取走任何物品。
+ * 只读保证: [ChestMenu.setEmptySlotsClickable] 置 false 拦截空槽, 禁用玩家背包联动点击,
+ * 且**每个图标都注册返回 false 的点击处理器**取消物品移动 —— 缺此处理器时 ChestMenu 默认
+ * 允许取走有物品的槽位, 故图标必须显式拦截, 玩家方无法从界面取出任何矿石。
  */
 object SurveyGui {
 
@@ -42,7 +43,8 @@ object SurveyGui {
 
         if (counts.isEmpty()) {
             menu.setSize(ROW)
-            menu.addItem(ROW / 2, emptyIcon())
+            // 返回 false 取消一切点击, 防止取走占位图标
+            menu.addItem(ROW / 2, emptyIcon()) { _, _, _, _ -> false }
         } else {
             fillOres(menu, counts)
         }
@@ -55,7 +57,8 @@ object SurveyGui {
         val rows = (sorted.size + ROW - 1) / ROW
         menu.setSize(rows * ROW)
         sorted.forEachIndexed { slot, (material, count) ->
-            menu.addItem(slot, oreIcon(material, count))
+            // 返回 false 取消点击, 图标只读, 玩家无法取走矿石
+            menu.addItem(slot, oreIcon(material, count)) { _, _, _, _ -> false }
         }
     }
 
