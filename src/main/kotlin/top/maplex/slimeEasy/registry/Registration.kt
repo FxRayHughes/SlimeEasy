@@ -15,6 +15,8 @@ import top.maplex.slimeEasy.feature.survey.SurveyTier
 import top.maplex.slimeEasy.feature.ward.CreeperControlListener
 import top.maplex.slimeEasy.feature.ward.CreeperWard
 import top.maplex.slimeEasy.machine.breaker.AutoBreaker
+import top.maplex.slimeEasy.machine.butcher.Butcher
+import top.maplex.slimeEasy.machine.butcher.ButcherDeathListener
 import top.maplex.slimeEasy.machine.placer.AutoPlacer
 import top.maplex.slimeEasy.storage.box.PagedBox
 import top.maplex.slimeEasy.storage.drawer.Drawer
@@ -40,6 +42,9 @@ object Registration {
 
     /** 苦力怕驱逐方块研究解锁所需经验等级。 */
     private const val CREEPER_WARD_RESEARCH_COST = 10
+
+    /** 屠夫机器研究解锁所需经验等级。 */
+    private const val BUTCHER_RESEARCH_COST = 15
 
     /** 矿物勘察尺 (普通/进阶) 研究解锁所需经验等级。 */
     private const val SURVEY_RULER_RESEARCH_COST = 10
@@ -131,6 +136,29 @@ object Registration {
             CreeperControlListener(),
             SlimeEasy.instance
         )
+
+        // 8b. 注册屠夫机器 (增强工作台配方) 与其范围/伤害升级组件
+        val butcher = Butcher(
+            Groups.UTILITY_MACHINES,
+            Items.BUTCHER,
+            RecipeType.ENHANCED_CRAFTING_TABLE,
+            Items.BUTCHER_RECIPE
+        )
+        butcher.register(addon)
+
+        val butcherRangeUp = SlimefunItem(
+            Groups.UTILITY_MACHINES, Items.BUTCHER_RANGE_UPGRADE,
+            RecipeType.ENHANCED_CRAFTING_TABLE, Items.BUTCHER_RANGE_UPGRADE_RECIPE
+        ).also { it.register(addon) }
+        val butcherDamageUp = SlimefunItem(
+            Groups.UTILITY_MACHINES, Items.BUTCHER_DAMAGE_UPGRADE,
+            RecipeType.ENHANCED_CRAFTING_TABLE, Items.BUTCHER_DAMAGE_UPGRADE_RECIPE
+        ).also { it.register(addon) }
+
+        research("butcher", 9010, "屠夫机器", BUTCHER_RESEARCH_COST, butcher, butcherRangeUp, butcherDamageUp)
+
+        // 8c. 注册屠夫机器掉落 / 经验兜底监听器
+        Bukkit.getPluginManager().registerEvents(ButcherDeathListener(), SlimeEasy.instance)
 
         // 9. 注册矿物勘察尺 (普通: 仅工业矿机范围)
         val surveyRuler = SurveyRuler(

@@ -177,4 +177,84 @@ object Items {
         null, ItemStack(Material.DIAMOND_HOE), null,
         null, ItemStack(Material.DIAMOND_BLOCK), null
     )
+
+    /** 屠夫机器的全局唯一 ID。 */
+    const val BUTCHER_ID = "SE_BUTCHER"
+
+    /**
+     * 屠夫机器物品模板 (观察者外观)。
+     *
+     * 观察者脸朝向 = 攻击方向; 右键开界面放武器 / 附魔书 / 食物。
+     */
+    val BUTCHER: SlimefunItemStack = SlimefunItemStack(
+        BUTCHER_ID,
+        Material.OBSERVER,
+        "&c屠夫机器",
+        "",
+        "&7自动攻击 &f脸朝向前方 3×3 &7区域内的",
+        "&7非玩家生物 (范围横扫)。",
+        "",
+        "&7右键打开界面:",
+        "&7· &f7 把武器&7: 第一把优先, 耐久耗尽自动切下一把",
+        "&7· &f附魔书&7: 抢夺 / 锋利 / 火焰附加等生效",
+        "&7· &f食物&7: 折算为攻击次数 (每 1 饱食 15 次, 内部缓存上限 100 饱食)",
+        "&7· &f升级槽&7: 范围 / 伤害组件 (数量即级数, 最多 5)",
+        "",
+        "&7所有物品可用 &f物流网络 &7或 &f漏斗 &7自动输入",
+        "&7(漏斗任意面对准机器即可)。",
+        "&7击杀正常掉落物品与经验; 在他人领地内失效。"
+    )
+
+    /**
+     * 增强工作台配方 (3x3)。
+     *
+     * 观察者居中, 铁剑镇顶 (屠戮), 下界之星与红石块供能, 呼应"自动作战装置"。
+     */
+    val BUTCHER_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.IRON_SWORD), ItemStack(Material.DIAMOND_SWORD), ItemStack(Material.IRON_SWORD),
+        ItemStack(Material.REDSTONE_BLOCK), ItemStack(Material.OBSERVER), ItemStack(Material.REDSTONE_BLOCK),
+        ItemStack(Material.IRON_BLOCK), ItemStack(Material.NETHER_STAR), ItemStack(Material.IRON_BLOCK)
+    )
+
+    /** 屠夫机器 · 范围升级组件 ID (可叠放, 数量即级数)。 */
+    const val BUTCHER_RANGE_UPGRADE_ID = "SE_BUTCHER_RANGE_UPGRADE"
+
+    /** 范围升级组件: 每级攻击截面 +2 格、纵深 +1 格。 */
+    val BUTCHER_RANGE_UPGRADE: SlimefunItemStack = SlimefunItemStack(
+        BUTCHER_RANGE_UPGRADE_ID,
+        Material.ENDER_EYE,
+        "&d屠夫 · 范围升级",
+        "",
+        "&7放入屠夫机器的范围升级槽。",
+        "&7每一个: 攻击截面 &f+2 格&7、纵深 &f+1 格&7。",
+        "&7(3×3 → 5×5 → 7×7 …, 按数量叠加)"
+    )
+
+    /** 范围升级配方: 末影之眼 + 箭矢环绕 (象征"射程延伸")。 */
+    val BUTCHER_RANGE_UPGRADE_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.ARROW), ItemStack(Material.ARROW), ItemStack(Material.ARROW),
+        ItemStack(Material.ARROW), ItemStack(Material.ENDER_EYE), ItemStack(Material.ARROW),
+        ItemStack(Material.ARROW), ItemStack(Material.ARROW), ItemStack(Material.ARROW)
+    )
+
+    /** 屠夫机器 · 伤害升级组件 ID (可叠放, 数量即级数)。 */
+    const val BUTCHER_DAMAGE_UPGRADE_ID = "SE_BUTCHER_DAMAGE_UPGRADE"
+
+    /** 伤害升级组件: 每级伤害线性 +50% 基础值。 */
+    val BUTCHER_DAMAGE_UPGRADE: SlimefunItemStack = SlimefunItemStack(
+        BUTCHER_DAMAGE_UPGRADE_ID,
+        Material.BLAZE_POWDER,
+        "&c屠夫 · 伤害升级",
+        "",
+        "&7放入屠夫机器的伤害升级槽。",
+        "&7每一个: 攻击伤害 &f+50% 基础值&7。",
+        "&7(×1.5 → ×2.0 → ×2.5 …, 按数量叠加)"
+    )
+
+    /** 伤害升级配方: 烈焰粉 + 钻石剑供伤 (象征"锋锐强化")。 */
+    val BUTCHER_DAMAGE_UPGRADE_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.BLAZE_POWDER), ItemStack(Material.DIAMOND_SWORD), ItemStack(Material.BLAZE_POWDER),
+        ItemStack(Material.BLAZE_POWDER), ItemStack(Material.DIAMOND), ItemStack(Material.BLAZE_POWDER),
+        ItemStack(Material.BLAZE_POWDER), ItemStack(Material.BLAZE_POWDER), ItemStack(Material.BLAZE_POWDER)
+    )
 }

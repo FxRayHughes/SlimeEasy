@@ -29,6 +29,10 @@ object MachineProtection {
         StorageCacheUtils.setData(machine.location, OWNER_KEY, player.uniqueId.toString())
     }
 
+    /** 机器所有者 UUID 字符串; 未记录 (旧机器) 返回 null。 */
+    fun ownerOf(machine: Block): String? =
+        StorageCacheUtils.getData(machine.location, OWNER_KEY)?.takeIf { it.isNotEmpty() }
+
     /** 机器所有者是否有权破坏 [target]。 */
     fun canBreak(machine: Block, target: Block): Boolean =
         hasPermission(machine, target, Interaction.BREAK_BLOCK)
@@ -36,6 +40,16 @@ object MachineProtection {
     /** 机器所有者是否有权在 [target] 放置方块。 */
     fun canPlace(machine: Block, target: Block): Boolean =
         hasPermission(machine, target, Interaction.PLACE_BLOCK)
+
+    /**
+     * 机器所有者是否有权攻击位于 [target] 位置的实体。
+     *
+     * 供屠夫机等主动攻击装置调用: 以 owner 身份询问保护管理器, 避免机器在他人
+     * 领地内刷怪 (绕过保护)。owner 缺失 (旧机器) 时放行。校验以实体所在方块近似
+     * 其位置——protection API 以坐标为粒度, 对领地判断足够精确。
+     */
+    fun canAttack(machine: Block, target: Block): Boolean =
+        hasPermission(machine, target, Interaction.ATTACK_ENTITY)
 
     /**
      * 以机器所有者身份校验对 [target] 的某类操作。
