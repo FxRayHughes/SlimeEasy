@@ -11,9 +11,12 @@ import java.util.concurrent.ConcurrentHashMap
  * 村民交易器的"临时代理村民"会话管理。
  *
  * 弃用虚拟 [org.bukkit.inventory.Merchant] —— 它既不累加村民经验、也无法解锁新交易, 导致交易
- * 内容与等级被永久冻结。改为交易时在**交易器同列的世界底部** (玩家不可见, 且与方块同区块必加载)
- * 生成一只真实 [Villager] 作代理: 由 [VillagerData.applyTo] 还原职业 / 类型 / 等级 / 经验 / 交易,
- * 关 AI / 无敌 / 无重力 / 不持久, 玩家直接与之交易 —— 原版逻辑接管, 自然累加 uses 与交易经验。
+ * 内容与等级被永久冻结。改为交易时在**玩家身后一格**生成一只**隐形**真实 [Villager] 作代理:
+ * 由 [VillagerData.applyTo] 还原职业 / 类型 / 等级 / 经验 / 交易, 关 AI / 无敌 / 无重力 / 不持久,
+ * 玩家直接与之交易 —— 原版逻辑接管, 自然累加 uses 与交易经验。
+ *
+ * 生成在玩家身旁 (而非世界底部): 真实村民交易界面每 tick 校验实体有效性 / 与玩家的距离,
+ * 代理离玩家太远会导致界面**打开即闪退关闭**; 贴身生成距离恒近, 隐形则玩家不可见。
  *
  * 关闭时按原版经验阈值驱动 [Villager.increaseLevel] 升级并解锁新交易, 再 [VillagerData.capture]
  * 重抓快照回存方块, 移除代理并刷新展示实体外观。所有方法须在主线程调用。
@@ -38,27 +41,30 @@ object TraderMerchant {
     private val sessions = ConcurrentHashMap<UUID, Session>()
 
     /**
-     * 打开交易: 生成代理村民并让玩家与之交易。
+     * 打开交易: 在玩家身后生成隐形代理村民并让玩家与之交易。
      *
-     * 若玩家已有会话 (异常并发) 先幂等关闭。代理村民生成在交易器同列世界底面, 玩家不可见。
+     * 若玩家已有会话 (异常并发) 先幂等关闭。[block] 仅用于回存 (见 [Session]); 代理生成位置取
+     * 玩家身后, 与 [block] 无关。
      *
      * [Player.openMerchant] 在当前 Paper 标为 deprecated 但为打开交易界面的标准 API, 显式抑制告警。
      */
     @Suppress("DEPRECATION")
     fun open(player: Player, block: Block, data: VillagerData) {
         close(player) // 幂等: 清理可能残留的上一个会话
-        val world = block.world
-        // 同列世界底面: 与交易器同区块 (必加载), 深埋虚空玩家不可见
-        val at = block.location.clone().apply { y = world.minHeight.toDouble() }
-        val villager = world.spawn(at, Villager::class.java) { v ->
+        // 玩家身后一格 (水平反朝向): 贴身以规避真实村民交易的距离/有效性闪退; 垂直俯仰不计入
+        val back = player.location.direction.setY(0.0)
+        val spawnAt = if (back.lengthSquared() > 1e-6) player.location.clone().subtract(back.normalize())
+        else player.location.clone()
+        val villager = player.world.spawn(spawnAt, Villager::class.java) { v ->
             v.setAI(false)
             v.isAware = false
             v.setGravity(false)
             v.isInvulnerable = true
             v.isSilent = true
             v.isCollidable = false
-            v.isPersistent = false // 重启 / 卸载自动清除, 不落存档
-            data.applyTo(v) // 还原职业 / 类型 / 等级 / 经验 / 成年 / 交易
+            v.isInvisible = true       // 隐形: 玩家不可见 (贴身生成, 不隐形会露馅)
+            v.isPersistent = false     // 重启 / 卸载自动清除, 不落存档
+            data.applyTo(v)            // 还原职业 / 类型 / 等级 / 经验 / 成年 / 交易
         }
         sessions[player.uniqueId] = Session(block, villager.uniqueId, data)
         player.openMerchant(villager, true)
