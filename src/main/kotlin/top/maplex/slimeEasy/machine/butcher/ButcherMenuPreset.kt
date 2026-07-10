@@ -9,6 +9,7 @@ import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.storage.core.GuiItems
 
 /**
@@ -71,8 +72,8 @@ class ButcherMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) 
         /** 武器槽 (第二行居中 7 格, 两端留边框对称; 第一把优先使用)。 */
         val WEAPON_SLOTS = intArrayOf(10, 11, 12, 13, 14, 15, 16)
 
-        /** 范围 / 伤害升级级数上限 (堆叠超过此数视为无效)。 */
-        const val MAX_UPGRADE_LEVEL = 5
+        /** 范围 / 伤害升级级数上限 (堆叠超过此数视为无效); 实时读取配置。 */
+        val MAX_UPGRADE_LEVEL: Int get() = SEConfig.butcherMaxUpgradeLevel
 
         /** 附魔书槽。 */
         const val BOOK_SLOT = 21

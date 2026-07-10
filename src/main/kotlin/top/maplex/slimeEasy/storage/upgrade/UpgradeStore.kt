@@ -3,6 +3,7 @@ package top.maplex.slimeEasy.storage.upgrade
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import org.bukkit.Location
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.storage.core.ItemCodec
 
 /**
@@ -16,8 +17,8 @@ import top.maplex.slimeEasy.storage.core.ItemCodec
  */
 object UpgradeStore {
 
-    /** 升级槽上限 (6 种能力/容量升级 + 最多 4 个翻页扩容 + 余量)。 */
-    const val MAX_SLOTS = 12
+    /** 升级槽上限 (6 种能力/容量升级 + 最多 4 个翻页扩容 + 余量)。实时读取配置。 */
+    val MAX_SLOTS: Int get() = SEConfig.storageUpgradeMaxSlots
 
     private const val DATA_KEY = "se_upgrades"
     private const val SEP = ";"

@@ -4,6 +4,7 @@ import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.storage.core.CargoBufferBlock
 import kotlin.math.abs
 
@@ -22,8 +23,8 @@ import kotlin.math.abs
  */
 object NetworkScan {
 
-    /** 网络覆盖的切比雪夫半径 (格)。 */
-    const val RADIUS = 24
+    /** 网络覆盖的切比雪夫半径 (格)。实时读取配置。 */
+    val RADIUS: Int get() = SEConfig.storageNetworkScanRadius
 
     private val FACES = listOf(
         BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST,

@@ -49,7 +49,7 @@ class UpgradeSet(val types: Set<UpgradeType>, val pageExpansionCount: Int = 0) {
     // 无需本类再提供 capacityFor。
 
     companion object {
-        /** 翻页箱最大页数。 */
-        const val MAX_PAGES = 5
+        /** 翻页箱最大页数。实时读取配置。 */
+        val MAX_PAGES: Int get() = top.maplex.slimeEasy.config.SEConfig.storageUpgradeMaxPages
     }
 }

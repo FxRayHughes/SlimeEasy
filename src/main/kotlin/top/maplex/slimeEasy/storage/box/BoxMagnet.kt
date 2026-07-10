@@ -2,6 +2,7 @@ package top.maplex.slimeEasy.storage.box
 
 import org.bukkit.block.Block
 import org.bukkit.entity.Item
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.storage.core.ItemKey
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
 import top.maplex.slimeEasy.storage.upgrade.VoidFilter
@@ -14,7 +15,8 @@ import top.maplex.slimeEasy.storage.upgrade.VoidFilter
  */
 object BoxMagnet {
 
-    private const val MAGNET_RADIUS = 6.0
+    /** 磁吸半径 (格)。实时读取配置。 */
+    private val MAGNET_RADIUS: Double get() = SEConfig.storageBoxMagnetRadius
 
     fun absorb(box: PagedBox, block: Block) {
         val center = block.location.toCenterLocation()

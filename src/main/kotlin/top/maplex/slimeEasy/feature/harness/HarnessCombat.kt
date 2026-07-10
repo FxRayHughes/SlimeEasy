@@ -12,6 +12,7 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import org.bukkit.inventory.EquipmentSlot
 import top.maplex.slimeEasy.SlimeEasy
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.registry.Items
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -28,29 +29,22 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object HarnessCombat {
 
-    /** 挽具 Slimefun ID → 每次激光的魔法伤害 (点)。 */
-    private val DAMAGE: Map<String, Double> = mapOf(
-        Items.COMBAT_HARNESS_I_ID to 5.0,
-        Items.COMBAT_HARNESS_II_ID to 10.0,
-        Items.COMBAT_HARNESS_III_ID to 20.0,
-        Items.COMBAT_HARNESS_IV_ID to 25.0
-    )
-
-    /** 交战半径 (格)。 */
-    private const val RANGE = 16.0
-
-    /** 每只乐魂两次开火的最小间隔 (毫秒)。 */
-    private const val COOLDOWN_MS = 1500L
-
-    /** 扫描周期 (tick)。 */
-    private const val PERIOD_TICKS = 15L
+    /** 挽具 Slimefun ID → 每次激光的魔法伤害 (点); 实时读取配置以支持热重载。 */
+    private fun damageOf(id: String): Double? = when (id) {
+        Items.COMBAT_HARNESS_I_ID -> SEConfig.harnessDamageI
+        Items.COMBAT_HARNESS_II_ID -> SEConfig.harnessDamageII
+        Items.COMBAT_HARNESS_III_ID -> SEConfig.harnessDamageIII
+        Items.COMBAT_HARNESS_IV_ID -> SEConfig.harnessDamageIV
+        else -> null
+    }
 
     /** 每只乐魂上次开火时间 (键为乐魂 UUID)。 */
     private val lastAttack = ConcurrentHashMap<UUID, Long>()
 
     /** 启动全局定时任务 (onEnable 调用一次)。 */
     fun start() {
-        Bukkit.getScheduler().runTaskTimer(SlimeEasy.instance, Runnable { tick() }, PERIOD_TICKS, PERIOD_TICKS)
+        val period = SEConfig.harnessPeriodTicks
+        Bukkit.getScheduler().runTaskTimer(SlimeEasy.instance, Runnable { tick() }, period, period)
     }
 
     private fun tick() {
@@ -60,7 +54,7 @@ object HarnessCombat {
                 if (entity.type != EntityType.HAPPY_GHAST) continue
                 val ghast = entity as? LivingEntity ?: continue
                 val damage = harnessDamage(ghast) ?: continue
-                if (now - (lastAttack[ghast.uniqueId] ?: 0L) < COOLDOWN_MS) continue
+                if (now - (lastAttack[ghast.uniqueId] ?: 0L) < SEConfig.harnessCooldownMillis) continue
                 val target = nearestHostile(ghast) ?: continue
                 lastAttack[ghast.uniqueId] = now
                 fire(ghast, target, damage)
@@ -75,7 +69,7 @@ object HarnessCombat {
             val item = equipment.getItem(slot)
             if (item.type.isAir) continue
             val id = SlimefunItem.getByItem(item)?.id ?: continue
-            DAMAGE[id]?.let { return it }
+            damageOf(id)?.let { return it }
         }
         return null
     }
@@ -86,12 +80,14 @@ object HarnessCombat {
      * 用通用敌对接口 [Enemy] 判定 (涵盖 [org.bukkit.entity.Monster] 地面怪 与 幻翼 / 恶魂 / 史莱姆
      * 等飞行/其他敌对); 先筛 [LivingEntity] 以便造成伤害与视线检测 (Enemy 本身仅继承 Entity)。
      */
-    private fun nearestHostile(ghast: LivingEntity): LivingEntity? =
-        ghast.getNearbyEntities(RANGE, RANGE, RANGE)
+    private fun nearestHostile(ghast: LivingEntity): LivingEntity? {
+        val range = SEConfig.harnessRange
+        return ghast.getNearbyEntities(range, range, range)
             .asSequence()
             .filterIsInstance<LivingEntity>()
             .filter { it is Enemy && it.isValid && !it.isDead && ghast.hasLineOfSight(it) }
             .minByOrNull { it.location.distanceSquared(ghast.location) }
+    }
 
     /** 开火: 激光束 + 音效 + 魔法伤害。 */
     private fun fire(ghast: LivingEntity, target: LivingEntity, damage: Double) {

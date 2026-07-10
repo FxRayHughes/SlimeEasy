@@ -8,6 +8,7 @@ import io.github.thebusybiscuit.slimefun4.core.handlers.ItemUseHandler
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEConfig
 
 /**
  * 一个采掘层级: 对应某型工业矿机的扫描配置。
@@ -81,7 +82,7 @@ class SurveyRuler(
         }
 
         // 置入冷却 (tick): 触发物品栏冷却遮罩可视化
-        player.setCooldown(item, COOLDOWN_TICKS)
+        player.setCooldown(item, SEConfig.surveyRulerCooldownTicks)
     }
 
     /** 聊天栏展示: 坐标抬头 + 单层级明细。 */
@@ -103,8 +104,4 @@ class SurveyRuler(
             }
     }
 
-    companion object {
-        /** 勘察冷却 (tick); 5 秒 = 100 tick, 与物品说明一致。 */
-        private const val COOLDOWN_TICKS = 100
-    }
 }

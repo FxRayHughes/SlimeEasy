@@ -1,30 +1,210 @@
-# SlimeEasy 配置文件
-# 时间间隔均以「秒」为单位, 内部按墙钟时间判定, 不受服务器 tick / 重载影响。
+# ============================================================
+#  SlimeEasy 配置文件
+# ============================================================
+# 说明:
+#  - 时间间隔均以「秒」为单位, 内部按墙钟时间判定, 不受服务器 tick / 重载影响。
+#  - enabled:        功能开关。false = 不注册该内容 (需重启生效)。
+#  - research-level: 研究解锁所需经验等级 (需重启生效)。
+#  - 其余数值:       运行时读取, /se reload 后立即生效。
+#
+#  重载: 游戏内执行 /se reload。
+#   · 运行时数值 (伤害/范围/冷却/间隔/上限) —— 立即生效。
+#   · 功能开关 / 研究等级 / 物品文本 (items 段) —— 需重启服务端。
+#
+#  物品文本 (名称与 Lore) 见文件末尾 items 段, 首次启动自动生成, 可自由编辑, 颜色码用 &。
+# ============================================================
 
-# 简易村民 - 村民交易器
-trader:
-  # 补货间隔 (秒): 装配的村民职业与工作站方块匹配时, 每隔该秒数将所有交易次数重置为可交易。
-  restock-interval-seconds: 30
+# ---------- 机器通用 (破坏机 / 放置机的展示框调频) ----------
+machine:
+  frequency:
+    # 展示框调频的默认间隔 (Slimefun tick 数)。
+    default-interval: 1
+    # 拉杆每旋转一档改变的 tick 步进。
+    step-per-angle: 3
 
-# 简易村民 - 胶囊刷铁机
-iron-farm:
-  # 产铁间隔 (秒): 村民 + 僵尸信号 + 食物三者齐全时, 每隔该秒数产出一次铁锭。
-  produce-interval-seconds: 20
-  # 每次产铁消耗的食物饱食度。
-  food-per-cycle: 1
-  # 每次产出的铁锭数量。
-  iron-per-cycle: 1
-  # 速度升级级数上限。
-  speed-upgrade-max-level: 5
-  # 速度升级每级缩短系数: 实际间隔 = 产铁间隔 / (1 + 级数 × 步长)。
-  speed-upgrade-step: 0.5
+# ---------- 自动破坏机 ----------
+auto-breaker:
+  enabled: true
+  research-level: 10
 
-# 简易村民 - 村民小学
-school:
-  # 傻子(呆滞)村民转化为无职业普通村民所需的秒数。
-  convert-seconds: 30
+# ---------- 自动放置机 ----------
+auto-placer:
+  enabled: true
+  research-level: 10
 
-# 简易村民 - 村民治愈机
-healer:
-  # 僵尸村民治愈为普通村民所需的秒数 (每次消耗一个普通金苹果)。
-  convert-seconds: 30
+# ---------- 苦力怕驱逐方块 ----------
+creeper-ward:
+  enabled: true
+  research-level: 10
+  # 保护半径 (区块): 1 = 以所在区块为中心的 3x3 区块。
+  protect-radius-chunks: 1
+  # 主动推离苦力怕的检测半径 (格)。
+  detect-radius: 48.0
+  # 推离水平力度。
+  push-strength: 0.8
+  # 推离附加的向上分量。
+  push-up: 0.2
+  # 单次 tick 最多推离的苦力怕数量。
+  max-push-attempts: 20
+  # 保护区缓存 TTL (秒)。
+  protection-ttl-seconds: 8
+  # 单次自然生成事件最多回溯扫描的区块数。
+  max-scan-chunks: 16
+
+# ---------- 屠夫机器 ----------
+butcher:
+  enabled: true
+  research-level: 15
+  # 基础攻击截面边长 (格); 每级范围升级 +2。
+  base-span: 3
+  # 基础攻击纵深 (格); 每级范围升级 +1。
+  base-depth: 1
+  # 每级伤害升级的线性加成 (基础值的比例)。
+  damage-per-level: 0.5
+  # 每 1 点饱食度折算的攻击次数。
+  attacks-per-nutrition: 15
+  # 内部余量缓存上限 (饱食度)。
+  max-satiety: 100
+  # 范围 / 伤害升级级数上限。
+  max-upgrade-level: 5
+
+# ---------- 自动点击器 ----------
+auto-clicker:
+  enabled: true
+  research-level: 15
+  # 最小点击间隔 (tick); 0.05 = 每 tick 连点 20 次。
+  min-interval: 0.05
+  # 最大点击间隔 (tick)。
+  max-interval: 40.0
+  # 默认点击间隔 (tick)。
+  default-interval: 4.0
+  # 微调步进 (Shift 点击, tick)。
+  fine-step: 0.05
+  # 粗调步进 (普通点击, tick)。
+  coarse-step: 0.25
+  # 单个 Slimefun tick 内的最多点击次数 (防卡)。
+  max-clicks-per-tick: 20
+
+# ---------- 矿物勘察尺 ----------
+survey-ruler:
+  enabled: true
+  research-level: 10
+  # 勘察冷却 (tick)。
+  cooldown-ticks: 100
+  # 普通工业矿机采掘半径 (7x7 -> 3)。
+  miner-range: 3
+  # 进阶工业矿机采掘半径 (11x11 -> 5)。
+  advanced-miner-range: 5
+  # 燃料估算: 每单位燃料可驱动的挖掘方块数。
+  blocks-per-bucket: 96
+  blocks-per-raw-fuel: 128
+  blocks-per-fuel: 256
+
+# ---------- 生长抑制器 ----------
+growth-inhibitor:
+  enabled: true
+  research-level: 10
+
+# ---------- 战斗挽具 ----------
+combat-harness:
+  enabled: true
+  research-level: 20
+  # 四档挽具每次激光的魔法伤害 (点)。
+  damage:
+    tier-1: 5.0
+    tier-2: 10.0
+    tier-3: 20.0
+    tier-4: 25.0
+  # 交战半径 (格)。
+  range: 16.0
+  # 两次开火最小间隔 (毫秒)。
+  cooldown-millis: 1500
+  # 扫描周期 (tick)。
+  period-ticks: 15
+
+# ---------- 存储系统 ----------
+storage:
+  # 海量抽屉
+  drawer:
+    enabled: true
+    research-level: 8
+    # 磁吸半径 (格)。
+    magnet-radius: 6.0
+    # 存储的物品种类槽位数。
+    slots: 32
+  # 翻页存储箱
+  box:
+    enabled: true
+    research-level: 15
+    # 每页物品种类数。
+    page-types: 45
+    # 磁吸半径 (格)。
+    magnet-radius: 6.0
+  # 存储升级组件
+  upgrade:
+    enabled: true
+    research-level: 20
+    # 升级槽位上限。
+    max-slots: 12
+    # 翻页升级的最大页数。
+    max-pages: 5
+  # 存储网络
+  network:
+    enabled: true
+    research-level: 30
+    # 网络扫描半径 (格)。
+    scan-radius: 24
+
+# ---------- 简易村民 ----------
+villager:
+  # 村民捕捉器
+  catcher:
+    enabled: true
+    research-level: 12
+  # 僵尸信号
+  zombie-signal:
+    enabled: true
+    research-level: 8
+  # 村民交易器
+  trader:
+    enabled: true
+    research-level: 18
+    # 补货间隔 (秒): 村民职业与工作站方块匹配时, 每隔该秒数重置交易次数。
+    restock-interval-seconds: 30
+  # 胶囊刷铁机
+  iron-farm:
+    enabled: true
+    research-level: 20
+    # 产铁间隔 (秒): 村民 + 僵尸信号 + 食物齐全时的产出周期。
+    produce-interval-seconds: 20
+    # 每次产铁消耗的食物饱食度。
+    food-per-cycle: 1
+    # 每次产出的铁锭数量。
+    iron-per-cycle: 1
+    # 速度升级级数上限。
+    speed-upgrade-max-level: 5
+    # 速度升级每级缩短系数: 实际间隔 = 产铁间隔 / (1 + 级数 x 步长)。
+    speed-upgrade-step: 0.5
+  # 村民小学
+  school:
+    enabled: true
+    research-level: 15
+    # 傻子村民转化为无职业普通村民所需秒数。
+    convert-seconds: 30
+  # 遗忘药剂
+  forgetting-potion:
+    enabled: true
+    research-level: 12
+  # 村民治愈机
+  healer:
+    enabled: true
+    research-level: 15
+    # 僵尸村民治愈为普通村民所需秒数 (每次消耗一个普通金苹果)。
+    convert-seconds: 30
+
+# ============================================================
+#  物品文本 (名称与 Lore)
+# ============================================================
+# 下方 items 段在首次启动时自动生成 (含全部物品的默认名称与 Lore)。
+# 生成后可自由编辑文本, 颜色码使用 &。修改需重启服务端生效。
+# ============================================================

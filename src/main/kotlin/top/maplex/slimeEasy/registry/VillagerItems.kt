@@ -5,6 +5,7 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionType
+import top.maplex.slimeEasy.config.SEText
 
 /**
  * 简易村民功能的物品模板与配方定义中心。
@@ -20,7 +21,7 @@ object VillagerItems {
     const val ZOMBIE_SIGNAL_ID = "SE_ZOMBIE_SIGNAL"
 
     /** 僵尸信号: 腐肉 + 铁制成的诱导信号, 刷铁机的必备催化剂。 */
-    val ZOMBIE_SIGNAL: SlimefunItemStack = SlimefunItemStack(
+    val ZOMBIE_SIGNAL: SlimefunItemStack = SEText.stack(
         ZOMBIE_SIGNAL_ID,
         Material.ZOMBIE_HEAD,
         "&2僵尸信号",
@@ -44,7 +45,7 @@ object VillagerItems {
      *
      * 空捕捉器同时是村民交易器 / 胶囊刷铁机的合成核心。
      */
-    val VILLAGER_CATCHER: SlimefunItemStack = SlimefunItemStack(
+    val VILLAGER_CATCHER: SlimefunItemStack = SEText.stack(
         VILLAGER_CATCHER_ID,
         Material.GLASS_BOTTLE,
         "&a村民捕捉器",
@@ -63,7 +64,7 @@ object VillagerItems {
     // ============================ 村民交易器 ============================
 
     const val VILLAGER_TRADER_ID = "SE_VILLAGER_TRADER"
-    val VILLAGER_TRADER: SlimefunItemStack = SlimefunItemStack(
+    val VILLAGER_TRADER: SlimefunItemStack = SEText.stack(
         VILLAGER_TRADER_ID,
         Material.GLASS,
         "&b村民交易器",
@@ -87,7 +88,7 @@ object VillagerItems {
     // ============================ 胶囊刷铁机 ============================
 
     const val IRON_FARM_ID = "SE_IRON_FARM"
-    val IRON_FARM: SlimefunItemStack = SlimefunItemStack(
+    val IRON_FARM: SlimefunItemStack = SEText.stack(
         IRON_FARM_ID,
         Material.GLASS,
         "&f胶囊刷铁机",
@@ -107,7 +108,7 @@ object VillagerItems {
 
     /** 刷铁机速度升级 ID (可叠放, 数量即级数)。 */
     const val IRON_FARM_SPEED_UPGRADE_ID = "SE_IRON_FARM_SPEED_UPGRADE"
-    val IRON_FARM_SPEED_UPGRADE: SlimefunItemStack = SlimefunItemStack(
+    val IRON_FARM_SPEED_UPGRADE: SlimefunItemStack = SEText.stack(
         IRON_FARM_SPEED_UPGRADE_ID,
         Material.CLOCK,
         "&e刷铁机 · 速度升级",
@@ -124,7 +125,7 @@ object VillagerItems {
     // ============================ 村民小学 ============================
 
     const val VILLAGER_SCHOOL_ID = "SE_VILLAGER_SCHOOL"
-    val VILLAGER_SCHOOL: SlimefunItemStack = SlimefunItemStack(
+    val VILLAGER_SCHOOL: SlimefunItemStack = SEText.stack(
         VILLAGER_SCHOOL_ID,
         Material.LECTERN,
         "&6村民小学",
@@ -142,7 +143,7 @@ object VillagerItems {
     // ============================ 村民治愈机 ============================
 
     const val VILLAGER_HEALER_ID = "SE_VILLAGER_HEALER"
-    val VILLAGER_HEALER: SlimefunItemStack = SlimefunItemStack(
+    val VILLAGER_HEALER: SlimefunItemStack = SEText.stack(
         VILLAGER_HEALER_ID,
         Material.GOLD_BLOCK,
         "&6村民治愈机",
@@ -160,7 +161,7 @@ object VillagerItems {
     // ============================ 遗忘药剂 ============================
 
     const val FORGETTING_POTION_ID = "SE_FORGETTING_POTION"
-    val FORGETTING_POTION: SlimefunItemStack = SlimefunItemStack(
+    val FORGETTING_POTION: SlimefunItemStack = SEText.stack(
         FORGETTING_POTION_ID,
         Material.POTION,
         "&d遗忘药剂",

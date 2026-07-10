@@ -1,6 +1,7 @@
 package top.maplex.slimeEasy.feature.ward
 
 import org.bukkit.Chunk
+import top.maplex.slimeEasy.config.SEConfig
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -16,11 +17,11 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object ProtectedChunks {
 
-    /** 区块保护有效期 (毫秒)。远大于 ticker 周期 (默认约 0.5s), 避免续期间隙抖动。 */
-    private const val TTL_MILLIS = 8_000L
+    /** 区块保护有效期 (毫秒)。远大于 ticker 周期 (默认约 0.5s), 避免续期间隙抖动。实时读取配置。 */
+    private val ttlMillis: Long get() = SEConfig.creeperWardProtectionTtlMillis
 
-    /** [exitDirection] 单方向最大外探区块数, 防止大片相连保护区导致过度扫描。 */
-    private const val MAX_SCAN_CHUNKS = 16
+    /** [exitDirection] 单方向最大外探区块数, 防止大片相连保护区导致过度扫描。实时读取配置。 */
+    private val maxScanChunks: Int get() = SEConfig.creeperWardMaxScanChunks
 
     /** 区块唯一键 -> 保护到期时间戳 (System.currentTimeMillis)。 */
     private val expiry = ConcurrentHashMap<Long, Long>()
@@ -32,7 +33,7 @@ object ProtectedChunks {
      */
     fun refresh(center: Chunk, radius: Int) {
         val worldId = center.world.uid
-        val deadline = System.currentTimeMillis() + TTL_MILLIS
+        val deadline = System.currentTimeMillis() + ttlMillis
         for (dx in -radius..radius) {
             for (dz in -radius..radius) {
                 expiry[chunkKey(worldId.mostSignificantBits, center.x + dx, center.z + dz)] = deadline
@@ -64,7 +65,7 @@ object ProtectedChunks {
         var best: Pair<Int, Int>? = null
         var bestSteps = Int.MAX_VALUE
         for ((dx, dz) in dirs) {
-            for (step in 1..MAX_SCAN_CHUNKS) {
+            for (step in 1..maxScanChunks) {
                 if (!isProtectedAt(worldHigh, chunkX + dx * step, chunkZ + dz * step)) {
                     if (step < bestSteps) {
                         bestSteps = step

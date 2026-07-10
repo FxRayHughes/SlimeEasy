@@ -3,11 +3,13 @@ package top.maplex.slimeEasy.registry
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEText
 
 /**
  * 物品堆栈与配方定义中心。
  *
  * 仅存放 [SlimefunItemStack] 模板与合成配方, 不涉及行为逻辑。
+ * 物品名称 / Lore 经 [SEText] 从配置读取 (缺失以此处默认值自动写入), 修改需重启生效。
  */
 object Items {
 
@@ -19,7 +21,7 @@ object Items {
      *
      * 使用涂蜡铜箱子作为机器本体: 放置后即为可交互的容器, 破坏产物直接存入其中。
      */
-    val AUTO_BREAKER: SlimefunItemStack = SlimefunItemStack(
+    val AUTO_BREAKER: SlimefunItemStack = SEText.stack(
         AUTO_BREAKER_ID,
         Material.WAXED_COPPER_CHEST,
         "&e自动破坏机",
@@ -54,7 +56,7 @@ object Items {
      *
      * 使用涂蜡铜箱子作为机器本体, 与破坏机一致; 依靠物品名称与配方 (粘性活塞) 区分。
      */
-    val AUTO_PLACER: SlimefunItemStack = SlimefunItemStack(
+    val AUTO_PLACER: SlimefunItemStack = SEText.stack(
         AUTO_PLACER_ID,
         Material.WAXED_COPPER_CHEST,
         "&a自动放置机",
@@ -88,7 +90,7 @@ object Items {
      *
      * 使用绿色地毯作为外观: 平铺于地面, 象征一片"苦力怕的禁区"。
      */
-    val CREEPER_WARD: SlimefunItemStack = SlimefunItemStack(
+    val CREEPER_WARD: SlimefunItemStack = SEText.stack(
         CREEPER_WARD_ID,
         Material.GREEN_CARPET,
         "&a苦力怕驱逐方块",
@@ -121,7 +123,7 @@ object Items {
      * 右键地面不锄地, 而是按 &f工业矿机 &7采掘范围 (7×7) 向下扫描,
      * 在聊天栏列出可开采矿石及数量。
      */
-    val SURVEY_RULER: SlimefunItemStack = SlimefunItemStack(
+    val SURVEY_RULER: SlimefunItemStack = SEText.stack(
         SURVEY_RULER_ID,
         Material.COPPER_HOE,
         "&b矿物勘察尺",
@@ -153,7 +155,7 @@ object Items {
      * 支持 &f进阶工业矿机 &7(11×11) 与 &f工业矿机 &7(7×7) 两种勘察范围,
      * 潜行右键空气切换当前范围, 右键地面按当前范围向下勘探。
      */
-    val ADVANCED_SURVEY_RULER: SlimefunItemStack = SlimefunItemStack(
+    val ADVANCED_SURVEY_RULER: SlimefunItemStack = SEText.stack(
         ADVANCED_SURVEY_RULER_ID,
         Material.DIAMOND_HOE,
         "&b进阶矿物勘察尺",
@@ -186,7 +188,7 @@ object Items {
      *
      * 观察者脸朝向 = 攻击方向; 右键开界面放武器 / 附魔书 / 食物。
      */
-    val BUTCHER: SlimefunItemStack = SlimefunItemStack(
+    val BUTCHER: SlimefunItemStack = SEText.stack(
         BUTCHER_ID,
         Material.OBSERVER,
         "&c屠夫机器",
@@ -220,7 +222,7 @@ object Items {
     const val BUTCHER_RANGE_UPGRADE_ID = "SE_BUTCHER_RANGE_UPGRADE"
 
     /** 范围升级组件: 每级攻击截面 +2 格、纵深 +1 格。 */
-    val BUTCHER_RANGE_UPGRADE: SlimefunItemStack = SlimefunItemStack(
+    val BUTCHER_RANGE_UPGRADE: SlimefunItemStack = SEText.stack(
         BUTCHER_RANGE_UPGRADE_ID,
         Material.ENDER_EYE,
         "&d屠夫 · 范围升级",
@@ -241,7 +243,7 @@ object Items {
     const val BUTCHER_DAMAGE_UPGRADE_ID = "SE_BUTCHER_DAMAGE_UPGRADE"
 
     /** 伤害升级组件: 每级伤害线性 +50% 基础值。 */
-    val BUTCHER_DAMAGE_UPGRADE: SlimefunItemStack = SlimefunItemStack(
+    val BUTCHER_DAMAGE_UPGRADE: SlimefunItemStack = SEText.stack(
         BUTCHER_DAMAGE_UPGRADE_ID,
         Material.BLAZE_POWDER,
         "&c屠夫 · 伤害升级",
@@ -267,7 +269,7 @@ object Items {
      * 脸朝向 = 点击方向; 需红石激活, 激活后不断左键 / 右键正前方方块 (含 Slimefun 方块)。
      * 内置一格容积, 点击时假玩家手持该物品交互, 可用漏斗补料。
      */
-    val AUTO_CLICKER: SlimefunItemStack = SlimefunItemStack(
+    val AUTO_CLICKER: SlimefunItemStack = SEText.stack(
         AUTO_CLICKER_ID,
         Material.OBSERVER,
         "&6自动点击器",
@@ -302,7 +304,7 @@ object Items {
      *
      * 手持右键幼年生物 → 锁定其年龄, 永久保持幼小; 再次右键解除。
      */
-    val GROWTH_INHIBITOR: SlimefunItemStack = SlimefunItemStack(
+    val GROWTH_INHIBITOR: SlimefunItemStack = SEText.stack(
         GROWTH_INHIBITOR_ID,
         Material.SLIME_BALL,
         "&a生长抑制器",
@@ -333,7 +335,7 @@ object Items {
 
     /** 构造某档战斗挽具模板 (统一说明佩戴与作战)。 */
     private fun combatHarness(id: String, material: Material, name: String, damage: Int): SlimefunItemStack =
-        SlimefunItemStack(
+        SEText.stack(
             id, material, name,
             "",
             "&7给 &f快乐恶魂 (乐魂) &7右键佩戴。",

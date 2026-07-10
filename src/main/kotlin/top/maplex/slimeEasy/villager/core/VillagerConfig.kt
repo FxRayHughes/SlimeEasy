@@ -1,45 +1,39 @@
 package top.maplex.slimeEasy.villager.core
 
-import top.maplex.slimeEasy.SlimeEasy
+import top.maplex.slimeEasy.config.SEConfig
 
 /**
- * 简易村民功能的配置读取入口。
+ * 简易村民功能的配置读取入口 (兼容外观)。
  *
- * 所有"时间间隔"配置以**秒**为单位暴露给玩家, 内部转为毫秒并配合**墙钟时间戳**判定,
- * 从而"不受任何外部因素影响"(tick 频率 / 区块加载 / 服务器重载均不影响补货或产出节奏)。
+ * 历史上直接读取根级 `trader.*` / `iron-farm.*` 等配置键; 现全部统一到中央配置层
+ * [SEConfig] 下的 `villager.*` 分区, 本对象仅作**转发外观**保留既有调用点不变。
  *
- * 直接读取插件内存态 [org.bukkit.plugin.java.JavaPlugin.getConfig], 无需额外缓存: 该对象
- * 在 onEnable 的 saveDefaultConfig 后常驻内存, 读取为纯内存操作。
+ * 所有"时间间隔"仍以秒暴露给玩家, 内部转毫秒并配合墙钟时间戳判定, 不受 tick / 区块 / 重载影响。
+ * 数值经 [SEConfig] 实时读取, /se reload 后即时生效。
  */
 object VillagerConfig {
 
-    private val cfg get() = SlimeEasy.instance.config
-
     /** 交易器补货间隔 (毫秒)。 */
-    val traderRestockMillis: Long get() = seconds("trader.restock-interval-seconds", 30)
+    val traderRestockMillis: Long get() = SEConfig.traderRestockMillis
 
     /** 刷铁机产铁间隔 (毫秒, 未计速度升级)。 */
-    val ironProduceMillis: Long get() = seconds("iron-farm.produce-interval-seconds", 20)
+    val ironProduceMillis: Long get() = SEConfig.ironProduceMillis
 
     /** 刷铁机每周期消耗的食物饱食度。 */
-    val ironFoodPerCycle: Int get() = cfg.getInt("iron-farm.food-per-cycle", 1).coerceAtLeast(0)
+    val ironFoodPerCycle: Int get() = SEConfig.ironFoodPerCycle
 
     /** 刷铁机每周期产出的铁锭数量。 */
-    val ironPerCycle: Int get() = cfg.getInt("iron-farm.iron-per-cycle", 1).coerceAtLeast(1)
+    val ironPerCycle: Int get() = SEConfig.ironPerCycle
 
     /** 刷铁机速度升级级数上限。 */
-    val ironSpeedMaxLevel: Int get() = cfg.getInt("iron-farm.speed-upgrade-max-level", 5).coerceAtLeast(0)
+    val ironSpeedMaxLevel: Int get() = SEConfig.ironSpeedMaxLevel
 
     /** 速度升级每级对间隔的缩短系数 (间隔 = 基础 / (1 + 级数 × 步长))。 */
-    val ironSpeedStep: Double get() = cfg.getDouble("iron-farm.speed-upgrade-step", 0.5).coerceAtLeast(0.0)
+    val ironSpeedStep: Double get() = SEConfig.ironSpeedStep
 
     /** 村民小学的转化耗时 (毫秒)。 */
-    val schoolConvertMillis: Long get() = seconds("school.convert-seconds", 30)
+    val schoolConvertMillis: Long get() = SEConfig.schoolConvertMillis
 
     /** 村民治愈机把僵尸村民治愈为普通村民的耗时 (毫秒)。 */
-    val healerConvertMillis: Long get() = seconds("healer.convert-seconds", 30)
-
-    /** 读取一个"秒"配置并转毫秒 (至少 1 秒)。 */
-    private fun seconds(path: String, def: Int): Long =
-        cfg.getInt(path, def).coerceAtLeast(1).toLong() * 1000L
+    val healerConvertMillis: Long get() = SEConfig.healerConvertMillis
 }

@@ -9,31 +9,33 @@ import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.SlimeEasy
+import top.maplex.slimeEasy.config.SEConfig
 
 /**
  * 屠夫机器的世界操作逻辑: 目标收集、伤害计算、范围横扫、食物折算、耐久消耗。
  *
  * 所有方法均需在主线程调用 (涉及实体与方块数据修改)。
+ * 数值 (截面 / 纵深 / 伤害系数 / 折算 / 上限) 实时读取 [SEConfig], /se reload 后即时生效。
  */
 object ButcherLogic {
 
     /** 基础攻击截面边长 (格); 每级范围升级 +2。 */
-    private const val BASE_SPAN = 3
+    private val baseSpan: Int get() = SEConfig.butcherBaseSpan
 
     /** 基础攻击纵深 (格); 每级范围升级 +1。 */
-    private const val BASE_DEPTH = 1
+    private val baseDepth: Int get() = SEConfig.butcherBaseDepth
 
     /** 每级伤害升级的线性加成 (基础值的比例)。 */
-    private const val DAMAGE_PER_LEVEL = 0.5
+    private val damagePerLevel: Double get() = SEConfig.butcherDamagePerLevel
 
     /** 每 1 点饱食度折算的攻击次数。 */
-    const val ATTACKS_PER_NUTRITION = 15
+    val ATTACKS_PER_NUTRITION: Int get() = SEConfig.butcherAttacksPerNutrition
 
     /** 内部余量缓存上限 (饱食度)。机器最多预吞这么多饱食度的食物。 */
-    const val MAX_SATIETY = 100
+    val MAX_SATIETY: Int get() = SEConfig.butcherMaxSatiety
 
     /** 内部余量缓存上限 (换算为攻击次数) = [MAX_SATIETY] × [ATTACKS_PER_NUTRITION]。 */
-    const val MAX_FUEL: Long = MAX_SATIETY.toLong() * ATTACKS_PER_NUTRITION
+    val MAX_FUEL: Long get() = MAX_SATIETY.toLong() * ATTACKS_PER_NUTRITION
 
     /** 命中怪物时写入的所有者标记键 (供死亡监听器识别本机击杀)。 */
     val KEY_KILLER = NamespacedKey(SlimeEasy.instance, "butcher_killer")
@@ -129,8 +131,8 @@ object ButcherLogic {
     fun collectTargets(
         machine: Block, face: org.bukkit.block.BlockFace, rangeLevel: Int
     ): List<LivingEntity> {
-        val halfSpan = (BASE_SPAN + 2 * rangeLevel) / 2.0
-        val depth = (BASE_DEPTH + rangeLevel).toDouble()
+        val halfSpan = (baseSpan + 2 * rangeLevel) / 2.0
+        val depth = (baseDepth + rangeLevel).toDouble()
         val halfDepth = depth / 2.0
         // 中心沿 facing 外推 (机器面 +0.5 到区域中点)
         val offset = 0.5 + halfDepth
@@ -164,7 +166,7 @@ object ButcherLogic {
             book?.let { effectiveLevel(it, Enchantment.SHARPNESS) } ?: 0
         )
         val sharpBonus = if (sharp > 0) 0.5 * sharp + 0.5 else 0.0
-        return (base + sharpBonus) * (1.0 + DAMAGE_PER_LEVEL * damageLevel)
+        return (base + sharpBonus) * (1.0 + damagePerLevel * damageLevel)
     }
 
     /** 附魔书上某附魔的等级 (存储附魔取 storedEnchants)。 */

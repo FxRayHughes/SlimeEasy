@@ -5,6 +5,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
 import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.storage.core.CargoBufferBlock
 import top.maplex.slimeEasy.storage.core.HopperExtract
 import top.maplex.slimeEasy.storage.core.ItemKey
@@ -139,7 +140,7 @@ class PagedBox(
     fun clearCache(block: Block) = evictCache(block)
 
     companion object {
-        /** 每页展示格数 = 单页物品种类上限。 */
-        const val PAGE_TYPES = 45
+        /** 每页展示格数 = 单页物品种类上限。实时读取配置。 */
+        val PAGE_TYPES: Int get() = SEConfig.storageBoxPageTypes
     }
 }

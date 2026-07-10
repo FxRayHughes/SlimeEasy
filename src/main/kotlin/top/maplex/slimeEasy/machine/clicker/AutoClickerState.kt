@@ -2,6 +2,7 @@ package top.maplex.slimeEasy.machine.clicker
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import org.bukkit.block.Block
+import top.maplex.slimeEasy.config.SEConfig
 import kotlin.math.roundToInt
 
 /**
@@ -16,20 +17,20 @@ object AutoClickerState {
     private const val KEY_RIGHT = "se_click_right"
     private const val KEY_INTERVAL = "se_click_interval"
 
-    /** 间隔下限 (tick): 0.05 → 每 tick 连点 20 次 (受机器单 tick 连点上限约束)。 */
-    const val MIN_INTERVAL = 0.05
+    /** 间隔下限 (tick): 0.05 → 每 tick 连点 20 次 (受机器单 tick 连点上限约束)。实时读取配置。 */
+    val MIN_INTERVAL: Double get() = SEConfig.autoClickerMinInterval
 
-    /** 间隔上限 (tick)。 */
-    const val MAX_INTERVAL = 40.0
+    /** 间隔上限 (tick)。实时读取配置。 */
+    val MAX_INTERVAL: Double get() = SEConfig.autoClickerMaxInterval
 
-    /** 默认间隔 (tick; 原生每 tick 约 0.5 秒)。 */
-    const val DEFAULT_INTERVAL = 4.0
+    /** 默认间隔 (tick; 原生每 tick 约 0.5 秒)。实时读取配置。 */
+    val DEFAULT_INTERVAL: Double get() = SEConfig.autoClickerDefaultInterval
 
-    /** 对齐网格 / 微调步进 (tick)。 */
-    const val STEP = 0.05
+    /** 对齐网格 / 微调步进 (tick)。实时读取配置。 */
+    val STEP: Double get() = SEConfig.autoClickerFineStep
 
-    /** 粗调步进 (tick, 普通点击)。 */
-    const val COARSE_STEP = 0.25
+    /** 粗调步进 (tick, 普通点击)。实时读取配置。 */
+    val COARSE_STEP: Double get() = SEConfig.autoClickerCoarseStep
 
     /** 左键是否开启 (默认否)。 */
     fun leftEnabled(block: Block): Boolean = StorageCacheUtils.getData(block.location, KEY_LEFT) == "1"

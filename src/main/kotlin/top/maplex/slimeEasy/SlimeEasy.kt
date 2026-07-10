@@ -1,6 +1,8 @@
 package top.maplex.slimeEasy
 
 import org.bukkit.plugin.java.JavaPlugin
+import top.maplex.slimeEasy.command.SECommand
+import top.maplex.slimeEasy.config.SEText
 import top.maplex.slimeEasy.registry.Registration
 
 /**
@@ -20,9 +22,14 @@ class SlimeEasy : JavaPlugin() {
 
     override fun onEnable() {
         instance = this
-        // 释放默认配置 (含简易村民各项时间间隔), 供 VillagerConfig 读取
+        // 释放默认配置 (含全部开关 / 研究等级 / 运行时数值), 供 SEConfig / SEText 读取
         saveDefaultConfig()
+        // 注册全部内容: 期间各物品模板经 SEText 解析名称 / Lore, 缺失项以默认值写入内存态配置
         Registration.registerAll(addon)
+        // 把本轮 SEText 自动补全的默认物品文本落盘 (仅首次或新增物品时写入)
+        SEText.flush()
+        // 注册 /se reload 管理指令
+        SECommand.register()
         logger.info("Successfully running SlimeEasy!")
     }
 

@@ -3,6 +3,7 @@ package top.maplex.slimeEasy.machine.common
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.entity.ItemFrame
+import top.maplex.slimeEasy.config.SEConfig
 
 /**
  * 破坏频率解析器。
@@ -11,14 +12,15 @@ import org.bukkit.entity.ItemFrame
  * - 活塞上无展示框, 或展示框内不是拉杆 → 默认 [DEFAULT_INTERVAL] 档 (最快)。
  * - 展示框内为拉杆 → 间隔 = (旋转角序号 + 1) × [STEP_PER_ANGLE]。
  *   [org.bukkit.Rotation] 共 8 个角度 (序号 0~7), 因此间隔为 3、6 … 24 档。
+ * 两档数值实时读取 [SEConfig], /se reload 后即时生效。
  */
 object FrequencyResolver {
 
-    /** 无调速装置时的默认间隔档位。 */
-    const val DEFAULT_INTERVAL = 1
+    /** 无调速装置时的默认间隔档位。实时读取配置。 */
+    val DEFAULT_INTERVAL: Int get() = SEConfig.machineDefaultInterval
 
-    /** 拉杆每旋转一个角度增加的间隔档位。 */
-    const val STEP_PER_ANGLE = 3
+    /** 拉杆每旋转一个角度增加的间隔档位。实时读取配置。 */
+    val STEP_PER_ANGLE: Int get() = SEConfig.machineStepPerAngle
 
     /**
      * 解析给定活塞方块当前应使用的破坏间隔 (单位: Slimefun tick)。

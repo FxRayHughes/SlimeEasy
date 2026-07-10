@@ -3,19 +3,21 @@ package top.maplex.slimeEasy.registry
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEText
 
 /**
  * 存储系统的物品模板与配方定义中心。
  *
  * 仅存放 [SlimefunItemStack] 模板与合成配方, 不涉及行为逻辑。升级组件 ID 必须与
  * [top.maplex.slimeEasy.storage.upgrade.UpgradeType] 中登记的 itemId 完全一致。
+ * 物品名称 / Lore 经 [SEText] 从配置读取 (缺失以此处默认值自动写入), 修改需重启生效。
  */
 object StorageItems {
 
     // ============================ 存储方块 ============================
 
     const val DRAWER_ID = "SE_DRAWER"
-    val DRAWER = SlimefunItemStack(
+    val DRAWER = SEText.stack(
         DRAWER_ID, Material.BARREL, "&e海量抽屉",
         "", "&7存储 &f单一种类 &7物品, 数量远超原版堆叠。",
         "&7放置后朝向你的一面会显示物品; &f准星对准 &7查看数量。",
@@ -31,7 +33,7 @@ object StorageItems {
     )
 
     const val BOX_ID = "SE_PAGED_BOX"
-    val BOX = SlimefunItemStack(
+    val BOX = SEText.stack(
         BOX_ID, Material.BARREL, "&6翻页存储箱",
         "", "&7存储 &f多种 &7物品 (每种一格, 至多 45 种),",
         "&7每格数量远超原版堆叠。",
@@ -48,7 +50,7 @@ object StorageItems {
     // ============================ 存储网络 ============================
 
     const val CONTROLLER_ID = "SE_NET_CONTROLLER"
-    val CONTROLLER = SlimefunItemStack(
+    val CONTROLLER = SEText.stack(
         CONTROLLER_ID, Material.CHISELED_BOOKSHELF, "&b网络控制器",
         "", "&7存储网络的大脑与访问入口。",
         "&7右键打开 &f聚合终端&7: 一处存取全网所有",
@@ -63,7 +65,7 @@ object StorageItems {
     )
 
     const val CONNECTOR_ID = "SE_NET_CONNECTOR"
-    val CONNECTOR = SlimefunItemStack(
+    val CONNECTOR = SEText.stack(
         CONNECTOR_ID, Material.IRON_BARS, "&7网络连接器",
         "", "&7网络导线: 连接控制器与各存储方块 / 端口。",
         "&7相邻放置即导通, 无需朝向。"
@@ -75,7 +77,7 @@ object StorageItems {
     )
 
     const val INPUT_PORT_ID = "SE_NET_INPUT_PORT"
-    val INPUT_PORT = SlimefunItemStack(
+    val INPUT_PORT = SEText.stack(
         INPUT_PORT_ID, Material.DROPPER, "&a网络输入端口",
         "", "&7货运塞入的物品会被 &f分发进网络&7,",
         "&7按优先级填入各成员容器。",
@@ -88,7 +90,7 @@ object StorageItems {
     )
 
     const val OUTPUT_PORT_ID = "SE_NET_OUTPUT_PORT"
-    val OUTPUT_PORT = SlimefunItemStack(
+    val OUTPUT_PORT = SEText.stack(
         OUTPUT_PORT_ID, Material.DISPENSER, "&c网络输出端口",
         "", "&7从网络取出物品供货运抽走。",
         "", "&7需连入含控制器的网络方可工作。"
@@ -100,7 +102,7 @@ object StorageItems {
     )
 
     const val REMOTE_TERMINAL_ID = "SE_REMOTE_TERMINAL"
-    val REMOTE_TERMINAL = SlimefunItemStack(
+    val REMOTE_TERMINAL = SEText.stack(
         REMOTE_TERMINAL_ID, Material.ENDER_EYE, "&d远程终端",
         "", "&7手持右键 &f网络控制器 &7进行绑定;",
         "&7之后手持右键即可 &f远程打开 &7该网络终端,",
@@ -180,7 +182,7 @@ object StorageItems {
 
     /** 构造升级组件模板 (统一附加"升级组件"提示行)。 */
     private fun upgrade(id: String, material: Material, name: String, vararg desc: String): SlimefunItemStack =
-        SlimefunItemStack(id, material, name, "", *desc, "", "&8[存储升级组件]")
+        SEText.stack(id, material, name, "", *desc, "", "&8[存储升级组件]")
 
     /** 生成"八周围材料 + 中心核心"的 3x3 配方。 */
     private fun surround(around: Material, core: Material): Array<ItemStack?> =

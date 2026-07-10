@@ -17,6 +17,7 @@ import org.bukkit.block.data.Directional
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.machine.butcher.ButcherLogic
 import top.maplex.slimeEasy.machine.common.MachineProtection
 import java.util.concurrent.ConcurrentHashMap
@@ -41,8 +42,8 @@ class AutoClicker(
     /** 每台机器的 tick 累加器 (键为方块位置字符串), 仅用于节流, 无需持久化。 */
     private val counters = ConcurrentHashMap<String, Double>()
 
-    /** 单个 tick 内最多连点次数 (安全上限, 防止极端间隔造成瞬时过量点击)。 */
-    private val maxClicksPerTick = 20
+    /** 单个 tick 内最多连点次数 (安全上限, 防止极端间隔造成瞬时过量点击); 实时读取配置。 */
+    private val maxClicksPerTick: Int get() = SEConfig.autoClickerMaxClicksPerTick
 
     override fun preRegister() {
         addItemHandler(object : BlockPlaceHandler(false) {

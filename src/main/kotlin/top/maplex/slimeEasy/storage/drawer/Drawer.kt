@@ -5,6 +5,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
 import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.storage.core.CargoBufferBlock
 import top.maplex.slimeEasy.storage.core.HopperExtract
 import top.maplex.slimeEasy.storage.core.ItemKey
@@ -150,10 +151,10 @@ class Drawer(
     }
 
     companion object {
-        /** 磁铁吸附半径 (格)。 */
-        const val MAGNET_RADIUS = 6.0
+        /** 磁铁吸附半径 (格)。实时读取配置。 */
+        val MAGNET_RADIUS: Double get() = SEConfig.storageDrawerMagnetRadius
 
-        /** 抽屉内部槽位数 (单一物品的大容量; 单槽 = 原版堆叠 × 堆叠升级倍率)。 */
-        const val DRAWER_SLOTS = 32
+        /** 抽屉内部槽位数 (单一物品的大容量; 单槽 = 原版堆叠 × 堆叠升级倍率)。实时读取配置。 */
+        val DRAWER_SLOTS: Int get() = SEConfig.storageDrawerSlots
     }
 }
