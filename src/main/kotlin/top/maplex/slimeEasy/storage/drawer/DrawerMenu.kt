@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.drawer
 
+import top.maplex.slimeEasy.config.I18n
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
@@ -39,7 +40,7 @@ object DrawerMenu {
     }
 
     private class View(val drawer: Drawer, val block: Block) {
-        val menu = ChestMenu("§9抽屉")
+        val menu = ChestMenu(I18n.text("menus.drawer-menu-001"))
 
         init {
             menu.setEmptySlotsClickable(false)
@@ -54,7 +55,7 @@ object DrawerMenu {
             val stored = storage.entries().firstOrNull()
             if (stored == null) {
                 menu.replaceExistingItem(ITEM_SLOT,
-                    GuiItems.named(Material.BARREL, "§7抽屉为空", "§7右键抽屉前的展示框放入物品"))
+                    GuiItems.named(Material.BARREL, I18n.text("menus.drawer-menu-002"), I18n.text("menus.drawer-menu-003")))
                 menu.addMenuClickHandler(ITEM_SLOT) { _, _, _, _ -> false }
             } else {
                 val (k, count) = stored
@@ -63,9 +64,9 @@ object DrawerMenu {
                 val icon = k.toDisplay(minOf(count, k.vanillaMaxStack.toLong()).toInt()).apply {
                     editMeta {
                         it.lore(listOf(
-                            Component.text("§7数量: §e${QuantityFormat.grouped(count)} §7/ §f${QuantityFormat.grouped(total)}"),
+                            Component.text(I18n.text("menus.drawer-menu-004", "value0" to (QuantityFormat.grouped(count)), "value1" to (QuantityFormat.grouped(total)))),
                             Component.text("§8[${QuantityFormat.bar(count, total)}§8] §f${QuantityFormat.percent(count, total)}"),
-                            Component.text("§7左键取一组 / 右键取一个")
+                            Component.text(I18n.text("menus.drawer-menu-005"))
                         ))
                     }
                 }
@@ -78,7 +79,7 @@ object DrawerMenu {
             }
             menu.replaceExistingItem(UPGRADE_SLOT, GuiItems.UPGRADE_ENTRY)
             menu.addMenuClickHandler(UPGRADE_SLOT) { p, _, _, _ ->
-                UpgradeMenu.open(drawer, block, p, "§9抽屉升级"); false
+                UpgradeMenu.open(drawer, block, p, I18n.text("menus.drawer-menu-006")); false
             }
         }
     }

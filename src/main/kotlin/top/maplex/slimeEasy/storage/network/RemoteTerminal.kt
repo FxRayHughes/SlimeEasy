@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.network
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
@@ -57,27 +58,27 @@ class RemoteTerminal(
         val existing = bindings.indexOf(value)
         val maxBindings = SEConfig.storageNetworkRemoteTerminalMaxBindings
         if (existing < 0 && maxBindings > 0 && bindings.size >= maxBindings) {
-            player.sendMessage("§c[远程终端] §7绑定数量已达到配置上限 §f$maxBindings")
+            player.sendMessage(I18n.text("messages.remote-terminal-001", "value0" to (maxBindings)))
             return
         }
         val selected = if (existing >= 0) existing else bindings.size.also { bindings.add(value) }
         writeBindings(item, bindings, selected)
-        val action = if (existing >= 0) "已切换到" else "已绑定"
-        player.sendMessage("§b[远程终端] §7$action 网络控制器 §f(${loc.blockX}, ${loc.blockY}, ${loc.blockZ}) §8[共 ${bindings.size} 个]")
+        val action = if (existing >= 0) I18n.text("messages.remote-terminal-002") else I18n.text("messages.remote-terminal-003")
+        player.sendMessage(I18n.text("messages.remote-terminal-004", "value0" to (action), "value1" to (loc.blockX), "value2" to (loc.blockY), "value3" to (loc.blockZ), "value4" to (bindings.size)))
     }
 
     /** 打开当前选中的网络; 未绑定、绑定失效或无权限时提示。 */
     private fun openBound(player: Player, item: ItemStack) {
         val bindings = readBindings(item)
         if (bindings.isEmpty()) {
-            player.sendMessage("§c[远程终端] §7尚未绑定, 请手持右键网络控制器进行绑定")
+            player.sendMessage(I18n.text("messages.remote-terminal-005"))
             return
         }
         val selected = selectedIndex(item, bindings.size)
         val raw = bindings[selected]
         val block = BlockLocationCodec.decode(raw)
         if (block == null || !NetworkControllerAccess.isController(block)) {
-            player.sendMessage("§c[远程终端] §7当前绑定的网络控制器已不存在, 请潜行右键打开管理界面")
+            player.sendMessage(I18n.text("messages.remote-terminal-006"))
             return
         }
         if (!NetworkControllerAccess.canUse(player, block)) return
@@ -89,7 +90,7 @@ class RemoteTerminal(
     private fun switchBound(player: Player, item: ItemStack) {
         val bindings = readBindings(item)
         if (bindings.size <= 1) {
-            player.sendMessage("§e[远程终端] §7没有其它已绑定的控制器")
+            player.sendMessage(I18n.text("messages.remote-terminal-007"))
             return
         }
         val current = selectedIndex(item, bindings.size)
@@ -98,11 +99,11 @@ class RemoteTerminal(
             val block = BlockLocationCodec.decode(bindings[next]) ?: continue
             if (!NetworkControllerAccess.isController(block) || !NetworkControllerAccess.canUse(player, block, false)) continue
             writeBindings(item, bindings, next)
-            player.sendMessage("§b[远程终端] §7已切换到 §f${describe(block)}")
+            player.sendMessage(I18n.text("messages.remote-terminal-008", "value0" to (describe(block))))
             NetworkMenu.open(NetworkRegistry.get(block), player) { p -> switchBound(p, item) }
             return
         }
-        player.sendMessage("§c[远程终端] §7没有其它可用且有权限访问的控制器")
+        player.sendMessage(I18n.text("messages.remote-terminal-009"))
     }
 
     /** 打开绑定管理界面: 左键选择, 右键移除。 */
@@ -111,7 +112,7 @@ class RemoteTerminal(
     }
 
     private inner class ManagerView(private val player: Player, private val item: ItemStack) {
-        val menu = ChestMenu("§5远程终端管理")
+        val menu = ChestMenu(I18n.text("messages.remote-terminal-010"))
         private var page = 0
 
         init {
@@ -136,9 +137,9 @@ class RemoteTerminal(
                 val block = BlockLocationCodec.decode(raw)
                 val valid = block != null && NetworkControllerAccess.isController(block)
                 val icon = when {
-                    !valid -> GuiItems.named(Material.BARRIER, "§c失效的控制器", "§7$raw", "§8右键移除")
-                    index == selected -> GuiItems.named(Material.LIME_STAINED_GLASS_PANE, "§a当前: ${describe(block)}", "§7左键保持选中", "§7右键移除绑定")
-                    else -> GuiItems.named(Material.ENDER_CHEST, "§d${describe(block)}", "§7左键设为当前终端", "§7右键移除绑定")
+                    !valid -> GuiItems.named(Material.BARRIER, I18n.text("messages.remote-terminal-011"), "§7$raw", I18n.text("messages.remote-terminal-012"))
+                    index == selected -> GuiItems.named(Material.LIME_STAINED_GLASS_PANE, I18n.text("messages.remote-terminal-013", "value0" to (describe(block))), I18n.text("messages.remote-terminal-014"), I18n.text("messages.remote-terminal-015"))
+                    else -> GuiItems.named(Material.ENDER_CHEST, "§d${describe(block)}", I18n.text("messages.remote-terminal-016"), I18n.text("messages.remote-terminal-017"))
                 }
                 menu.addItem(slot, icon) { _, _, _, action ->
                     if (action.isRightClicked) removeBinding(index) else selectBinding(index)
@@ -153,7 +154,7 @@ class RemoteTerminal(
                 false
             }
             menu.addItem(MANAGER_INFO_SLOT, GuiItems.named(Material.PAPER,
-                "§e第 ${page + 1}/$pages 页", "§7已绑定: ${bindings.size} 个")) { _, _, _, _ -> false }
+                I18n.text("messages.remote-terminal-018", "value0" to (page + 1), "value1" to (pages)), I18n.text("messages.remote-terminal-019", "value0" to (bindings.size)))) { _, _, _, _ -> false }
             menu.addItem(MANAGER_NEXT_SLOT, GuiItems.NEXT_PAGE) { _, _, _, _ ->
                 if (page < pages - 1) { page++; render() }
                 false
@@ -165,12 +166,12 @@ class RemoteTerminal(
             val raw = bindings.getOrNull(index) ?: return
             val block = BlockLocationCodec.decode(raw)
             if (block == null || !NetworkControllerAccess.isController(block)) {
-                player.sendMessage("§c[远程终端] §7该控制器已失效, 可右键将其移除")
+                player.sendMessage(I18n.text("messages.remote-terminal-020"))
                 return
             }
             if (!NetworkControllerAccess.canUse(player, block)) return
             writeBindings(item, bindings, index)
-            player.sendMessage("§b[远程终端] §7当前终端已设为 §f${describe(block)}")
+            player.sendMessage(I18n.text("messages.remote-terminal-021", "value0" to (describe(block))))
             render()
         }
 
@@ -186,7 +187,7 @@ class RemoteTerminal(
                 else -> selected
             }
             writeBindings(item, bindings, nextSelected)
-            player.sendMessage("§b[远程终端] §7已移除绑定 §8[剩余 ${bindings.size} 个]")
+            player.sendMessage(I18n.text("messages.remote-terminal-022", "value0" to (bindings.size)))
             render()
         }
     }

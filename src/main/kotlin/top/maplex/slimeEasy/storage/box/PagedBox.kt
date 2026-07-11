@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.box
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
@@ -87,17 +88,17 @@ class PagedBox(
         if (type == expType) {
             // 装经验升级前要求库存为空 (物品与经验两套库存不可共存)
             if (install && !storageAt(block).isEmpty())
-                return "§c请先取空箱内物品, 再安装经验升级"
+                return I18n.text("messages.paged-box-001")
             // 存有经验时禁止卸下经验升级 (否则经验数据被孤立)
             if (!install && top.maplex.slimeEasy.storage.drawer.DrawerExp.get(block) > 0)
-                return "§c请先取出全部经验, 再卸下经验升级"
+                return I18n.text("messages.paged-box-002")
         }
         // 卸下翻页扩容若使槽位不足以容纳现有内容, 则拒绝 (避免数据被截断丢失)
         if (!install && type == top.maplex.slimeEasy.storage.upgrade.UpgradeType.PAGE_EXPANSION) {
             val current = UpgradeStore.resolve(block.location)
             val newPages = (1 + (current.pageExpansionCount - 1)).coerceIn(1, top.maplex.slimeEasy.storage.upgrade.UpgradeSet.MAX_PAGES)
             val newBudget = newPages * PAGE_TYPES
-            if (storageAt(block).usedSlots() > newBudget) return "§c物品过多, 无法卸下该翻页扩容"
+            if (storageAt(block).usedSlots() > newBudget) return I18n.text("messages.paged-box-003")
         }
         return null
     }

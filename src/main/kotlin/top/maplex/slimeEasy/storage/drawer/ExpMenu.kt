@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.drawer
 
+import top.maplex.slimeEasy.config.I18n
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
@@ -48,7 +49,7 @@ object ExpMenu {
     }
 
     private class View(val block: Block) {
-        val menu = ChestMenu("§9经验存储")
+        val menu = ChestMenu(I18n.text("menus.exp-menu-001"))
 
         init {
             menu.setEmptySlotsClickable(false)
@@ -63,13 +64,13 @@ object ExpMenu {
             val levels = ExpUtil.levelsFromPoints(points)
             menu.replaceExistingItem(
                 INFO_SLOT,
-                GuiItems.named(Material.EXPERIENCE_BOTTLE, "§a已存经验", "§7点数: §f$points", "§7约合: §f$levels §7级")
+                GuiItems.named(Material.EXPERIENCE_BOTTLE, I18n.text("menus.exp-menu-002"), I18n.text("menus.exp-menu-003", "value0" to (points)), I18n.text("menus.exp-menu-004", "value0" to (levels)))
             )
             menu.addMenuClickHandler(INFO_SLOT) { _, _, _, _ -> false }
 
             menu.replaceExistingItem(
                 DEPOSIT_SLOT,
-                GuiItems.named(Material.LIME_STAINED_GLASS_PANE, "§a存入全部经验", "§7点击把你身上的全部经验存入")
+                GuiItems.named(Material.LIME_STAINED_GLASS_PANE, I18n.text("menus.exp-menu-005"), I18n.text("menus.exp-menu-006"))
             )
             menu.addMenuClickHandler(DEPOSIT_SLOT) { p, _, _, _ ->
                 DrawerExp.deposit(block, p); render(); false
@@ -80,7 +81,7 @@ object ExpMenu {
             menu.addMenuClickHandler(UPGRADE_SLOT) { p, _, _, _ ->
                 val logic = StorageCacheUtils.getBlock(block.location)?.sfId
                     ?.let { SlimefunItem.getById(it) } as? CargoBufferBlock
-                if (logic != null) UpgradeMenu.open(logic, block, p, "§9存储升级")
+                if (logic != null) UpgradeMenu.open(logic, block, p, I18n.text("menus.exp-menu-007"))
                 false
             }
 
@@ -88,7 +89,7 @@ object ExpMenu {
                 val slot = WITHDRAW_SLOTS[idx]
                 menu.replaceExistingItem(
                     slot,
-                    GuiItems.named(Material.EXPERIENCE_BOTTLE, "§e取出 $lv 级", "§7按你当前等级换算所需点数取出", "§7不足则取尽库存")
+                    GuiItems.named(Material.EXPERIENCE_BOTTLE, I18n.text("menus.exp-menu-008", "value0" to (lv)), I18n.text("menus.exp-menu-009"), I18n.text("menus.exp-menu-010"))
                 )
                 menu.addMenuClickHandler(slot) { p, _, _, _ ->
                     DrawerExp.withdrawLevels(block, p, lv); render(); false

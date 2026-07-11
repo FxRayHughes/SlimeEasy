@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.registry
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
@@ -103,7 +104,7 @@ object Registration {
             Research(
                 NamespacedKey(SlimeEasy.instance, "auto_breaker"),
                 9001,
-                "自动破坏机",
+                I18n.text("research.registration-001"),
                 AUTO_BREAKER_RESEARCH_COST
             ).apply {
                 addItems(autoBreaker)
@@ -125,7 +126,7 @@ object Registration {
             Research(
                 NamespacedKey(SlimeEasy.instance, "auto_placer"),
                 9002,
-                "自动放置机",
+                I18n.text("research.registration-002"),
                 AUTO_PLACER_RESEARCH_COST
             ).apply {
                 addItems(autoPlacer)
@@ -147,7 +148,7 @@ object Registration {
             Research(
                 NamespacedKey(SlimeEasy.instance, "creeper_ward"),
                 9003,
-                "苦力怕驱逐方块",
+                I18n.text("research.registration-003"),
                 CREEPER_WARD_RESEARCH_COST
             ).apply {
                 addItems(creeperWard)
@@ -180,7 +181,7 @@ object Registration {
                 RecipeType.ENHANCED_CRAFTING_TABLE, Items.BUTCHER_DAMAGE_UPGRADE_RECIPE
             ).also { it.register(addon) }
 
-            research("butcher", 9010, "屠夫机器", BUTCHER_RESEARCH_COST, butcher, butcherRangeUp, butcherDamageUp)
+            research("butcher", 9010, I18n.text("research.registration-004"), BUTCHER_RESEARCH_COST, butcher, butcherRangeUp, butcherDamageUp)
 
             // 8c. 注册屠夫机器掉落 / 经验兜底监听器
             Bukkit.getPluginManager().registerEvents(ButcherDeathListener(), SlimeEasy.instance)
@@ -195,7 +196,7 @@ object Registration {
                 Items.AUTO_CLICKER_RECIPE
             )
             autoClicker.register(addon)
-            research("auto_clicker", 9018, "自动点击器", AUTO_CLICKER_RESEARCH_COST, autoClicker)
+            research("auto_clicker", 9018, I18n.text("research.registration-005"), AUTO_CLICKER_RESEARCH_COST, autoClicker)
         }
 
         // 8e. 注册采石场与效率 / 产物升级组件
@@ -213,7 +214,7 @@ object Registration {
             val netherrackUp = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_NETHERRACK_UPGRADE, Items.QUARRY_NETHERRACK_UPGRADE_RECIPE)
             val endStoneUp = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_END_STONE_UPGRADE, Items.QUARRY_END_STONE_UPGRADE_RECIPE)
 
-            research("quarry", 9021, "采石场", QUARRY_RESEARCH_COST,
+            research("quarry", 9021, I18n.text("research.registration-006"), QUARRY_RESEARCH_COST,
                 quarry, effI, effII, effIII, effIV, effV, netherrackUp, endStoneUp)
         }
 
@@ -225,14 +226,14 @@ object Registration {
                 Items.SURVEY_RULER,
                 RecipeType.ENHANCED_CRAFTING_TABLE,
                 Items.SURVEY_RULER_RECIPE,
-                listOf(SurveyTier("工业矿机", MINER_RANGE))
+                listOf(SurveyTier(I18n.text("research.registration-007"), MINER_RANGE))
             )
             surveyRuler.register(addon)
 
             Research(
                 NamespacedKey(SlimeEasy.instance, "survey_ruler"),
                 9004,
-                "矿物勘察尺",
+                I18n.text("research.registration-008"),
                 SURVEY_RULER_RESEARCH_COST
             ).apply {
                 addItems(surveyRuler)
@@ -246,8 +247,8 @@ object Registration {
                 RecipeType.ENHANCED_CRAFTING_TABLE,
                 Items.ADVANCED_SURVEY_RULER_RECIPE,
                 listOf(
-                    SurveyTier("进阶工业矿机", ADVANCED_MINER_RANGE),
-                    SurveyTier("工业矿机", MINER_RANGE)
+                    SurveyTier(I18n.text("research.registration-009"), ADVANCED_MINER_RANGE),
+                    SurveyTier(I18n.text("research.registration-010"), MINER_RANGE)
                 )
             )
             advancedSurveyRuler.register(addon)
@@ -255,7 +256,7 @@ object Registration {
             Research(
                 NamespacedKey(SlimeEasy.instance, "advanced_survey_ruler"),
                 9005,
-                "进阶矿物勘察尺",
+                I18n.text("research.registration-011"),
                 SURVEY_RULER_RESEARCH_COST
             ).apply {
                 addItems(advancedSurveyRuler)
@@ -278,7 +279,7 @@ object Registration {
                 Items.GROWTH_INHIBITOR_RECIPE
             )
             growthInhibitor.register(addon)
-            research("growth_inhibitor", 9019, "生长抑制器", GROWTH_INHIBITOR_RESEARCH_COST, growthInhibitor)
+            research("growth_inhibitor", 9019, I18n.text("research.registration-012"), GROWTH_INHIBITOR_RESEARCH_COST, growthInhibitor)
         }
 
         // 11c. 注册战斗挽具 (4 档, 归实用工具) 并启动乐魂作战定时任务; 关闭时不注册也不启动任务
@@ -289,7 +290,7 @@ object Registration {
             val h2 = harness(Items.COMBAT_HARNESS_II, Items.COMBAT_HARNESS_II_RECIPE)
             val h3 = harness(Items.COMBAT_HARNESS_III, Items.COMBAT_HARNESS_III_RECIPE)
             val h4 = harness(Items.COMBAT_HARNESS_IV, Items.COMBAT_HARNESS_IV_RECIPE)
-            research("combat_harness", 9020, "战斗挽具", COMBAT_HARNESS_RESEARCH_COST, h1, h2, h3, h4)
+            research("combat_harness", 9020, I18n.text("research.registration-013"), COMBAT_HARNESS_RESEARCH_COST, h1, h2, h3, h4)
             HarnessCombat.start()
         }
 
@@ -316,18 +317,18 @@ object Registration {
 
         if (SEConfig.villagerCatcherEnabled) {
             val catcher = plain(VillagerItems.VILLAGER_CATCHER, VillagerItems.VILLAGER_CATCHER_RECIPE)
-            research("villager_catcher", 9011, "村民捕捉器", VILLAGER_CATCHER_RESEARCH_COST, catcher)
+            research("villager_catcher", 9011, I18n.text("research.registration-014"), VILLAGER_CATCHER_RESEARCH_COST, catcher)
             pm.registerEvents(CatcherListener(), SlimeEasy.instance)
         }
         if (SEConfig.zombieSignalEnabled) {
             val zombieSignal = plain(VillagerItems.ZOMBIE_SIGNAL, VillagerItems.ZOMBIE_SIGNAL_RECIPE)
-            research("zombie_signal", 9012, "僵尸信号", ZOMBIE_SIGNAL_RESEARCH_COST, zombieSignal)
+            research("zombie_signal", 9012, I18n.text("research.registration-015"), ZOMBIE_SIGNAL_RESEARCH_COST, zombieSignal)
         }
         if (SEConfig.villagerTraderEnabled) {
             val trader = VillagerTrader(
                 Groups.VILLAGER, VillagerItems.VILLAGER_TRADER, et, VillagerItems.VILLAGER_TRADER_RECIPE
             ).also { it.register(addon) }
-            research("villager_trader", 9013, "村民交易器", VILLAGER_TRADER_RESEARCH_COST, trader)
+            research("villager_trader", 9013, I18n.text("research.registration-016"), VILLAGER_TRADER_RESEARCH_COST, trader)
             pm.registerEvents(TraderListener(), SlimeEasy.instance)
         }
         if (SEConfig.ironFarmEnabled) {
@@ -335,25 +336,25 @@ object Registration {
                 Groups.VILLAGER, VillagerItems.IRON_FARM, et, VillagerItems.IRON_FARM_RECIPE
             ).also { it.register(addon) }
             val speedUpgrade = plain(VillagerItems.IRON_FARM_SPEED_UPGRADE, VillagerItems.IRON_FARM_SPEED_UPGRADE_RECIPE)
-            research("iron_farm", 9014, "胶囊刷铁机", IRON_FARM_RESEARCH_COST, ironFarm, speedUpgrade)
+            research("iron_farm", 9014, I18n.text("research.registration-017"), IRON_FARM_RESEARCH_COST, ironFarm, speedUpgrade)
             pm.registerEvents(IronFarmListener(), SlimeEasy.instance)
         }
         if (SEConfig.villagerSchoolEnabled) {
             val school = VillagerSchool(
                 Groups.VILLAGER, VillagerItems.VILLAGER_SCHOOL, et, VillagerItems.VILLAGER_SCHOOL_RECIPE
             ).also { it.register(addon) }
-            research("villager_school", 9015, "村民小学", VILLAGER_SCHOOL_RESEARCH_COST, school)
+            research("villager_school", 9015, I18n.text("research.registration-018"), VILLAGER_SCHOOL_RESEARCH_COST, school)
         }
         if (SEConfig.forgettingPotionEnabled) {
             val forgettingPotion = plain(VillagerItems.FORGETTING_POTION, VillagerItems.FORGETTING_POTION_RECIPE)
-            research("forgetting_potion", 9016, "遗忘药剂", FORGETTING_POTION_RESEARCH_COST, forgettingPotion)
+            research("forgetting_potion", 9016, I18n.text("research.registration-019"), FORGETTING_POTION_RESEARCH_COST, forgettingPotion)
             pm.registerEvents(ForgettingPotionListener(), SlimeEasy.instance)
         }
         if (SEConfig.villagerHealerEnabled) {
             val healer = VillagerHealer(
                 Groups.VILLAGER, VillagerItems.VILLAGER_HEALER, et, VillagerItems.VILLAGER_HEALER_RECIPE
             ).also { it.register(addon) }
-            research("villager_healer", 9017, "村民治愈机", VILLAGER_HEALER_RESEARCH_COST, healer)
+            research("villager_healer", 9017, I18n.text("research.registration-020"), VILLAGER_HEALER_RESEARCH_COST, healer)
         }
     }
 
@@ -379,13 +380,13 @@ object Registration {
 
         if (drawerOn) {
             val drawer = Drawer(Groups.STORAGE, StorageItems.DRAWER, et, StorageItems.DRAWER_RECIPE).also { it.register(addon) }
-            research("storage_drawer", 9006, "海量抽屉", DRAWER_RESEARCH_COST, drawer)
+            research("storage_drawer", 9006, I18n.text("research.registration-021"), DRAWER_RESEARCH_COST, drawer)
             // 抽屉展示框交互监听器 (仅抽屉需要)
             pm.registerEvents(DrawerListener(), SlimeEasy.instance)
         }
         if (boxOn) {
             val box = PagedBox(Groups.STORAGE, StorageItems.BOX, et, StorageItems.BOX_RECIPE).also { it.register(addon) }
-            research("storage_box", 9007, "翻页存储箱", BOX_RESEARCH_COST, box)
+            research("storage_box", 9007, I18n.text("research.registration-022"), BOX_RESEARCH_COST, box)
         }
         if (upgradeOn) {
             val stackI = plain(StorageItems.STACK_I, StorageItems.STACK_I_RECIPE)
@@ -402,7 +403,7 @@ object Registration {
             val remoteUp = RemoteUpgrade(Groups.STORAGE, StorageItems.REMOTE_UPGRADE, et, StorageItems.REMOTE_UPGRADE_RECIPE)
                 .also { it.register(addon) }
             val outputUp = plain(StorageItems.OUTPUT_UPGRADE, StorageItems.OUTPUT_UPGRADE_RECIPE)
-            research("storage_upgrades", 9008, "存储升级组件", STORAGE_UPGRADE_RESEARCH_COST,
+            research("storage_upgrades", 9008, I18n.text("research.registration-023"), STORAGE_UPGRADE_RESEARCH_COST,
                 stackI, stackII, stackIII, expUp, magnetUp, voidUp, pageUp, wiseUp, enderWiseUp, extractUp, remoteUp, outputUp)
         }
         if (networkOn) {
@@ -411,7 +412,7 @@ object Registration {
             val inputPort = NetworkPort(Groups.STORAGE, StorageItems.INPUT_PORT, et, StorageItems.INPUT_PORT_RECIPE, true).also { it.register(addon) }
             val outputPort = NetworkPort(Groups.STORAGE, StorageItems.OUTPUT_PORT, et, StorageItems.OUTPUT_PORT_RECIPE, false).also { it.register(addon) }
             val remoteTerminal = RemoteTerminal(Groups.STORAGE, StorageItems.REMOTE_TERMINAL, et, StorageItems.REMOTE_TERMINAL_RECIPE).also { it.register(addon) }
-            research("storage_network", 9009, "存储网络", NETWORK_RESEARCH_COST,
+            research("storage_network", 9009, I18n.text("research.registration-024"), NETWORK_RESEARCH_COST,
                 controller, connector, inputPort, outputPort, remoteTerminal)
         }
 

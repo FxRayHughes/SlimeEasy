@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.villager.catcher
 
+import top.maplex.slimeEasy.config.I18n
 import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.entity.Villager
@@ -40,7 +41,7 @@ class CatcherListener : Listener {
         e.isCancelled = true // 拦下原版交易界面
 
         if (VillagerCatcher.isFilled(hand)) {
-            player.sendMessage("§c[捕捉器] §7该捕捉器已装有村民, 请先放出。")
+            player.sendMessage(I18n.text("messages.catcher-listener-001"))
             return
         }
 
@@ -52,7 +53,7 @@ class CatcherListener : Listener {
         target.remove()
         VillagerCatcher.replaceOneInHand(player, VillagerCatcher.fill(data))
         player.playSound(player.location, Sound.ENTITY_ITEM_PICKUP, 1f, 1.2f)
-        player.sendMessage("§a[捕捉器] §7已收入 (§f${data.professionLabel}§7)。")
+        player.sendMessage(I18n.text("messages.catcher-listener-002", "value0" to (data.professionLabel)))
     }
 
     /** 释放: 潜行 + 右键 (空气 / 方块), 满捕捉器放出村民。 */
@@ -82,7 +83,7 @@ class CatcherListener : Listener {
             else { cur.amount -= 1; player.inventory.setItemInMainHand(cur) }
         }
         player.playSound(loc, Sound.ENTITY_ITEM_PICKUP, 1f, 0.8f)
-        player.sendMessage("§a[捕捉器] §7已放出村民 (§f${data.professionLabel}§7)。")
+        player.sendMessage(I18n.text("messages.catcher-listener-003", "value0" to (data.professionLabel)))
     }
 
     /** 释放坐标: 点到方块则其上方, 否则玩家视线前方 2 格。 */

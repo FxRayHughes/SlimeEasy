@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.registry
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -24,10 +25,10 @@ object VillagerItems {
     val ZOMBIE_SIGNAL: SlimefunItemStack = SEText.stack(
         ZOMBIE_SIGNAL_ID,
         Material.ZOMBIE_HEAD,
-        "&2僵尸信号",
+        I18n.raw("items.villager-items-001"),
         "",
-        "&7以腐肉与铁锭合成的僵尸气息信号。",
-        "&7胶囊刷铁机的必备催化剂 (装入即可, 不消耗)。"
+        I18n.raw("items.villager-items-002"),
+        I18n.raw("items.villager-items-003")
     )
     val ZOMBIE_SIGNAL_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.ROTTEN_FLESH), ItemStack(Material.ROTTEN_FLESH), ItemStack(Material.ROTTEN_FLESH),
@@ -48,12 +49,12 @@ object VillagerItems {
     val VILLAGER_CATCHER: SlimefunItemStack = SEText.stack(
         VILLAGER_CATCHER_ID,
         Material.GLASS_BOTTLE,
-        "&a村民捕捉器",
+        I18n.raw("items.villager-items-004"),
         "",
-        "&7右键活体村民: &f收入此瓶 &7(保留其全部属性)。",
-        "&7潜行 + 右键: &f放出 &7瓶中村民。",
+        I18n.raw("items.villager-items-005"),
+        I18n.raw("items.villager-items-006"),
         "",
-        "&7空瓶亦可作交易器 / 刷铁机的合成材料。"
+        I18n.raw("items.villager-items-007")
     )
     val VILLAGER_CATCHER_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.IRON_INGOT), ItemStack(Material.NAME_TAG), ItemStack(Material.IRON_INGOT),
@@ -67,17 +68,17 @@ object VillagerItems {
     val VILLAGER_TRADER: SlimefunItemStack = SEText.stack(
         VILLAGER_TRADER_ID,
         Material.GLASS,
-        "&b村民交易器",
+        I18n.raw("items.villager-items-008"),
         "",
-        "&7透明容器, 内嵌一只小村民展示。",
+        I18n.raw("items.villager-items-009"),
         "",
-        "&7空块右键: 放入 &f村民 (满捕捉器) &7或 &f工作站方块&7;",
-        "&7已装村民时右键: &f直接打开交易界面&7;",
-        "&7潜行 + 右键: &f取出 &7村民或工作站方块。",
+        I18n.raw("items.villager-items-010"),
+        I18n.raw("items.villager-items-011"),
+        I18n.raw("items.villager-items-012"),
         "",
-        "&7装配的村民与工作站方块匹配时, 按配置间隔 &f自动补货&7,",
-        "&7补货不受时间 / 范围等外部因素影响。",
-        "&7玩家与其交易, 而无需操心保护村民。"
+        I18n.raw("items.villager-items-013"),
+        I18n.raw("items.villager-items-014"),
+        I18n.raw("items.villager-items-015")
     )
     val VILLAGER_TRADER_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.GLASS), ItemStack(Material.EMERALD), ItemStack(Material.GLASS),
@@ -91,14 +92,14 @@ object VillagerItems {
     val IRON_FARM: SlimefunItemStack = SEText.stack(
         IRON_FARM_ID,
         Material.GLASS,
-        "&f胶囊刷铁机",
+        I18n.raw("items.villager-items-016"),
         "",
-        "&7透明容器, 内嵌村民与僵尸展示; 产铁瞬间闪现铁傀儡。",
+        I18n.raw("items.villager-items-017"),
         "",
-        "&7右键打开界面, 放入:",
-        "&7· &f村民 (满捕捉器)&7 · &f僵尸信号&7 · &f食物&7 · &f速度升级&7;",
-        "&7三者齐全 (村民 + 僵尸信号 + 食物) 时按周期产出铁锭,",
-        "&7每周期消耗少量食物; 速度升级可缩短周期。"
+        I18n.raw("items.villager-items-018"),
+        I18n.raw("items.villager-items-019"),
+        I18n.raw("items.villager-items-020"),
+        I18n.raw("items.villager-items-021")
     )
     val IRON_FARM_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.IRON_BLOCK), ZOMBIE_SIGNAL.clone(), ItemStack(Material.IRON_BLOCK),
@@ -111,10 +112,10 @@ object VillagerItems {
     val IRON_FARM_SPEED_UPGRADE: SlimefunItemStack = SEText.stack(
         IRON_FARM_SPEED_UPGRADE_ID,
         Material.CLOCK,
-        "&e刷铁机 · 速度升级",
+        I18n.raw("items.villager-items-022"),
         "",
-        "&7放入胶囊刷铁机的速度升级槽。",
-        "&7堆叠数量 = 级数; 级数越高产铁周期越短。"
+        I18n.raw("items.villager-items-023"),
+        I18n.raw("items.villager-items-024")
     )
     val IRON_FARM_SPEED_UPGRADE_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.REDSTONE), ItemStack(Material.CLOCK), ItemStack(Material.REDSTONE),
@@ -128,11 +129,11 @@ object VillagerItems {
     val VILLAGER_SCHOOL: SlimefunItemStack = SEText.stack(
         VILLAGER_SCHOOL_ID,
         Material.LECTERN,
-        "&6村民小学",
+        I18n.raw("items.villager-items-025"),
         "",
-        "&7右键打开界面, 放入 &f傻子村民 (满捕捉器)&7,",
-        "&7按配置时间后自动转化为 &f无职业普通村民&7 (可再就业),",
-        "&7转化结果落入输出槽。"
+        I18n.raw("items.villager-items-026"),
+        I18n.raw("items.villager-items-027"),
+        I18n.raw("items.villager-items-028")
     )
     val VILLAGER_SCHOOL_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.BOOK), ItemStack(Material.BOOKSHELF), ItemStack(Material.BOOK),
@@ -146,11 +147,11 @@ object VillagerItems {
     val VILLAGER_HEALER: SlimefunItemStack = SEText.stack(
         VILLAGER_HEALER_ID,
         Material.GOLD_BLOCK,
-        "&6村民治愈机",
+        I18n.raw("items.villager-items-029"),
         "",
-        "&7右键打开界面, 放入 &f僵尸村民 (满捕捉器)&7 与 &f普通金苹果&7,",
-        "&7按配置时间后把僵尸村民 &f治愈为普通村民&7 (保留职业),",
-        "&7每次消耗一个普通金苹果; 结果落入输出槽。"
+        I18n.raw("items.villager-items-030"),
+        I18n.raw("items.villager-items-031"),
+        I18n.raw("items.villager-items-032")
     )
     val VILLAGER_HEALER_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.GOLD_INGOT), ItemStack(Material.GOLDEN_APPLE), ItemStack(Material.GOLD_INGOT),
@@ -164,11 +165,11 @@ object VillagerItems {
     val FORGETTING_POTION: SlimefunItemStack = SEText.stack(
         FORGETTING_POTION_ID,
         Material.POTION,
-        "&d遗忘药剂",
+        I18n.raw("items.villager-items-033"),
         "",
-        "&7右键一只活体村民: 使其 &f忘却职业&7,",
-        "&7变回无职业普通村民 (可重新就业)。",
-        "&7每次消耗一瓶。"
+        I18n.raw("items.villager-items-034"),
+        I18n.raw("items.villager-items-035"),
+        I18n.raw("items.villager-items-036")
     )
     val FORGETTING_POTION_RECIPE: Array<ItemStack?> = arrayOf(
         null, ItemStack(Material.GHAST_TEAR), null,

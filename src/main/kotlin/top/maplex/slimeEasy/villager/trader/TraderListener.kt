@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.villager.trader
 
+import top.maplex.slimeEasy.config.I18n
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import org.bukkit.Sound
 import org.bukkit.block.Block
@@ -74,17 +75,17 @@ class TraderListener : Listener {
             TraderStore.setVillager(block, null)
             VillagerTrader.removeDisplay(block)
             player.playSound(block.location, Sound.ENTITY_ITEM_PICKUP, 1f, 0.8f)
-            player.sendMessage("§a[交易器] §7已取出村民 (§f${villager.professionLabel}§7)。")
+            player.sendMessage(I18n.text("messages.trader-listener-001", "value0" to (villager.professionLabel)))
             return
         }
         val workstation = TraderStore.getWorkstation(block)
         if (workstation != null) {
             give(player, ItemStack(workstation))
             TraderStore.setWorkstation(block, null)
-            player.sendMessage("§a[交易器] §7已取出工作站方块 (§f${workstation.name}§7)。")
+            player.sendMessage(I18n.text("messages.trader-listener-002", "value0" to (workstation.name)))
             return
         }
-        player.sendMessage("§7[交易器] 里面是空的。")
+        player.sendMessage(I18n.text("messages.trader-listener-003"))
     }
 
     /** 右键: 放入村民 / 工作站, 或打开交易。 */
@@ -96,7 +97,7 @@ class TraderListener : Listener {
             WorkstationMap.isWorkstation(hand.type) && TraderStore.getWorkstation(block) == null ->
                 insertWorkstation(block, player, hand)
             stored != null -> TraderMerchant.open(player, block, stored)
-            else -> player.sendMessage("§7[交易器] 右键放入 §f村民(满捕捉器) §7或 §f工作站方块§7。")
+            else -> player.sendMessage(I18n.text("messages.trader-listener-004"))
         }
     }
 
@@ -107,13 +108,13 @@ class TraderListener : Listener {
         VillagerTrader.spawnDisplay(block, data)
         consumeOne(player)
         player.playSound(block.location, Sound.ENTITY_VILLAGER_AMBIENT, 1f, 1f)
-        player.sendMessage("§a[交易器] §7已放入村民 (§f${data.professionLabel}§7)。")
+        player.sendMessage(I18n.text("messages.trader-listener-005", "value0" to (data.professionLabel)))
     }
 
     private fun insertWorkstation(block: Block, player: Player, hand: ItemStack) {
         TraderStore.setWorkstation(block, hand.type)
         consumeOne(player)
-        player.sendMessage("§a[交易器] §7已放入工作站方块 (§f${hand.type.name}§7); 与村民匹配即每 §f${VillagerConfig.traderRestockMillis / 1000}s §7补货。")
+        player.sendMessage(I18n.text("messages.trader-listener-006", "value0" to (hand.type.name), "value1" to (VillagerConfig.traderRestockMillis / 1000)))
     }
 
     /** 交易界面关闭: 驱动升级、回存快照并移除代理村民。 */

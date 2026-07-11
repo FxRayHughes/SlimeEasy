@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.feature.survey
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -28,7 +29,7 @@ class SurveyDisplayListener : Listener {
         // 取消原版左键 (破坏 / 攻击), 仅执行展示形式切换
         e.isCancelled = true
         val next = SurveyState.toggleDisplay(item)
-        val label = if (next == SurveyDisplay.GUI) "箱子界面" else "聊天栏"
-        e.player.sendMessage("§6[勘察尺] §7已切换展示形式: §f$label")
+        val label = if (next == SurveyDisplay.GUI) I18n.text("messages.survey-display-listener-001") else I18n.text("messages.survey-display-listener-002")
+        e.player.sendMessage(I18n.text("messages.survey-display-listener-003", "value0" to (label)))
     }
 }

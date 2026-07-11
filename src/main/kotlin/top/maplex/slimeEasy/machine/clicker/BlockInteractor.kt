@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.machine.clicker
 
+import top.maplex.slimeEasy.config.I18n
 import org.bukkit.Bukkit
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
@@ -38,7 +39,7 @@ object BlockInteractor {
 
     private val refl: Refl? by lazy {
         runCatching { build() }.getOrElse {
-            Bukkit.getLogger().warning("[SlimeEasy] 自动点击器 NMS 交互反射初始化失败, 点击降级为无效: ${it.message}")
+            Bukkit.getLogger().warning(I18n.text("messages.block-interactor-001", "value0" to (it.message)))
             null
         }
     }

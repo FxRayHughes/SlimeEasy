@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.machine.butcher
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset
@@ -40,11 +41,11 @@ class ButcherMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) 
         drawBackground(GuiItems.BACKGROUND, backgroundSlots())
         protectedItem(INFO_SLOT, infoTemplate())
         // 每个功能区以对应色的彩色玻璃标注, 便于一眼分辨槽位用途
-        protectedItem(LABEL_WEAPON, label(Material.YELLOW_STAINED_GLASS_PANE, "§e武器区 (下方一行)", "§7放入至多 7 把武器", "§7第一把优先, 耐久耗尽自动切下一把"))
-        protectedItem(LABEL_BOOK, label(Material.MAGENTA_STAINED_GLASS_PANE, "§d附魔书 →", "§7放入附魔书", "§7抢夺 / 锋利 / 火焰附加生效"))
-        protectedItem(LABEL_FOOD, label(Material.ORANGE_STAINED_GLASS_PANE, "§6食物 →", "§7放入食物", "§7每 1 饱食度 = 15 次攻击", "§7内部缓存上限 100 饱食度"))
-        protectedItem(LABEL_RANGE, label(Material.LIGHT_BLUE_STAINED_GLASS_PANE, "§b范围升级 →", "§7堆叠数量 = 级数 (最多 5)", "§7每级攻击截面 +2、纵深 +1"))
-        protectedItem(LABEL_DAMAGE, label(Material.RED_STAINED_GLASS_PANE, "§c伤害升级 →", "§7堆叠数量 = 级数 (最多 5)", "§7每级伤害 +50% 基础值"))
+        protectedItem(LABEL_WEAPON, label(Material.YELLOW_STAINED_GLASS_PANE, I18n.text("menus.butcher-menu-preset-001"), I18n.text("menus.butcher-menu-preset-002"), I18n.text("menus.butcher-menu-preset-003")))
+        protectedItem(LABEL_BOOK, label(Material.MAGENTA_STAINED_GLASS_PANE, I18n.text("menus.butcher-menu-preset-004"), I18n.text("menus.butcher-menu-preset-005"), I18n.text("menus.butcher-menu-preset-006")))
+        protectedItem(LABEL_FOOD, label(Material.ORANGE_STAINED_GLASS_PANE, I18n.text("menus.butcher-menu-preset-007"), I18n.text("menus.butcher-menu-preset-008"), I18n.text("menus.butcher-menu-preset-009"), I18n.text("menus.butcher-menu-preset-010")))
+        protectedItem(LABEL_RANGE, label(Material.LIGHT_BLUE_STAINED_GLASS_PANE, I18n.text("menus.butcher-menu-preset-011"), I18n.text("menus.butcher-menu-preset-012"), I18n.text("menus.butcher-menu-preset-013")))
+        protectedItem(LABEL_DAMAGE, label(Material.RED_STAINED_GLASS_PANE, I18n.text("menus.butcher-menu-preset-014"), I18n.text("menus.butcher-menu-preset-015"), I18n.text("menus.butcher-menu-preset-016")))
     }
 
     /** 放置一个受保护 (不可被玩家拿走 / 放入) 的预设图标。 */
@@ -160,11 +161,11 @@ class ButcherMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) 
 
         /** 信息面板静态模板 (无 block 上下文时的初始占位, 打开/tick 后由 [updateInfo] 刷新)。 */
         private fun infoTemplate(): ItemStack = GuiItems.named(
-            Material.OBSERVER, "§c屠夫机器",
-            "§7自动攻击脸朝向前方区域内的非玩家生物。",
+            Material.OBSERVER, I18n.text("menus.butcher-menu-preset-017"),
+            I18n.text("menus.butcher-menu-preset-018"),
             "",
-            "§7右键放入: 武器 / 附魔书 / 食物 / 升级组件。",
-            "§7食物也可用漏斗或物流网络自动输入。"
+            I18n.text("menus.butcher-menu-preset-019"),
+            I18n.text("menus.butcher-menu-preset-020")
         )
 
         /**
@@ -175,7 +176,7 @@ class ButcherMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) 
          * 由 [init] 重绘), 无需落盘。直更库存对正在查看的玩家实时可见, 且零 I/O。
          */
         fun updateInfo(menu: BlockMenu, fuel: Long) {
-            val weapon = firstWeapon(menu)?.second?.type?.name ?: "无"
+            val weapon = firstWeapon(menu)?.second?.type?.name ?: I18n.text("menus.butcher-menu-preset-021")
             val satiety = fuel / ButcherLogic.ATTACKS_PER_NUTRITION
             val range = rangeLevel(menu)
             val dmg = damageLevel(menu)
@@ -183,17 +184,17 @@ class ButcherMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) 
             menu.toInventory().setItem(
                 INFO_SLOT,
                 GuiItems.named(
-                    Material.OBSERVER, "§c屠夫机器",
-                    "§7当前武器: §f$weapon",
-                    "§7内部余量: §f$satiety§7/§f${ButcherLogic.MAX_SATIETY} §7饱食度 (§f$fuel §7次)",
-                    "§7攻击范围: §f${span}×${span} §7(范围升级 §f$range§7)",
-                    "§7伤害倍率: §f×${"%.1f".format(1.0 + 0.5 * dmg)} §7(伤害升级 §f$dmg§7)",
+                    Material.OBSERVER, I18n.text("menus.butcher-menu-preset-022"),
+                    I18n.text("menus.butcher-menu-preset-023", "value0" to (weapon)),
+                    I18n.text("menus.butcher-menu-preset-024", "value0" to (satiety), "value1" to (ButcherLogic.MAX_SATIETY), "value2" to (fuel)),
+                    I18n.text("menus.butcher-menu-preset-025", "value0" to (span), "value1" to (span), "value2" to (range)),
+                    I18n.text("menus.butcher-menu-preset-026", "value0" to ("%.1f".format(1.0 + 0.5 * dmg)), "value1" to (dmg)),
                     "",
-                    "§7武器区 (下方一行) 放至多 7 把武器",
-                    "§7附魔书: 抢夺/锋利/火焰附加生效",
-                    "§7食物: 每 1 饱食度 = 15 次攻击",
-                    "§7升级槽: 范围 / 伤害组件 (最多 5 级)",
-                    "§7所有物品均可用漏斗 (任意面对准) 或物流输入"
+                    I18n.text("menus.butcher-menu-preset-027"),
+                    I18n.text("menus.butcher-menu-preset-028"),
+                    I18n.text("menus.butcher-menu-preset-029"),
+                    I18n.text("menus.butcher-menu-preset-030"),
+                    I18n.text("menus.butcher-menu-preset-031")
                 )
             )
         }

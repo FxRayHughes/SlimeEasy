@@ -22,7 +22,7 @@ https://github.com/FxRayHughes/SlimeEasy/releases/download/latest/SlimeEasy-1.0-
 
 ## 内容一览
 
-全部内容分入四个 Slimefun 分类: **实用机械** (自动化装置)、**实用工具** (手持辅助工具)、**存储系统** (海量存储与存储网络) 与 **简易村民** (与村民打交道而无需操心保护村民)。功能开关、研究等级与主要运行参数均由 `config.yml` 管理; 下文数值未特别说明时均为默认值。
+全部内容分入四个 Slimefun 分类: **实用机械** (自动化装置)、**实用工具** (手持辅助工具)、**存储系统** (海量存储与存储网络) 与 **简易村民** (与村民打交道而无需操心保护村民)。功能开关、研究等级与主要运行参数由 `config.yml` 管理，玩家可见文本由 `lang/<language>.yml` 管理; 下文数值未特别说明时均为默认值。
 
 ### 自动破坏机
 
@@ -222,7 +222,7 @@ https://github.com/FxRayHughes/SlimeEasy/releases/download/latest/SlimeEasy-1.0-
 
 ## 配置与重载
 
-默认配置位于 `plugins/SlimeEasy/config.yml`, 仓库模板见 `src/main/resources/config.yml`。
+默认配置位于 `plugins/SlimeEasy/config.yml`, 仓库模板见 `src/main/resources/config.yml`。`language` 指定语言文件名，默认 `zh_CN`，对应 `plugins/SlimeEasy/lang/zh_CN.yml`。
 
 | 配置段 | 主要内容 |
 |---|---|
@@ -236,8 +236,9 @@ https://github.com/FxRayHughes/SlimeEasy/releases/download/latest/SlimeEasy-1.0-
 | `storage` | 容量、磁吸、升级/过滤上限、搬运吞吐、网络半径与远程绑定上限 |
 | `villager` | 补货、产铁、转化、治愈时间与产量 |
 
-- `/se reload` (`slimeeasy.admin`) 可即时重载运行时数值。
-- 功能开关、研究等级与 `items` 物品文本在 Slimefun 注册阶段冻结, 修改后需重启服务端。
+- `/se reload` (`slimeeasy.admin`) 可即时重载运行时数值和当前语言文件。
+- 后续读取的消息与界面文本重载后立即生效；物品、分类、研究及已缓存界面文本与功能开关修改后需重启服务端。
+- 语言文件颜色码使用 `&`，动态值使用 `{placeholder}` 占位符；自定义语言缺失的键自动回退到插件内置简体中文。
 - 时间单位以字段注释为准: `seconds` 使用墙钟时间, `ticks` 使用 Bukkit / Slimefun 调度单位。
 
 ## 从源码构建
@@ -260,6 +261,7 @@ https://github.com/FxRayHughes/SlimeEasy/releases/download/latest/SlimeEasy-1.0-
 src/main/kotlin/top/maplex/slimeEasy/
 ├── SlimeEasy.kt              插件主类 (入口)
 ├── SlimeEasyAddon.kt         Slimefun 附属身份
+├── config/                   配置读取与独立 i18n 语言服务
 ├── machine/
 │   ├── common/               机器共享层
 │   │   ├── PistonSupport      活塞方向 / 目标方块定位
@@ -300,6 +302,10 @@ src/main/kotlin/top/maplex/slimeEasy/
 │   └── potion/               遗忘药剂
 ├── registry/                 物品 / 分类 / 研究 / 配方注册
 └── util/                     跨模块小型工具 (方块位置键与持久化坐标编解码)
+
+src/main/resources/
+├── config.yml                功能开关与运行参数
+└── lang/zh_CN.yml            简体中文名称、Lore、菜单与消息
 ```
 
 ## 持续集成

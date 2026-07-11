@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.network
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.libraries.dough.chat.ChatInput
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
@@ -50,7 +51,7 @@ object NetworkMenu {
         val player: Player,
         val switchTerminal: ((Player) -> Unit)?
     ) {
-        val menu = ChestMenu("§9存储网络终端")
+        val menu = ChestMenu(I18n.text("menus.network-menu-001"))
         var page = 0
 
         /**
@@ -130,10 +131,10 @@ object NetworkMenu {
             menu.addItem(PREV_SLOT, GuiItems.PREV_PAGE) { _, _, _, _ -> if (page > 0) { page--; render() }; false }
             menu.addItem(NEXT_SLOT, GuiItems.NEXT_PAGE) { _, _, _, _ -> if (page < pages - 1) { page++; render() }; false }
             menu.addItem(INFO_SLOT, GuiItems.named(org.bukkit.Material.PAPER,
-                "§e第 ${page + 1}/$pages 页", "§7成员: ${net.members.size}")) { _, _, _, _ -> false }
+                I18n.text("menus.network-menu-002", "value0" to (page + 1), "value1" to (pages)), I18n.text("menus.network-menu-003", "value0" to (net.members.size)))) { _, _, _, _ -> false }
             if (switchTerminal != null) {
                 menu.addItem(SWITCH_TERMINAL_SLOT, GuiItems.named(org.bukkit.Material.ENDER_EYE,
-                    "§d切换远程终端", "§7点击切换到下一个已绑定的控制器")) { p, _, _, _ ->
+                    I18n.text("menus.network-menu-004"), I18n.text("menus.network-menu-005"))) { p, _, _, _ ->
                     switchTerminal.invoke(p)
                     false
                 }
@@ -145,10 +146,10 @@ object NetworkMenu {
         /** 渲染搜索按钮: 左键输入关键词, 有关键词时右键清空。 */
         private fun renderSearchButton() {
             val icon = if (filter.isEmpty())
-                GuiItems.named(org.bukkit.Material.SPYGLASS, "§b搜索物品", "§7左键点击, 在聊天栏输入关键词")
+                GuiItems.named(org.bukkit.Material.SPYGLASS, I18n.text("menus.network-menu-006"), I18n.text("menus.network-menu-007"))
             else
                 GuiItems.named(org.bukkit.Material.SPYGLASS,
-                    "§b搜索: §f$filter", "§7左键重新搜索", "§7右键清空搜索")
+                    I18n.text("menus.network-menu-008", "value0" to (filter)), I18n.text("menus.network-menu-009"), I18n.text("menus.network-menu-010"))
             menu.addItem(SEARCH_SLOT, icon) { _, _, _, act ->
                 if (filter.isNotEmpty() && act.isRightClicked) { filter = ""; page = 0; render() }
                 else promptSearch()
@@ -164,7 +165,7 @@ object NetworkMenu {
          * 玩家离线则丢弃。关闭期间本视图已从 [openViews] 移除, 不受库存变更重绘干扰。
          */
         private fun promptSearch() {
-            player.sendMessage("§b[网络终端] §7请在聊天栏输入搜索关键词 (输入 §fcancel §7取消):")
+            player.sendMessage(I18n.text("menus.network-menu-011"))
             player.closeInventory()
             ChatInput.waitForPlayer(SlimeEasy.instance, player) { input ->
                 Bukkit.getScheduler().runTask(SlimeEasy.instance, Runnable {
@@ -180,14 +181,14 @@ object NetworkMenu {
 
         /** 渲染排序控制按钮 (字段切换 + 方向切换); 点击后写回玩家偏好并重绘。 */
         private fun renderSortButtons() {
-            val fieldName = if (TerminalSortState.field(player) == TerminalSortState.Field.NAME) "名称" else "存量"
+            val fieldName = if (TerminalSortState.field(player) == TerminalSortState.Field.NAME) I18n.text("menus.network-menu-012") else I18n.text("menus.network-menu-013")
             menu.addItem(SORT_FIELD_SLOT, GuiItems.named(org.bukkit.Material.NAME_TAG,
-                "§b排序: §f$fieldName", "§7点击切换 名称 / 存量")) { _, _, _, _ ->
+                I18n.text("menus.network-menu-014", "value0" to (fieldName)), I18n.text("menus.network-menu-015"))) { _, _, _, _ ->
                 TerminalSortState.cycleField(player); render(resort = true); false
             }
-            val dirName = if (TerminalSortState.descending(player)) "倒序 ↓" else "正序 ↑"
+            val dirName = if (TerminalSortState.descending(player)) I18n.text("menus.network-menu-016") else I18n.text("menus.network-menu-017")
             menu.addItem(SORT_DIR_SLOT, GuiItems.named(org.bukkit.Material.COMPARATOR,
-                "§b顺序: §f$dirName", "§7点击切换 正序 / 倒序")) { _, _, _, _ ->
+                I18n.text("menus.network-menu-018", "value0" to (dirName)), I18n.text("menus.network-menu-019"))) { _, _, _, _ ->
                 TerminalSortState.toggleDir(player); render(resort = true); false
             }
         }

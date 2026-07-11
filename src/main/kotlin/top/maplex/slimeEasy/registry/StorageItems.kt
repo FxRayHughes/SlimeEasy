@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.registry
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -10,7 +11,7 @@ import top.maplex.slimeEasy.config.SEText
  *
  * 仅存放 [SlimefunItemStack] 模板与合成配方, 不涉及行为逻辑。升级组件 ID 必须与
  * [top.maplex.slimeEasy.storage.upgrade.UpgradeType] 中登记的 itemId 完全一致。
- * 物品名称 / Lore 经 [SEText] 从配置读取 (缺失以此处默认值自动写入), 修改需重启生效。
+ * 物品名称 / Lore 经 [I18n] 从独立语言文件读取，修改后需重启生效。
  */
 object StorageItems {
 
@@ -18,13 +19,13 @@ object StorageItems {
 
     const val DRAWER_ID = "SE_DRAWER"
     val DRAWER = SEText.stack(
-        DRAWER_ID, Material.BARREL, "&e海量抽屉",
-        "", "&7存储 &f单一种类 &7物品, 数量远超原版堆叠。",
-        "&7放置后朝向你的一面会显示物品; &f准星对准 &7查看数量。",
-        "", "&7展示框右键: 存入手中该组; &f双击 &7存入背包全部同类;",
-        "&7展示框左键: 取出一个; &fShift+左键 &7取出一组;",
-        "&f右键木桶本体 &7打开操作界面 (含升级入口)。",
-        "", "&7可接入原版货运网络。"
+        DRAWER_ID, Material.BARREL, I18n.raw("items.storage-items-001"),
+        "", I18n.raw("items.storage-items-002"),
+        I18n.raw("items.storage-items-003"),
+        "", I18n.raw("items.storage-items-004"),
+        I18n.raw("items.storage-items-005"),
+        I18n.raw("items.storage-items-006"),
+        "", I18n.raw("items.storage-items-007")
     )
     val DRAWER_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.OAK_PLANKS), ItemStack(Material.CHEST), ItemStack(Material.OAK_PLANKS),
@@ -34,12 +35,12 @@ object StorageItems {
 
     const val BOX_ID = "SE_PAGED_BOX"
     val BOX = SEText.stack(
-        BOX_ID, Material.BARREL, "&6翻页存储箱",
-        "", "&7存储 &f多种 &7物品 (每种一格, 每页容量由配置决定),",
-        "&7每格数量远超原版堆叠。",
-        "", "&7右键打开分页界面: 点击箱内物品取出,",
-        "&7点击背包物品存入; 界面内可打开升级 GUI。",
-        "", "&7可接入原版货运网络。"
+        BOX_ID, Material.BARREL, I18n.raw("items.storage-items-008"),
+        "", I18n.raw("items.storage-items-009"),
+        I18n.raw("items.storage-items-010"),
+        "", I18n.raw("items.storage-items-011"),
+        I18n.raw("items.storage-items-012"),
+        "", I18n.raw("items.storage-items-013")
     )
     val BOX_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.CHEST), ItemStack(Material.CHEST), ItemStack(Material.CHEST),
@@ -51,12 +52,12 @@ object StorageItems {
 
     const val CONTROLLER_ID = "SE_NET_CONTROLLER"
     val CONTROLLER = SEText.stack(
-        CONTROLLER_ID, Material.CHISELED_BOOKSHELF, "&b网络控制器",
-        "", "&7存储网络的大脑与访问入口。",
-        "&7右键打开 &f聚合终端&7: 一处存取全网所有",
-        "&7抽屉 / 存储箱的库存。",
-        "", "&7每 tick 驱动网络内的输入 / 输出端口路由,",
-        "&7桥接原版货运。覆盖半径由服务器配置决定。"
+        CONTROLLER_ID, Material.CHISELED_BOOKSHELF, I18n.raw("items.storage-items-014"),
+        "", I18n.raw("items.storage-items-015"),
+        I18n.raw("items.storage-items-016"),
+        I18n.raw("items.storage-items-017"),
+        "", I18n.raw("items.storage-items-018"),
+        I18n.raw("items.storage-items-019")
     )
     val CONTROLLER_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.IRON_INGOT), ItemStack(Material.ENDER_EYE), ItemStack(Material.IRON_INGOT),
@@ -66,9 +67,9 @@ object StorageItems {
 
     const val CONNECTOR_ID = "SE_NET_CONNECTOR"
     val CONNECTOR = SEText.stack(
-        CONNECTOR_ID, Material.IRON_BARS, "&7网络连接器",
-        "", "&7网络导线: 连接控制器与各存储方块 / 端口。",
-        "&7相邻放置即导通, 无需朝向。"
+        CONNECTOR_ID, Material.IRON_BARS, I18n.raw("items.storage-items-020"),
+        "", I18n.raw("items.storage-items-021"),
+        I18n.raw("items.storage-items-022")
     )
     val CONNECTOR_RECIPE: Array<ItemStack?> = arrayOf(
         null, ItemStack(Material.IRON_INGOT), null,
@@ -78,10 +79,10 @@ object StorageItems {
 
     const val INPUT_PORT_ID = "SE_NET_INPUT_PORT"
     val INPUT_PORT = SEText.stack(
-        INPUT_PORT_ID, Material.DROPPER, "&a网络输入端口",
-        "", "&7货运塞入的物品会被 &f分发进网络&7,",
-        "&7按优先级填入各成员容器。",
-        "", "&7需连入含控制器的网络方可工作。"
+        INPUT_PORT_ID, Material.DROPPER, I18n.raw("items.storage-items-023"),
+        "", I18n.raw("items.storage-items-024"),
+        I18n.raw("items.storage-items-025"),
+        "", I18n.raw("items.storage-items-026")
     )
     val INPUT_PORT_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.IRON_INGOT), ItemStack(Material.HOPPER), ItemStack(Material.IRON_INGOT),
@@ -91,9 +92,9 @@ object StorageItems {
 
     const val OUTPUT_PORT_ID = "SE_NET_OUTPUT_PORT"
     val OUTPUT_PORT = SEText.stack(
-        OUTPUT_PORT_ID, Material.DISPENSER, "&c网络输出端口",
-        "", "&7从网络取出物品供货运抽走。",
-        "", "&7需连入含控制器的网络方可工作。"
+        OUTPUT_PORT_ID, Material.DISPENSER, I18n.raw("items.storage-items-027"),
+        "", I18n.raw("items.storage-items-028"),
+        "", I18n.raw("items.storage-items-029")
     )
     val OUTPUT_PORT_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.IRON_INGOT), ItemStack(Material.HOPPER), ItemStack(Material.IRON_INGOT),
@@ -103,13 +104,13 @@ object StorageItems {
 
     const val REMOTE_TERMINAL_ID = "SE_REMOTE_TERMINAL"
     val REMOTE_TERMINAL = SEText.stack(
-        REMOTE_TERMINAL_ID, Material.ENDER_EYE, "&d远程终端",
-        "", "&7手持右键 &f网络控制器 &7追加绑定;",
-        "&7手持右键可远程打开当前网络终端,",
-        "&7点击 &f下一页左侧按钮 &7切换其它终端,",
-        "&7Shift + 右键 &f管理所有绑定。",
-        "&7随时随地存取全网库存。",
-        "", "&7绑定信息存于物品自身。"
+        REMOTE_TERMINAL_ID, Material.ENDER_EYE, I18n.raw("items.storage-items-030"),
+        "", I18n.raw("items.storage-items-031"),
+        I18n.raw("items.storage-items-032"),
+        I18n.raw("items.storage-items-033"),
+        I18n.raw("items.storage-items-034"),
+        I18n.raw("items.storage-items-035"),
+        "", I18n.raw("items.storage-items-036")
     )
     val REMOTE_TERMINAL_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.IRON_INGOT), ItemStack(Material.ENDER_EYE), ItemStack(Material.IRON_INGOT),
@@ -120,67 +121,67 @@ object StorageItems {
     // ============================ 升级组件 ============================
     // ID 必须与 UpgradeType.itemId 完全一致
 
-    val STACK_I = upgrade("SE_STACK_UPGRADE_I", Material.COPPER_INGOT, "&f堆叠升级 I", "&7单格容量 &f×4")
+    val STACK_I = upgrade("SE_STACK_UPGRADE_I", Material.COPPER_INGOT, I18n.raw("items.storage-items-037"), I18n.raw("items.storage-items-038"))
     val STACK_I_RECIPE = surround(Material.COPPER_INGOT, Material.PAPER)
 
-    val STACK_II = upgrade("SE_STACK_UPGRADE_II", Material.IRON_INGOT, "&e堆叠升级 II", "&7单格容量 &f×16")
+    val STACK_II = upgrade("SE_STACK_UPGRADE_II", Material.IRON_INGOT, I18n.raw("items.storage-items-039"), I18n.raw("items.storage-items-040"))
     val STACK_II_RECIPE = surround(Material.IRON_INGOT, STACK_I)
 
-    val STACK_III = upgrade("SE_STACK_UPGRADE_III", Material.GOLD_INGOT, "&6堆叠升级 III", "&7单格容量 &f×64")
+    val STACK_III = upgrade("SE_STACK_UPGRADE_III", Material.GOLD_INGOT, I18n.raw("items.storage-items-041"), I18n.raw("items.storage-items-042"))
     val STACK_III_RECIPE = surround(Material.GOLD_INGOT, STACK_II)
 
-    val EXP_UPGRADE = upgrade("SE_EXP_UPGRADE", Material.EXPERIENCE_BOTTLE, "&a经验存储升级",
-        "&7装入抽屉后改为 &f存储经验&7 (拒绝物品货运)。")
+    val EXP_UPGRADE = upgrade("SE_EXP_UPGRADE", Material.EXPERIENCE_BOTTLE, I18n.raw("items.storage-items-043"),
+        I18n.raw("items.storage-items-044"))
     val EXP_UPGRADE_RECIPE = surround(Material.EXPERIENCE_BOTTLE, Material.GOLD_INGOT)
 
-    val MAGNET_UPGRADE = upgrade("SE_MAGNET_UPGRADE", Material.IRON_NUGGET, "&b磁铁升级",
-        "&7每 tick 吸附配置半径内的掉落物 / 经验球。")
+    val MAGNET_UPGRADE = upgrade("SE_MAGNET_UPGRADE", Material.IRON_NUGGET, I18n.raw("items.storage-items-045"),
+        I18n.raw("items.storage-items-046"))
     val MAGNET_UPGRADE_RECIPE = surround(Material.IRON_NUGGET, Material.HEAVY_WEIGHTED_PRESSURE_PLATE)
 
-    val VOID_UPGRADE = upgrade("SE_VOID_UPGRADE", Material.LAVA_BUCKET, "&8虚空升级",
-        "&7命中销毁列表的物品在容器内 &f封顶到保留数量&7,",
-        "&7超出部分入库前 &c湮灭&7 (保留 0 即全毁);",
-        "&7在升级 GUI 中配置列表与保留数量。")
+    val VOID_UPGRADE = upgrade("SE_VOID_UPGRADE", Material.LAVA_BUCKET, I18n.raw("items.storage-items-047"),
+        I18n.raw("items.storage-items-048"),
+        I18n.raw("items.storage-items-049"),
+        I18n.raw("items.storage-items-050"))
     val VOID_UPGRADE_RECIPE = surround(Material.LAVA_BUCKET, Material.OBSIDIAN)
 
-    val PAGE_UPGRADE = upgrade("SE_PAGE_UPGRADE", Material.BOOK, "&d翻页扩容",
-        "&7为&f翻页存储箱&7增加 &f1 页 &7容量;",
-        "&7可叠装, 最大页数由服务器配置决定。",
-        "&8(对抽屉无效)")
+    val PAGE_UPGRADE = upgrade("SE_PAGE_UPGRADE", Material.BOOK, I18n.raw("items.storage-items-051"),
+        I18n.raw("items.storage-items-052"),
+        I18n.raw("items.storage-items-053"),
+        I18n.raw("items.storage-items-054"))
     val PAGE_UPGRADE_RECIPE = surround(Material.BOOK, Material.CHEST)
 
-    val WISE_UPGRADE = upgrade("SE_WISE_UPGRADE", Material.EMERALD, "&a智者升级",
-        "&7经验容器 &f吸入经验 &7时,",
-        "&7有 &f20% &7几率使该次经验翻倍。",
-        "&8(需与经验+磁铁升级同装)")
+    val WISE_UPGRADE = upgrade("SE_WISE_UPGRADE", Material.EMERALD, I18n.raw("items.storage-items-055"),
+        I18n.raw("items.storage-items-056"),
+        I18n.raw("items.storage-items-057"),
+        I18n.raw("items.storage-items-058"))
     val WISE_UPGRADE_RECIPE: Array<ItemStack?> = surround(Material.EXPERIENCE_BOTTLE, sfItemOr("WISE_TALISMAN", Material.EMERALD))
 
-    val ENDER_WISE_UPGRADE = upgrade("SE_ENDER_WISE_UPGRADE", Material.EMERALD, "&5末影智者升级",
-        "&7经验容器 &f吸入经验 &7时,",
-        "&7有 &f50% &7几率使该次经验翻倍。",
-        "&7可与智者升级叠加 (独立触发)。",
-        "&8(需与经验+磁铁升级同装)")
+    val ENDER_WISE_UPGRADE = upgrade("SE_ENDER_WISE_UPGRADE", Material.EMERALD, I18n.raw("items.storage-items-059"),
+        I18n.raw("items.storage-items-060"),
+        I18n.raw("items.storage-items-061"),
+        I18n.raw("items.storage-items-062"),
+        I18n.raw("items.storage-items-063"))
     val ENDER_WISE_UPGRADE_RECIPE: Array<ItemStack?> = surround(Material.ENDER_PEARL, sfItemOr("ENDER_WISE_TALISMAN", Material.EMERALD))
 
-    val EXTRACT_UPGRADE = upgrade("SE_EXTRACT_UPGRADE", Material.HOPPER, "&e抽取升级",
-        "&7装入容器 / 自动点击器后, 每 tick 从相邻六向的",
-        "&7漏斗 / 箱子 / 本插件存储容器主动提取物品。",
-        "&7可在升级 GUI 内配置黑 / 白名单与 &f生效面&7, 精确控制抽取。",
-        "&8(经验模式下不生效)")
+    val EXTRACT_UPGRADE = upgrade("SE_EXTRACT_UPGRADE", Material.HOPPER, I18n.raw("items.storage-items-064"),
+        I18n.raw("items.storage-items-065"),
+        I18n.raw("items.storage-items-066"),
+        I18n.raw("items.storage-items-067"),
+        I18n.raw("items.storage-items-068"))
     val EXTRACT_UPGRADE_RECIPE = surround(Material.HOPPER, Material.IRON_INGOT)
 
-    val REMOTE_UPGRADE = upgrade("SE_REMOTE_UPGRADE", Material.ENDER_EYE, "&d远程升级",
-        "&7手持右键网络控制器 &f选定目标&7,",
-        "&7再把本升级装入抽屉 / 箱子升级槽,",
-        "&7使其 &f远程接入 &7该控制器网络",
-        "&7(无视物理相邻范围)。")
+    val REMOTE_UPGRADE = upgrade("SE_REMOTE_UPGRADE", Material.ENDER_EYE, I18n.raw("items.storage-items-069"),
+        I18n.raw("items.storage-items-070"),
+        I18n.raw("items.storage-items-071"),
+        I18n.raw("items.storage-items-072"),
+        I18n.raw("items.storage-items-073"))
     val REMOTE_UPGRADE_RECIPE = surround(Material.ENDER_PEARL, Material.ENDER_EYE)
 
-    val OUTPUT_UPGRADE = upgrade("SE_OUTPUT_UPGRADE", Material.DROPPER, "&e物品输出升级",
-        "&7装入容器后, 每 tick 把库存物品主动推送到相邻",
-        "&7六向的容器 (箱子 / 漏斗 / 输出箱 / 本插件存储容器)。",
-        "&7可在升级 GUI 内配置黑 / 白名单与 &f生效面&7, 精确控制输出。",
-        "&8(经验模式下不生效)")
+    val OUTPUT_UPGRADE = upgrade("SE_OUTPUT_UPGRADE", Material.DROPPER, I18n.raw("items.storage-items-074"),
+        I18n.raw("items.storage-items-075"),
+        I18n.raw("items.storage-items-076"),
+        I18n.raw("items.storage-items-077"),
+        I18n.raw("items.storage-items-078"))
     // 1 个物品输出箱居中 + 8 张纸围绕
     val OUTPUT_UPGRADE_RECIPE: Array<ItemStack?> = surround(Material.PAPER, sfItemOr("OUTPUT_CHEST", Material.CHEST))
 
@@ -193,7 +194,7 @@ object StorageItems {
 
     /** 构造升级组件模板 (统一附加"升级组件"提示行)。 */
     private fun upgrade(id: String, material: Material, name: String, vararg desc: String): SlimefunItemStack =
-        SEText.stack(id, material, name, "", *desc, "", "&8[存储升级组件]")
+        SEText.stack(id, material, name, "", *desc, "", I18n.raw("items.storage-items-079"))
 
     /** 生成"八周围材料 + 中心核心"的 3x3 配方。 */
     private fun surround(around: Material, core: Material): Array<ItemStack?> =

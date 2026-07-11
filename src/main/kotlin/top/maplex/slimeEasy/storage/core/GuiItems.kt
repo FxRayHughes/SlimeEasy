@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.core
 
+import top.maplex.slimeEasy.config.I18n
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
@@ -17,28 +18,28 @@ object GuiItems {
 
     /** 升级槽占位图标 (空槽提示)。 */
     val UPGRADE_PLACEHOLDER: ItemStack =
-        named(Material.LIME_STAINED_GLASS_PANE, "§a放入升级组件", "§7手持或点击背包内的升级组件安装")
+        named(Material.LIME_STAINED_GLASS_PANE, I18n.text("menus.gui-items-001"), I18n.text("menus.gui-items-002"))
 
     /** 虚空配置按钮。 */
     val VOID_CONFIG: ItemStack =
-        named(Material.BLACK_CONCRETE, "§8虚空过滤配置", "§7点击管理销毁列表")
+        named(Material.BLACK_CONCRETE, I18n.text("menus.gui-items-003"), I18n.text("menus.gui-items-004"))
 
     /** 抽取过滤配置按钮。 */
     val EXTRACT_CONFIG: ItemStack =
-        named(Material.HOPPER, "§e抽取过滤配置", "§7点击管理抽取黑 / 白名单")
+        named(Material.HOPPER, I18n.text("menus.gui-items-005"), I18n.text("menus.gui-items-006"))
 
     /** 输出过滤配置按钮。 */
     val OUTPUT_CONFIG: ItemStack =
-        named(Material.DROPPER, "§e输出过滤配置", "§7点击管理输出黑 / 白名单")
+        named(Material.DROPPER, I18n.text("menus.gui-items-007"), I18n.text("menus.gui-items-008"))
 
     /** 上一页按钮。 */
-    val PREV_PAGE: ItemStack = named(Material.ARROW, "§e上一页")
+    val PREV_PAGE: ItemStack = named(Material.ARROW, I18n.text("menus.gui-items-009"))
 
     /** 下一页按钮。 */
-    val NEXT_PAGE: ItemStack = named(Material.ARROW, "§e下一页")
+    val NEXT_PAGE: ItemStack = named(Material.ARROW, I18n.text("menus.gui-items-010"))
 
     /** 升级插件入口按钮。 */
-    val UPGRADE_ENTRY: ItemStack = named(Material.ANVIL, "§b升级插件", "§7点击管理升级组件")
+    val UPGRADE_ENTRY: ItemStack = named(Material.ANVIL, I18n.text("menus.gui-items-011"), I18n.text("menus.gui-items-012"))
 
     /** 构造带名称与 lore 的图标。 */
     fun named(material: Material, name: String, vararg lore: String): ItemStack =

@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.machine.quarry
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset
@@ -32,18 +33,18 @@ class QuarryMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
         protectedItem(
             LABEL_UPGRADE,
             GuiItems.named(
-                Material.YELLOW_STAINED_GLASS_PANE, "§e效率升级 →",
-                "§7放入 §f采石场效率升级 I~V§7:",
-                "§7各档实际产量以服务器配置为准,",
-                "§7当前速率显示于上方状态面板。"
+                Material.YELLOW_STAINED_GLASS_PANE, I18n.text("menus.quarry-menu-preset-001"),
+                I18n.text("menus.quarry-menu-preset-002"),
+                I18n.text("menus.quarry-menu-preset-003"),
+                I18n.text("menus.quarry-menu-preset-004")
             )
         )
         protectedItem(
             LABEL_OUTPUT,
             GuiItems.named(
-                Material.ORANGE_STAINED_GLASS_PANE, "§6产物升级 →",
-                "§7放入 §c地狱岩升级 §7或 §e末地石升级§7。",
-                "§7空槽时默认产出 §f圆石§7。"
+                Material.ORANGE_STAINED_GLASS_PANE, I18n.text("menus.quarry-menu-preset-005"),
+                I18n.text("menus.quarry-menu-preset-006"),
+                I18n.text("menus.quarry-menu-preset-007")
             )
         )
     }
@@ -106,34 +107,34 @@ class QuarryMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
             tier: QuarryTier?,
             output: QuarryOutput
         ) {
-            val rate = if (tier != null) "§f${tier.perOperation} §7个/0.5s (效率 §f${tier.name}§7)"
-            else "§f${SEConfig.quarryBaseOutput} §7个/${SEConfig.quarryBaseIntervalTicks} tick (无升级)"
+            val rate = if (tier != null) I18n.text("menus.quarry-menu-preset-008", "value0" to (tier.perOperation), "value1" to (tier.name))
+            else I18n.text("menus.quarry-menu-preset-009", "value0" to (SEConfig.quarryBaseOutput), "value1" to (SEConfig.quarryBaseIntervalTicks))
             val status = when {
-                !attached -> "§c未附着圆石"
-                !producing -> "§c圆石未同时相邻岩浆与水"
-                else -> "§a生产中"
+                !attached -> I18n.text("menus.quarry-menu-preset-010")
+                !producing -> I18n.text("menus.quarry-menu-preset-011")
+                else -> I18n.text("menus.quarry-menu-preset-012")
             }
             menu.toInventory().setItem(
                 INFO_SLOT,
                 GuiItems.named(
-                    Material.OBSERVER, "§b采石场",
-                    "§7状态: $status",
-                    "§7速率: $rate",
-                    "§7产物: §f${output.displayName}",
+                    Material.OBSERVER, I18n.text("menus.quarry-menu-preset-013"),
+                    I18n.text("menus.quarry-menu-preset-014", "value0" to (status)),
+                    I18n.text("menus.quarry-menu-preset-015", "value0" to (rate)),
+                    I18n.text("menus.quarry-menu-preset-016", "value0" to (output.displayName)),
                     "",
-                    "§7脸朝向的 §f圆石 §7需同时相邻 §c岩浆 §7与 §9水§7,",
-                    "§7满足即持续产出圆石 (不破坏该圆石)。",
-                    "§7产物输出到本机周围的 §f容器 / 抽屉 / 翻页箱§7。"
+                    I18n.text("menus.quarry-menu-preset-017"),
+                    I18n.text("menus.quarry-menu-preset-018"),
+                    I18n.text("menus.quarry-menu-preset-019")
                 )
             )
         }
 
         /** 信息面板静态模板 (无 block 上下文时的初始占位, 打开 / tick 后由 [updateInfo] 刷新)。 */
         private fun infoTemplate(): ItemStack = GuiItems.named(
-            Material.OBSERVER, "§b采石场",
-            "§7脸朝向 §f圆石§7, 且该圆石同时相邻 §c岩浆 §7与 §9水 §7时产出圆石。",
-            "§7安装产物升级后可改为产出 §c地狱岩 §7或 §e末地石§7。",
-            "§7产物输出到周围的 §f容器 / 抽屉 / 翻页箱§7。"
+            Material.OBSERVER, I18n.text("menus.quarry-menu-preset-020"),
+            I18n.text("menus.quarry-menu-preset-021"),
+            I18n.text("menus.quarry-menu-preset-022"),
+            I18n.text("menus.quarry-menu-preset-023")
         )
     }
 }

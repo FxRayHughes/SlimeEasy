@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.core
 
+import top.maplex.slimeEasy.config.I18n
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
@@ -59,12 +60,12 @@ object UpgradeMenu {
         }
         if (set.hasExtract) {
             menu.addItem(EXTRACT_SLOT, GuiItems.EXTRACT_CONFIG) { p, _, _, _ ->
-                FilterMenu.open(target, p, ItemFilter.EXTRACT, FaceConfig.EXTRACT, "§8抽取配置"); false
+                FilterMenu.open(target, p, ItemFilter.EXTRACT, FaceConfig.EXTRACT, I18n.text("menus.upgrade-menu-001")); false
             }
         }
         if (set.hasOutput) {
             menu.addItem(OUTPUT_SLOT, GuiItems.OUTPUT_CONFIG) { p, _, _, _ ->
-                FilterMenu.open(target, p, ItemFilter.OUTPUT, FaceConfig.OUTPUT, "§8输出配置"); false
+                FilterMenu.open(target, p, ItemFilter.OUTPUT, FaceConfig.OUTPUT, I18n.text("menus.upgrade-menu-002")); false
             }
         }
     }
@@ -82,9 +83,9 @@ object UpgradeMenu {
         val sameCount = items.count { UpgradeType.fromItem(it) == type }
         if (type.isStackable) {
             // 翻页扩容: 可叠装, 但不超过"抵达最大页数"所需的枚数
-            if (sameCount >= UpgradeSet.MAX_PAGES - 1) { player.sendMessage("§c翻页扩容已达上限"); return }
+            if (sameCount >= UpgradeSet.MAX_PAGES - 1) { player.sendMessage(I18n.text("menus.upgrade-menu-003")); return }
         } else if (sameCount > 0) {
-            player.sendMessage("§c该升级已安装, 不可重复"); return
+            player.sendMessage(I18n.text("menus.upgrade-menu-004")); return
         }
         block.rejectUpgradeChange(target, type, install = true)?.let { player.sendMessage(it); return }
         items.add(source.clone().apply { amount = 1 })
@@ -103,7 +104,7 @@ object UpgradeMenu {
                 val remaining = items.filterIndexed { i, _ -> i != index }.mapNotNull { UpgradeType.fromItem(it) }.toSet()
                 val mult = UpgradeSet(remaining).capacityMultiplier
                 if (!block.capacityAllowsRemoval(target, mult)) {
-                    player.sendMessage("§c库存过多, 无法卸下该堆叠升级"); return
+                    player.sendMessage(I18n.text("menus.upgrade-menu-005")); return
                 }
             }
         }

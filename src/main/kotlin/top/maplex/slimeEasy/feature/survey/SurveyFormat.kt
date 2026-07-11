@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.feature.survey
 
+import top.maplex.slimeEasy.config.I18n
 import top.maplex.slimeEasy.config.SEConfig
 
 /**
@@ -25,8 +26,8 @@ object SurveyFormat {
      * `共123个 (123/96)桶 (123/128)原 (123/256)燃`。
      */
     fun fuelSummary(total: Int): String =
-        "§7共§a$total§7个 " +
-            "§8(§a${total/PER_BUCKET}§8)§7桶 " +
-            "§8(§a${total/PER_RAW}§8)§7原 " +
-            "§8(§a${total/PER_FUEL}§8)§7燃"
+        I18n.text("messages.survey-format-001", "value0" to (total)) +
+            I18n.text("messages.survey-format-002", "value0" to (total/PER_BUCKET)) +
+            I18n.text("messages.survey-format-003", "value0" to (total/PER_RAW)) +
+            I18n.text("messages.survey-format-004", "value0" to (total/PER_FUEL))
 }

@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.machine.clicker
 
+import top.maplex.slimeEasy.config.I18n
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
@@ -57,7 +58,7 @@ class AutoClicker(
 
     /** 自动点击器仅支持抽取升级 (扩展补料能力); 其余存储类升级对点击器无意义, 拒绝安装。 */
     override fun rejectUpgradeChange(block: Block, type: UpgradeType, install: Boolean): String? =
-        if (install && type != UpgradeType.EXTRACT) "§c自动点击器仅支持抽取升级" else null
+        if (install && type != UpgradeType.EXTRACT) I18n.text("messages.auto-clicker-001") else null
 
     override fun preRegister() {
         addItemHandler(object : BlockPlaceHandler(false) {

@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.villager.core
 
+import top.maplex.slimeEasy.config.I18n
 import org.bukkit.Location
 import org.bukkit.NamespacedKey
 import org.bukkit.Registry
@@ -36,7 +37,7 @@ data class VillagerData(
 
     /** 职业展示名 (取路径, 首字母大写); 僵尸形态追加标注。 */
     val professionLabel: String
-        get() = professionKey.key.replaceFirstChar { it.uppercaseChar() } + if (zombie) " · 僵尸" else ""
+        get() = professionKey.key.replaceFirstChar { it.uppercaseChar() } + if (zombie) I18n.text("messages.villager-data-001") else ""
 
     /** 在指定位置生成对应实体 (僵尸村民 / 普通村民) 并还原其全部属性; 返回该实体。 */
     fun spawnEntity(location: Location): LivingEntity =

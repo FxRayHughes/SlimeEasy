@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.feature.survey
 
+import top.maplex.slimeEasy.config.I18n
 import org.bukkit.Material
 
 /**
@@ -13,34 +14,34 @@ import org.bukkit.Material
  */
 object OreNames {
 
-    private val NAMES: Map<Material, String> = buildMap {
+    private val NAME_KEYS: Map<Material, String> = buildMap {
         // 石头系
-        put(Material.COAL_ORE, "煤矿石")
-        put(Material.IRON_ORE, "铁矿石")
-        put(Material.COPPER_ORE, "铜矿石")
-        put(Material.GOLD_ORE, "金矿石")
-        put(Material.REDSTONE_ORE, "红石矿石")
-        put(Material.EMERALD_ORE, "绿宝石矿石")
-        put(Material.LAPIS_ORE, "青金石矿石")
-        put(Material.DIAMOND_ORE, "钻石矿石")
+        put(Material.COAL_ORE, "names.ore-names-001")
+        put(Material.IRON_ORE, "names.ore-names-002")
+        put(Material.COPPER_ORE, "names.ore-names-003")
+        put(Material.GOLD_ORE, "names.ore-names-004")
+        put(Material.REDSTONE_ORE, "names.ore-names-005")
+        put(Material.EMERALD_ORE, "names.ore-names-006")
+        put(Material.LAPIS_ORE, "names.ore-names-007")
+        put(Material.DIAMOND_ORE, "names.ore-names-008")
         // 深板岩系
-        put(Material.DEEPSLATE_COAL_ORE, "深层煤矿石")
-        put(Material.DEEPSLATE_IRON_ORE, "深层铁矿石")
-        put(Material.DEEPSLATE_COPPER_ORE, "深层铜矿石")
-        put(Material.DEEPSLATE_GOLD_ORE, "深层金矿石")
-        put(Material.DEEPSLATE_REDSTONE_ORE, "深层红石矿石")
-        put(Material.DEEPSLATE_EMERALD_ORE, "深层绿宝石矿石")
-        put(Material.DEEPSLATE_LAPIS_ORE, "深层青金石矿石")
-        put(Material.DEEPSLATE_DIAMOND_ORE, "深层钻石矿石")
+        put(Material.DEEPSLATE_COAL_ORE, "names.ore-names-009")
+        put(Material.DEEPSLATE_IRON_ORE, "names.ore-names-010")
+        put(Material.DEEPSLATE_COPPER_ORE, "names.ore-names-011")
+        put(Material.DEEPSLATE_GOLD_ORE, "names.ore-names-012")
+        put(Material.DEEPSLATE_REDSTONE_ORE, "names.ore-names-013")
+        put(Material.DEEPSLATE_EMERALD_ORE, "names.ore-names-014")
+        put(Material.DEEPSLATE_LAPIS_ORE, "names.ore-names-015")
+        put(Material.DEEPSLATE_DIAMOND_ORE, "names.ore-names-016")
         // 下界系
-        put(Material.NETHER_QUARTZ_ORE, "下界石英矿石")
-        put(Material.NETHER_GOLD_ORE, "下界金矿石")
-        put(Material.GILDED_BLACKSTONE, "镶金黑石")
+        put(Material.NETHER_QUARTZ_ORE, "names.ore-names-017")
+        put(Material.NETHER_GOLD_ORE, "names.ore-names-018")
+        put(Material.GILDED_BLACKSTONE, "names.ore-names-019")
     }
 
     /** 返回矿石的中文名; 表外材质回退为枚举名可读化 (下划线转空格, 词首大写)。 */
     fun of(material: Material): String =
-        NAMES[material] ?: material.name.split('_').joinToString(" ") { part ->
+        NAME_KEYS[material]?.let { I18n.text(it) } ?: material.name.split('_').joinToString(" ") { part ->
             part.lowercase().replaceFirstChar { it.uppercase() }
         }
 }

@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.registry
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import org.bukkit.Material
@@ -24,9 +25,9 @@ object Groups {
         SlimefunItemStack(
             "SE_GROUP_UTILITY_MACHINES",
             Material.PISTON,
-            "&b实用机械",
+            I18n.raw("groups.groups-001"),
             "",
-            "&7各类自动化实用装置"
+            I18n.raw("groups.groups-002")
         )
     )
 
@@ -40,9 +41,9 @@ object Groups {
         SlimefunItemStack(
             "SE_GROUP_UTILITY_TOOLS",
             Material.COPPER_HOE,
-            "&b实用工具",
+            I18n.raw("groups.groups-003"),
             "",
-            "&7各类手持辅助工具"
+            I18n.raw("groups.groups-004")
         )
     )
 
@@ -56,9 +57,9 @@ object Groups {
         SlimefunItemStack(
             "SE_GROUP_STORAGE",
             Material.BARREL,
-            "&b存储系统",
+            I18n.raw("groups.groups-005"),
             "",
-            "&7海量存储抽屉、翻页箱与存储网络"
+            I18n.raw("groups.groups-006")
         )
     )
 
@@ -72,9 +73,9 @@ object Groups {
         SlimefunItemStack(
             "SE_GROUP_VILLAGER",
             Material.VILLAGER_SPAWN_EGG,
-            "&b简易村民",
+            I18n.raw("groups.groups-007"),
             "",
-            "&7与村民打交道而无需操心保护村民"
+            I18n.raw("groups.groups-008")
         )
     )
 }

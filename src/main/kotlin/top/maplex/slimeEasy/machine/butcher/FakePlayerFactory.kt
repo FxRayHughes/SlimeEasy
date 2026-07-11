@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.machine.butcher
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.player.PlayerProfile
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun
 import org.bukkit.Bukkit
@@ -65,7 +66,7 @@ object FakePlayerFactory {
         } catch (e: Throwable) {
             // 首次失败即永久降级: 记一次日志, 之后静默走 Bukkit 普通伤害 + 死亡监听补偿
             disabled = true
-            Bukkit.getLogger().warning("[SlimeEasy] 屠夫机器假玩家构造失败, 降级为普通伤害: ${e.message}")
+            Bukkit.getLogger().warning(I18n.text("messages.fake-player-factory-001", "value0" to (e.message)))
             null
         }
     }
@@ -185,13 +186,13 @@ object FakePlayerFactory {
 
             // StoredUserList.map (private, 在 ServerOpList 的父类) → put, 不经 add()/save()
             val mapField = findMapField(opList.javaClass)
-                ?: error("未找到 StoredUserList.map 字段")
+                ?: error(I18n.text("messages.fake-player-factory-002"))
             mapField.isAccessible = true
             @Suppress("UNCHECKED_CAST")
             val map = mapField.get(opList) as MutableMap<String, Any>
             map[FAKE_UUID.toString()] = entry
         } catch (e: Throwable) {
-            Bukkit.getLogger().warning("[SlimeEasy] 屠夫机器假玩家 OP 内存注入失败 (不影响击杀): ${e.message}")
+            Bukkit.getLogger().warning(I18n.text("messages.fake-player-factory-003", "value0" to (e.message)))
         }
     }
 

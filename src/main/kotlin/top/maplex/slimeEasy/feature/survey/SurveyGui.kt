@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.feature.survey
 
+import top.maplex.slimeEasy.config.I18n
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -68,7 +69,7 @@ object SurveyGui {
         val meta = icon.itemMeta
         if (meta != null) {
             meta.setDisplayName("§f${OreNames.of(material)}")
-            meta.lore = listOf("§7数量: §a$count")
+            meta.lore = listOf(I18n.text("menus.survey-gui-001", "value0" to (count)))
             icon.itemMeta = meta
         }
         return icon
@@ -79,7 +80,7 @@ object SurveyGui {
         val icon = ItemStack(Material.BARRIER)
         val meta = icon.itemMeta
         if (meta != null) {
-            meta.setDisplayName("§8未探测到可开采矿石")
+            meta.setDisplayName(I18n.text("menus.survey-gui-002"))
             icon.itemMeta = meta
         }
         return icon

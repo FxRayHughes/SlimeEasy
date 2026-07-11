@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.network
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
@@ -39,9 +40,9 @@ class RemoteUpgrade(
                 val loc = block.location
                 val value = BlockLocationCodec.encode(block)
                 e.item.editMeta { it.persistentDataContainer.set(KEY_CTRL, PersistentDataType.STRING, value) }
-                player.sendMessage("§d[远程升级] §7已选定控制器 §f(${loc.blockX}, ${loc.blockY}, ${loc.blockZ})§7, 请将本升级装入抽屉/箱子升级槽")
+                player.sendMessage(I18n.text("messages.remote-upgrade-001", "value0" to (loc.blockX), "value1" to (loc.blockY), "value2" to (loc.blockZ)))
             } else {
-                player.sendMessage("§c[远程升级] §7请先手持右键网络控制器选定目标, 再装入容器升级槽")
+                player.sendMessage(I18n.text("messages.remote-upgrade-002"))
             }
         })
     }

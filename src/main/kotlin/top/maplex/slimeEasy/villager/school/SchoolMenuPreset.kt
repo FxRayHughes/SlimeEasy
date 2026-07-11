@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.villager.school
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset
@@ -22,8 +23,8 @@ class SchoolMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
     override fun init() {
         drawBackground(GuiItems.BACKGROUND, backgroundSlots())
         protectedItem(INFO_SLOT, infoTemplate())
-        protectedItem(LABEL_INPUT, label(Material.BROWN_STAINED_GLASS_PANE, "§6输入 ↓", "§7放入傻子村民 (满捕捉器)"))
-        protectedItem(LABEL_OUTPUT, label(Material.GREEN_STAINED_GLASS_PANE, "§a输出 ↓", "§7转化后的无职业村民"))
+        protectedItem(LABEL_INPUT, label(Material.BROWN_STAINED_GLASS_PANE, I18n.text("menus.school-menu-preset-001"), I18n.text("menus.school-menu-preset-002")))
+        protectedItem(LABEL_OUTPUT, label(Material.GREEN_STAINED_GLASS_PANE, I18n.text("menus.school-menu-preset-003"), I18n.text("menus.school-menu-preset-004")))
     }
 
     private fun protectedItem(slot: Int, item: ItemStack) = addItem(slot, item, ChestMenuUtils.getEmptyClickHandler())
@@ -62,18 +63,18 @@ class SchoolMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
             menu.toInventory().setItem(
                 INFO_SLOT,
                 GuiItems.named(
-                    Material.LECTERN, "§6村民小学",
+                    Material.LECTERN, I18n.text("menus.school-menu-preset-005"),
                     "§7$line",
                     "",
-                    "§7放入傻子村民 (满捕捉器),",
-                    "§7到点后转化为无职业普通村民。"
+                    I18n.text("menus.school-menu-preset-006"),
+                    I18n.text("menus.school-menu-preset-007")
                 )
             )
         }
 
         private fun infoTemplate(): ItemStack = GuiItems.named(
-            Material.LECTERN, "§6村民小学",
-            "§7放入傻子村民 (满捕捉器) 开始转化。"
+            Material.LECTERN, I18n.text("menus.school-menu-preset-008"),
+            I18n.text("menus.school-menu-preset-009")
         )
 
         private fun label(material: Material, name: String, vararg lore: String): ItemStack =

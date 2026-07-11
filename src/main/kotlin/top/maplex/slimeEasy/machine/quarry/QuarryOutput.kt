@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.machine.quarry
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -12,11 +13,13 @@ import org.bukkit.inventory.ItemStack
 enum class QuarryOutput(
     val itemId: String?,
     val material: Material,
-    val displayName: String
+    private val displayNameKey: String
 ) {
-    COBBLESTONE(null, Material.COBBLESTONE, "圆石"),
-    NETHERRACK("SE_QUARRY_NETHERRACK_UPGRADE", Material.NETHERRACK, "地狱岩"),
-    END_STONE("SE_QUARRY_END_STONE_UPGRADE", Material.END_STONE, "末地石");
+    COBBLESTONE(null, Material.COBBLESTONE, "names.quarry-output-001"),
+    NETHERRACK("SE_QUARRY_NETHERRACK_UPGRADE", Material.NETHERRACK, "names.quarry-output-002"),
+    END_STONE("SE_QUARRY_END_STONE_UPGRADE", Material.END_STONE, "names.quarry-output-003");
+
+    val displayName: String get() = I18n.text(displayNameKey)
 
     companion object {
         /** 按 Slimefun 物品身份解析产物升级；空槽或其它物品返回默认圆石。 */

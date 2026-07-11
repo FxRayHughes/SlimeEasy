@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.villager.school
 
+import top.maplex.slimeEasy.config.I18n
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
@@ -72,7 +73,7 @@ class VillagerSchool(
         }
         val remaining = VillagerConfig.schoolConvertMillis - (now - start)
         if (remaining > 0) {
-            SchoolMenuPreset.updateInfo(menu, "转化中… 剩余 §f${(remaining / 1000) + 1}s")
+            SchoolMenuPreset.updateInfo(menu, I18n.text("messages.villager-school-001", "value0" to ((remaining / 1000) + 1)))
             return
         }
 
@@ -81,7 +82,7 @@ class VillagerSchool(
         menu.replaceExistingItem(SchoolMenuPreset.OUTPUT_SLOT, VillagerCatcher.fill(jobless))
         consumeOneInput(menu, input!!)
         setStart(block, 0L)
-        SchoolMenuPreset.updateInfo(menu, "§a转化完成, 已放入输出槽")
+        SchoolMenuPreset.updateInfo(menu, I18n.text("messages.villager-school-002"))
     }
 
     /** 输入槽 -1 (堆叠则减一, 否则清空)。 */
@@ -98,10 +99,10 @@ class VillagerSchool(
     }
 
     private fun idleReason(data: VillagerData?, outputOccupied: Boolean): String = when {
-        data == null -> "§7待放入傻子村民"
-        !data.isNitwit -> "§c仅接受傻子(呆滞)村民"
-        outputOccupied -> "§c请先取走输出槽"
-        else -> "§7待机"
+        data == null -> I18n.text("messages.villager-school-003")
+        !data.isNitwit -> I18n.text("messages.villager-school-004")
+        outputOccupied -> I18n.text("messages.villager-school-005")
+        else -> I18n.text("messages.villager-school-006")
     }
 
     private fun getStart(block: Block): Long =

@@ -10,8 +10,8 @@ import top.maplex.slimeEasy.SlimeEasy
  *
  * - **运行时数值** (伤害 / 范围 / 冷却 / 间隔 / 上限 等): 每次使用即时读取,
  *   [reload] 后无需重启立即生效。
- * - **注册期数据** (功能开关 / 研究等级 / 物品文本): 仅在 onEnable 注册时读取一次,
- *   改动后需 **重启服务端** 才能生效 (Slimefun 物品注册后即冻结)。
+ * - **注册期数据** (功能开关 / 研究等级): 仅在 onEnable 注册时读取一次,
+ *   改动后需 **重启服务端** 才能生效。玩家文本由独立的 [I18n] 语言文件管理。
  *
  * 明确**不纳入配置**的项 (改动会损坏存档或打乱既有布局, 保持硬编码):
  * PDC 持久化键 (`se_*`)、编解码分隔符、数据结构版本号、GUI 槽位索引。
@@ -40,6 +40,8 @@ object SEConfig {
 
     private fun bool(path: String, def: Boolean): Boolean =
         cfg.getBoolean(path, def)
+
+    val language: String get() = cfg.getString("language", "zh_CN") ?: "zh_CN"
 
     /** 读取一个"秒"配置并转毫秒 (至少 1 秒)。 */
     private fun seconds(path: String, def: Int): Long =

@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.villager.catcher
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -50,13 +51,13 @@ object VillagerCatcher {
         item.editMeta { meta ->
             meta.persistentDataContainer.set(KEY, PersistentDataType.STRING, VillagerCodec.encode(data))
             meta.displayName(
-                Component.text("村民捕捉器 · ${data.professionLabel}").color(NamedTextColor.GREEN)
+                Component.text(I18n.text("messages.villager-catcher-001", "value0" to (data.professionLabel))).color(NamedTextColor.GREEN)
             )
             meta.lore(
                 listOf(
-                    Component.text("§7职业: §f${data.professionLabel}"),
-                    Component.text("§7等级: §f${data.level}  §7交易: §f${data.recipes.size} 项"),
-                    Component.text("§7潜行 + 右键放出该村民")
+                    Component.text(I18n.text("messages.villager-catcher-002", "value0" to (data.professionLabel))),
+                    Component.text(I18n.text("messages.villager-catcher-003", "value0" to (data.level), "value1" to (data.recipes.size))),
+                    Component.text(I18n.text("messages.villager-catcher-004"))
                 )
             )
         }

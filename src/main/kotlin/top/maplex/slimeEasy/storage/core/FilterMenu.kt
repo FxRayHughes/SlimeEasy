@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.core
 
+import top.maplex.slimeEasy.config.I18n
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
@@ -60,8 +61,8 @@ object FilterMenu {
                 faceConfig.toggle(block.location, face); render(menu, block, filter, faceConfig); false
             }
         }
-        menu.addItem(MARK_SLOT, GuiItems.named(Material.NAME_TAG, "§e标记物品",
-            "§7手持物品点击, 或直接点击背包内物品", "§7加入 / 移出名单")) { p, _, _, _ ->
+        menu.addItem(MARK_SLOT, GuiItems.named(Material.NAME_TAG, I18n.text("menus.filter-menu-001"),
+            I18n.text("menus.filter-menu-002"), I18n.text("menus.filter-menu-003"))) { p, _, _, _ ->
             val hand = p.inventory.itemInMainHand
             if (!hand.type.isAir) { filter.toggle(block.location, hand); render(menu, block, filter, faceConfig) }
             false
@@ -74,26 +75,26 @@ object FilterMenu {
 
     /** 名单项图标: 点击移出提示。 */
     private fun icon(key: ItemKey) = key.toDisplay(1).apply {
-        editMeta { it.lore(listOf(Component.text("§8点击移出名单"))) }
+        editMeta { it.lore(listOf(Component.text(I18n.text("menus.filter-menu-004")))) }
     }
 
     /** 生效面开关图标。 */
     private fun faceIcon(face: BlockFace, enabled: Boolean) =
-        if (enabled) GuiItems.named(Material.LIME_STAINED_GLASS_PANE, "§a${faceName(face)} 面: 启用", "§8点击禁用")
-        else GuiItems.named(Material.GRAY_STAINED_GLASS_PANE, "§7${faceName(face)} 面: 禁用", "§8点击启用")
+        if (enabled) GuiItems.named(Material.LIME_STAINED_GLASS_PANE, I18n.text("menus.filter-menu-005", "value0" to (faceName(face))), I18n.text("menus.filter-menu-006"))
+        else GuiItems.named(Material.GRAY_STAINED_GLASS_PANE, I18n.text("menus.filter-menu-007", "value0" to (faceName(face))), I18n.text("menus.filter-menu-008"))
 
     private fun faceName(face: BlockFace) = when (face) {
-        BlockFace.UP -> "上"; BlockFace.DOWN -> "下"
-        BlockFace.NORTH -> "北"; BlockFace.SOUTH -> "南"
-        BlockFace.EAST -> "东"; BlockFace.WEST -> "西"
+        BlockFace.UP -> I18n.text("menus.filter-menu-009"); BlockFace.DOWN -> I18n.text("menus.filter-menu-010")
+        BlockFace.NORTH -> I18n.text("menus.filter-menu-011"); BlockFace.SOUTH -> I18n.text("menus.filter-menu-012")
+        BlockFace.EAST -> I18n.text("menus.filter-menu-013"); BlockFace.WEST -> I18n.text("menus.filter-menu-014")
         else -> face.name
     }
 
     /** 模式切换按钮图标。 */
     private fun modeIcon(mode: FilterMode) = when (mode) {
-        FilterMode.BLACKLIST -> GuiItems.named(Material.RED_CONCRETE, "§c黑名单模式",
-            "§7名单内的物品 §c不处理§7, 其余放行", "§8点击切换为白名单")
-        FilterMode.WHITELIST -> GuiItems.named(Material.LIME_CONCRETE, "§a白名单模式",
-            "§7仅处理名单内的物品, 其余拦截", "§8点击切换为黑名单")
+        FilterMode.BLACKLIST -> GuiItems.named(Material.RED_CONCRETE, I18n.text("menus.filter-menu-015"),
+            I18n.text("menus.filter-menu-016"), I18n.text("menus.filter-menu-017"))
+        FilterMode.WHITELIST -> GuiItems.named(Material.LIME_CONCRETE, I18n.text("menus.filter-menu-018"),
+            I18n.text("menus.filter-menu-019"), I18n.text("menus.filter-menu-020"))
     }
 }

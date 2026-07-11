@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.core
 
+import top.maplex.slimeEasy.config.I18n
 import net.kyori.adventure.text.Component
 import org.bukkit.inventory.ItemStack
 
@@ -56,7 +57,7 @@ object StorageDisplay {
         val visual = minOf(total, key.vanillaMaxStack.toLong()).toInt().coerceAtLeast(1)
         return key.toDisplay(visual).apply {
             editMeta {
-                it.lore(listOf(Component.text("§7总量: §e${QuantityFormat.grouped(total)}")))
+                it.lore(listOf(Component.text(I18n.text("messages.storage-display-001", "value0" to (QuantityFormat.grouped(total))))))
             }
         }
     }
@@ -67,8 +68,8 @@ object StorageDisplay {
         return cell.key.toDisplay(visual).apply {
             editMeta {
                 it.lore(listOf(
-                    Component.text("§7数量: §e${QuantityFormat.grouped(cell.amount)}"),
-                    Component.text("§7总量: §e${QuantityFormat.grouped(cell.typeTotal)}")
+                    Component.text(I18n.text("messages.storage-display-002", "value0" to (QuantityFormat.grouped(cell.amount)))),
+                    Component.text(I18n.text("messages.storage-display-003", "value0" to (QuantityFormat.grouped(cell.typeTotal))))
                 ))
             }
         }

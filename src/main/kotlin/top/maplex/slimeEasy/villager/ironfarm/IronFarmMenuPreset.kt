@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.villager.ironfarm
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu
@@ -28,11 +29,11 @@ class IronFarmMenuPreset(id: String, title: String) : BlockMenuPreset(id, title)
     override fun init() {
         drawBackground(GuiItems.BACKGROUND, backgroundSlots())
         protectedItem(INFO_SLOT, infoTemplate())
-        protectedItem(LABEL_VILLAGER, label(Material.GREEN_STAINED_GLASS_PANE, "§a村民 ↓", "§7放入装有村民的满捕捉器"))
-        protectedItem(LABEL_SIGNAL, label(Material.LIME_STAINED_GLASS_PANE, "§2僵尸信号 ↓", "§7放入僵尸信号 (催化剂, 不消耗)"))
-        protectedItem(LABEL_FOOD, label(Material.ORANGE_STAINED_GLASS_PANE, "§6食物 ↓", "§7放入食物, 每周期消耗少量"))
-        protectedItem(LABEL_SPEED, label(Material.YELLOW_STAINED_GLASS_PANE, "§e速度升级 ↓", "§7堆叠数量 = 级数, 越高越快"))
-        protectedItem(LABEL_OUTPUT, label(Material.BLUE_STAINED_GLASS_PANE, "§9产出 ↓", "§7铁锭产出区; 可货运抽取"))
+        protectedItem(LABEL_VILLAGER, label(Material.GREEN_STAINED_GLASS_PANE, I18n.text("menus.iron-farm-menu-preset-001"), I18n.text("menus.iron-farm-menu-preset-002")))
+        protectedItem(LABEL_SIGNAL, label(Material.LIME_STAINED_GLASS_PANE, I18n.text("menus.iron-farm-menu-preset-003"), I18n.text("menus.iron-farm-menu-preset-004")))
+        protectedItem(LABEL_FOOD, label(Material.ORANGE_STAINED_GLASS_PANE, I18n.text("menus.iron-farm-menu-preset-005"), I18n.text("menus.iron-farm-menu-preset-006")))
+        protectedItem(LABEL_SPEED, label(Material.YELLOW_STAINED_GLASS_PANE, I18n.text("menus.iron-farm-menu-preset-007"), I18n.text("menus.iron-farm-menu-preset-008")))
+        protectedItem(LABEL_OUTPUT, label(Material.BLUE_STAINED_GLASS_PANE, I18n.text("menus.iron-farm-menu-preset-009"), I18n.text("menus.iron-farm-menu-preset-010")))
     }
 
     private fun protectedItem(slot: Int, item: ItemStack) = addItem(slot, item, ChestMenuUtils.getEmptyClickHandler())
@@ -108,19 +109,19 @@ class IronFarmMenuPreset(id: String, title: String) : BlockMenuPreset(id, title)
             menu.toInventory().setItem(
                 INFO_SLOT,
                 GuiItems.named(
-                    Material.IRON_INGOT, "§f胶囊刷铁机",
-                    "§7状态: ${if (running) "§a运转中" else "§c停止"}",
+                    Material.IRON_INGOT, I18n.text("menus.iron-farm-menu-preset-011"),
+                    I18n.text("menus.iron-farm-menu-preset-014", "value0" to (if (running) I18n.text("menus.iron-farm-menu-preset-012") else I18n.text("menus.iron-farm-menu-preset-013"))),
                     "§7$reason",
                     "",
-                    "§7需齐备: §f村民 + 僵尸信号 + 食物",
-                    "§7速度升级: §f${speedLevel(menu)} §7级"
+                    I18n.text("menus.iron-farm-menu-preset-015"),
+                    I18n.text("menus.iron-farm-menu-preset-016", "value0" to (speedLevel(menu)))
                 )
             )
         }
 
         private fun infoTemplate(): ItemStack = GuiItems.named(
-            Material.IRON_INGOT, "§f胶囊刷铁机",
-            "§7放入 村民 + 僵尸信号 + 食物 即可周期产铁。"
+            Material.IRON_INGOT, I18n.text("menus.iron-farm-menu-preset-017"),
+            I18n.text("menus.iron-farm-menu-preset-018")
         )
 
         private fun label(material: Material, name: String, vararg lore: String): ItemStack =

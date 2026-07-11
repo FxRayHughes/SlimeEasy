@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.feature.growth
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
@@ -38,12 +39,12 @@ class GrowthInhibitor(
             if (target.ageLock) {
                 target.ageLock = false
                 player.playSound(target.location, Sound.BLOCK_HONEY_BLOCK_BREAK, 1f, 1.2f)
-                player.sendMessage("§a[生长抑制器] §7已解除锁定, 该生物恢复正常生长。")
+                player.sendMessage(I18n.text("messages.growth-inhibitor-001"))
                 return@EntityInteractHandler
             }
 
             if (target.isAdult) {
-                player.sendMessage("§c[生长抑制器] §7仅对幼年生物有效。")
+                player.sendMessage(I18n.text("messages.growth-inhibitor-002"))
                 return@EntityInteractHandler
             }
 
@@ -52,7 +53,7 @@ class GrowthInhibitor(
             target.ageLock = true
             target.world.spawnParticle(Particle.HEART, target.location.add(0.0, 0.5, 0.0), 5, 0.3, 0.3, 0.3, 0.0)
             player.playSound(target.location, Sound.BLOCK_HONEY_BLOCK_PLACE, 1f, 0.8f)
-            player.sendMessage("§a[生长抑制器] §7已抑制生长, 该幼年生物将永久保持幼小。")
+            player.sendMessage(I18n.text("messages.growth-inhibitor-003"))
         })
     }
 }

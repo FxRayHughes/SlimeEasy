@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.villager.healer
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset
@@ -22,9 +23,9 @@ class HealerMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
     override fun init() {
         drawBackground(GuiItems.BACKGROUND, backgroundSlots())
         protectedItem(INFO_SLOT, infoTemplate())
-        protectedItem(LABEL_INPUT, label(Material.BROWN_STAINED_GLASS_PANE, "§6输入 ↓", "§7放入僵尸村民 (满捕捉器)"))
-        protectedItem(LABEL_APPLE, label(Material.YELLOW_STAINED_GLASS_PANE, "§e金苹果 ↓", "§7放入普通金苹果, 每次治愈消耗一个"))
-        protectedItem(LABEL_OUTPUT, label(Material.GREEN_STAINED_GLASS_PANE, "§a输出 ↓", "§7治愈后的普通村民"))
+        protectedItem(LABEL_INPUT, label(Material.BROWN_STAINED_GLASS_PANE, I18n.text("menus.healer-menu-preset-001"), I18n.text("menus.healer-menu-preset-002")))
+        protectedItem(LABEL_APPLE, label(Material.YELLOW_STAINED_GLASS_PANE, I18n.text("menus.healer-menu-preset-003"), I18n.text("menus.healer-menu-preset-004")))
+        protectedItem(LABEL_OUTPUT, label(Material.GREEN_STAINED_GLASS_PANE, I18n.text("menus.healer-menu-preset-005"), I18n.text("menus.healer-menu-preset-006")))
     }
 
     private fun protectedItem(slot: Int, item: ItemStack) = addItem(slot, item, ChestMenuUtils.getEmptyClickHandler())
@@ -70,18 +71,18 @@ class HealerMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
             menu.toInventory().setItem(
                 INFO_SLOT,
                 GuiItems.named(
-                    Material.GOLDEN_APPLE, "§6村民治愈机",
+                    Material.GOLDEN_APPLE, I18n.text("menus.healer-menu-preset-007"),
                     "§7$line",
                     "",
-                    "§7放入僵尸村民 (满捕捉器) + 普通金苹果,",
-                    "§7到点后治愈为普通村民 (保留职业)。"
+                    I18n.text("menus.healer-menu-preset-008"),
+                    I18n.text("menus.healer-menu-preset-009")
                 )
             )
         }
 
         private fun infoTemplate(): ItemStack = GuiItems.named(
-            Material.GOLDEN_APPLE, "§6村民治愈机",
-            "§7放入僵尸村民 (满捕捉器) 与普通金苹果开始治愈。"
+            Material.GOLDEN_APPLE, I18n.text("menus.healer-menu-preset-010"),
+            I18n.text("menus.healer-menu-preset-011")
         )
 
         private fun label(material: Material, name: String, vararg lore: String): ItemStack =

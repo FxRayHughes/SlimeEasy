@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.villager.ironfarm
 
+import top.maplex.slimeEasy.config.I18n
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
@@ -74,19 +75,19 @@ class IronFarm(
         val interval = (VillagerConfig.ironProduceMillis / (1.0 + speed * VillagerConfig.ironSpeedStep)).toLong().coerceAtLeast(1L)
         val now = System.currentTimeMillis()
         if (now - getLast(block) < interval) {
-            IronFarmMenuPreset.updateInfo(menu, true, "产铁中…")
+            IronFarmMenuPreset.updateInfo(menu, true, I18n.text("messages.iron-farm-001"))
             return
         }
 
         val produced = pushIron(menu)
         if (produced == 0) {
-            IronFarmMenuPreset.updateInfo(menu, true, "§c输出已满")
+            IronFarmMenuPreset.updateInfo(menu, true, I18n.text("messages.iron-farm-002"))
             return
         }
         consumeFood(menu, VillagerConfig.ironFoodPerCycle)
         setLast(block, now)
         IronFarmDisplay.flashGolem(block)
-        IronFarmMenuPreset.updateInfo(menu, true, "已产出 §f${produced}§7 铁锭")
+        IronFarmMenuPreset.updateInfo(menu, true, I18n.text("messages.iron-farm-003", "value0" to (produced)))
     }
 
     /** 逐个把铁锭推入输出区; 返回实际产出数量 (输出满则提前停止)。 */
@@ -116,9 +117,9 @@ class IronFarm(
     }
 
     private fun missReason(villager: Boolean, signal: Boolean, food: Boolean): String = when {
-        !villager -> "§c缺少村民 (满捕捉器)"
-        !signal -> "§c缺少僵尸信号"
-        !food -> "§c缺少食物"
+        !villager -> I18n.text("messages.iron-farm-004")
+        !signal -> I18n.text("messages.iron-farm-005")
+        !food -> I18n.text("messages.iron-farm-006")
         else -> ""
     }
 

@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.villager.potion
 
+import top.maplex.slimeEasy.config.I18n
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.Villager
@@ -31,7 +32,7 @@ class ForgettingPotionListener : Listener {
 
         val profession = VillagerData.resolveProfession(VillagerData.NONE)
         if (profession == null) {
-            player.sendMessage("§c[遗忘药剂] §7当前版本无法解析无职业类型, 操作取消。")
+            player.sendMessage(I18n.text("messages.forgetting-potion-listener-001"))
             return
         }
         villager.profession = profession
@@ -42,6 +43,6 @@ class ForgettingPotionListener : Listener {
 
         villager.world.spawnParticle(Particle.WITCH, villager.location.add(0.0, 1.0, 0.0), 20, 0.3, 0.5, 0.3, 0.0)
         player.playSound(villager.location, Sound.ENTITY_WITCH_DRINK, 1f, 1f)
-        player.sendMessage("§a[遗忘药剂] §7该村民已忘却职业, 变回无职业普通村民。")
+        player.sendMessage(I18n.text("messages.forgetting-potion-listener-002"))
     }
 }

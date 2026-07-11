@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.drawer
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
@@ -60,14 +61,14 @@ class Drawer(
     ): String? {
         // 翻页扩容仅对箱子有意义, 抽屉无分页概念, 直接拒绝安装
         if (install && type == top.maplex.slimeEasy.storage.upgrade.UpgradeType.PAGE_EXPANSION)
-            return "§c翻页扩容仅适用于翻页存储箱"
+            return I18n.text("messages.drawer-001")
         if (type != top.maplex.slimeEasy.storage.upgrade.UpgradeType.EXP_STORAGE) return null
         // 装经验升级前要求物品库存为空 (两套库存不可共存, 避免残留物品与经验显示互相覆盖)
         if (install && !storageAt(block).isEmpty())
-            return "§c请先取空抽屉内的物品, 再安装经验升级"
+            return I18n.text("messages.drawer-002")
         // 存有经验时禁止卸下经验升级 (否则经验数据被孤立)
         if (!install && DrawerExp.get(block) > 0)
-            return "§c请先取出全部经验, 再卸下经验升级"
+            return I18n.text("messages.drawer-003")
         return null
     }
 

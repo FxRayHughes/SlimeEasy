@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.registry
 
+import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -9,7 +10,7 @@ import top.maplex.slimeEasy.config.SEText
  * 物品堆栈与配方定义中心。
  *
  * 仅存放 [SlimefunItemStack] 模板与合成配方, 不涉及行为逻辑。
- * 物品名称 / Lore 经 [SEText] 从配置读取 (缺失以此处默认值自动写入), 修改需重启生效。
+ * 物品名称 / Lore 经 [I18n] 从独立语言文件读取，修改后需重启生效。
  */
 object Items {
 
@@ -24,17 +25,17 @@ object Items {
     val AUTO_BREAKER: SlimefunItemStack = SEText.stack(
         AUTO_BREAKER_ID,
         Material.WAXED_COPPER_CHEST,
-        "&e自动破坏机",
+        I18n.raw("items.items-001"),
         "",
-        "&7在相邻放置 &f普通活塞&7, 机器会自动破坏",
-        "&7活塞推杆朝向的方块并收入本箱子。",
+        I18n.raw("items.items-002"),
+        I18n.raw("items.items-003"),
         "",
-        "&7在活塞上放置带拉杆的展示框,",
-        "&7可通过旋转拉杆调节破坏频率。",
+        I18n.raw("items.items-004"),
+        I18n.raw("items.items-005"),
         "",
-        "&7将工具放入箱内 &f任意位置 &7即用该工具",
-        "&7挖掘 (享受时运/精准采集), 耐久耗尽后",
-        "&7自动改用其余工具或恢复默认挖掘。"
+        I18n.raw("items.items-006"),
+        I18n.raw("items.items-007"),
+        I18n.raw("items.items-008")
     )
 
     /**
@@ -59,16 +60,16 @@ object Items {
     val AUTO_PLACER: SlimefunItemStack = SEText.stack(
         AUTO_PLACER_ID,
         Material.WAXED_COPPER_CHEST,
-        "&a自动放置机",
+        I18n.raw("items.items-009"),
         "",
-        "&7在相邻放置 &f粘性活塞&7, 机器会把箱内",
-        "&7方块自动放置到活塞推杆朝向的空位。",
+        I18n.raw("items.items-010"),
+        I18n.raw("items.items-011"),
         "",
-        "&7在活塞上放置带拉杆的展示框,",
-        "&7可通过旋转拉杆调节放置频率。",
+        I18n.raw("items.items-012"),
+        I18n.raw("items.items-013"),
         "",
-        "&7从箱内 &f第一个可放置方块 &7开始取用,",
-        "&7目标非空位或无方块时自动跳过。"
+        I18n.raw("items.items-014"),
+        I18n.raw("items.items-015")
     )
 
     /**
@@ -93,14 +94,14 @@ object Items {
     val CREEPER_WARD: SlimefunItemStack = SEText.stack(
         CREEPER_WARD_ID,
         Material.GREEN_CARPET,
-        "&a苦力怕驱逐方块",
+        I18n.raw("items.items-016"),
         "",
-        "&7放置后, 其所在区块及周围一圈",
-        "&7共 &f3x3 个区块 &7内不再自然生成苦力怕,",
-        "&7已进入范围的苦力怕会被持续推出,",
-        "&7且在范围内 &c无法爆炸&7。",
+        I18n.raw("items.items-017"),
+        I18n.raw("items.items-018"),
+        I18n.raw("items.items-019"),
+        I18n.raw("items.items-020"),
         "",
-        "&7保护随方块存在而持续, 破坏后失效。"
+        I18n.raw("items.items-021")
     )
 
     /**
@@ -126,15 +127,15 @@ object Items {
     val SURVEY_RULER: SlimefunItemStack = SEText.stack(
         SURVEY_RULER_ID,
         Material.COPPER_HOE,
-        "&b矿物勘察尺",
+        I18n.raw("items.items-022"),
         "",
-        "&7右键地面, 按 &f工业矿机 &7的采掘范围",
-        "&7(&f7×7&7) 向下勘探, 列出可开采的",
-        "&7矿石种类与数量。",
+        I18n.raw("items.items-023"),
+        I18n.raw("items.items-024"),
+        I18n.raw("items.items-025"),
         "",
-        "&7潜行 + 左键: 切换展示形式 (&f聊天栏 &7/ &f箱子界面&7)",
+        I18n.raw("items.items-026"),
         "",
-        "&7冷却: &f5 秒"
+        I18n.raw("items.items-027")
     )
 
     /**
@@ -158,17 +159,17 @@ object Items {
     val ADVANCED_SURVEY_RULER: SlimefunItemStack = SEText.stack(
         ADVANCED_SURVEY_RULER_ID,
         Material.DIAMOND_HOE,
-        "&b进阶矿物勘察尺",
+        I18n.raw("items.items-028"),
         "",
-        "&7右键地面, 按 &f当前勘察范围 &7向下勘探,",
-        "&7列出可开采的矿石种类与数量。",
+        I18n.raw("items.items-029"),
+        I18n.raw("items.items-030"),
         "",
-        "&7潜行 + 右键空气: 在 &f进阶工业矿机 &7(&f11×11&7)",
-        "&7与 &f工业矿机 &7(&f7×7&7) 两种范围间切换。",
+        I18n.raw("items.items-031"),
+        I18n.raw("items.items-032"),
         "",
-        "&7潜行 + 左键: 切换展示形式 (&f聊天栏 &7/ &f箱子界面&7)",
+        I18n.raw("items.items-033"),
         "",
-        "&7冷却: &f5 秒"
+        I18n.raw("items.items-034")
     )
 
     /**
@@ -191,20 +192,20 @@ object Items {
     val BUTCHER: SlimefunItemStack = SEText.stack(
         BUTCHER_ID,
         Material.OBSERVER,
-        "&c屠夫机器",
+        I18n.raw("items.items-035"),
         "",
-        "&7自动攻击 &f脸朝向前方 3×3 &7区域内的",
-        "&7非玩家生物 (范围横扫)。",
+        I18n.raw("items.items-036"),
+        I18n.raw("items.items-037"),
         "",
-        "&7右键打开界面:",
-        "&7· &f7 把武器&7: 第一把优先, 耐久耗尽自动切下一把",
-        "&7· &f附魔书&7: 抢夺 / 锋利 / 火焰附加等生效",
-        "&7· &f食物&7: 折算为攻击次数 (每 1 饱食 15 次, 内部缓存上限 100 饱食)",
-        "&7· &f升级槽&7: 范围 / 伤害组件 (数量即级数, 最多 5)",
+        I18n.raw("items.items-038"),
+        I18n.raw("items.items-039"),
+        I18n.raw("items.items-040"),
+        I18n.raw("items.items-041"),
+        I18n.raw("items.items-042"),
         "",
-        "&7所有物品可用 &f物流网络 &7或 &f漏斗 &7自动输入",
-        "&7(漏斗任意面对准机器即可)。",
-        "&7击杀正常掉落物品与经验; 在他人领地内失效。"
+        I18n.raw("items.items-043"),
+        I18n.raw("items.items-044"),
+        I18n.raw("items.items-045")
     )
 
     /**
@@ -225,11 +226,11 @@ object Items {
     val BUTCHER_RANGE_UPGRADE: SlimefunItemStack = SEText.stack(
         BUTCHER_RANGE_UPGRADE_ID,
         Material.ENDER_EYE,
-        "&d屠夫 · 范围升级",
+        I18n.raw("items.items-046"),
         "",
-        "&7放入屠夫机器的范围升级槽。",
-        "&7每一个: 攻击截面 &f+2 格&7、纵深 &f+1 格&7。",
-        "&7(3×3 → 5×5 → 7×7 …, 按数量叠加)"
+        I18n.raw("items.items-047"),
+        I18n.raw("items.items-048"),
+        I18n.raw("items.items-049")
     )
 
     /** 范围升级配方: 末影之眼 + 箭矢环绕 (象征"射程延伸")。 */
@@ -246,11 +247,11 @@ object Items {
     val BUTCHER_DAMAGE_UPGRADE: SlimefunItemStack = SEText.stack(
         BUTCHER_DAMAGE_UPGRADE_ID,
         Material.BLAZE_POWDER,
-        "&c屠夫 · 伤害升级",
+        I18n.raw("items.items-050"),
         "",
-        "&7放入屠夫机器的伤害升级槽。",
-        "&7每一个: 攻击伤害 &f+50% 基础值&7。",
-        "&7(×1.5 → ×2.0 → ×2.5 …, 按数量叠加)"
+        I18n.raw("items.items-051"),
+        I18n.raw("items.items-052"),
+        I18n.raw("items.items-053")
     )
 
     /** 伤害升级配方: 烈焰粉 + 钻石剑供伤 (象征"锋锐强化")。 */
@@ -272,18 +273,18 @@ object Items {
     val AUTO_CLICKER: SlimefunItemStack = SEText.stack(
         AUTO_CLICKER_ID,
         Material.OBSERVER,
-        "&6自动点击器",
+        I18n.raw("items.items-054"),
         "",
-        "&7以假玩家身份, 不断 &f左键 / 右键 &7脸朝向正前方的方块。",
+        I18n.raw("items.items-055"),
         "",
-        "&c需红石激活&7: 通电时工作, 断电即停。",
-        "&7右键打开界面放入 &f一格物品&7: 点击时假玩家",
-        "&7手持该物品交互 (如骨粉施肥 / 桶取放液体), 消耗后回写。",
-        "&7物品可用 &f相邻漏斗 &7(输出对准本机) 或物流网络补充;",
-        "&7界面内可装 &f抽取升级&7: 改为从相邻箱子 / 容器补料并支持黑 / 白名单。",
+        I18n.raw("items.items-056"),
+        I18n.raw("items.items-057"),
+        I18n.raw("items.items-058"),
+        I18n.raw("items.items-059"),
+        I18n.raw("items.items-060"),
         "",
-        "&7支持点击 &fSlimefun (粘液) 方块&7, 且 &f绕过其研究解锁限制&7。",
-        "&8约每秒点击一次。"
+        I18n.raw("items.items-061"),
+        I18n.raw("items.items-062")
     )
 
     /**
@@ -308,13 +309,13 @@ object Items {
     val GROWTH_INHIBITOR: SlimefunItemStack = SEText.stack(
         GROWTH_INHIBITOR_ID,
         Material.SLIME_BALL,
-        "&a生长抑制器",
+        I18n.raw("items.items-063"),
         "",
-        "&7右键一只 &f幼年生物&7: 锁定其年龄,",
-        "&7使其 &f永远保持幼小&7、不再长大。",
+        I18n.raw("items.items-064"),
+        I18n.raw("items.items-065"),
         "",
-        "&7再次右键 &f已锁定 &7的生物: 解除锁定, 恢复生长。",
-        "&8(仅对动物 / 村民等可繁殖生物有效)"
+        I18n.raw("items.items-066"),
+        I18n.raw("items.items-067")
     )
 
     /**
@@ -339,17 +340,17 @@ object Items {
         SEText.stack(
             id, material, name,
             "",
-            "&7给 &f快乐恶魂 (乐魂) &7右键佩戴。",
-            "&7佩戴后乐魂以 &b守护者激光 &7主动攻击",
-            "&7周围 &f视线内 &7的敌对生物 (&c不穿透方块&7)。",
+            I18n.raw("items.items-068"),
+            I18n.raw("items.items-069"),
+            I18n.raw("items.items-070"),
             "",
-            "&7每次激光造成 &c$damage 点 &7伤害 (&d药水/魔法伤害, 无视护甲&7)。"
+            I18n.raw("items.items-071", "value0" to (damage))
         )
 
-    val COMBAT_HARNESS_I: SlimefunItemStack = combatHarness(COMBAT_HARNESS_I_ID, Material.WHITE_HARNESS, "&b战斗挽具 I", 5)
-    val COMBAT_HARNESS_II: SlimefunItemStack = combatHarness(COMBAT_HARNESS_II_ID, Material.LIME_HARNESS, "&a战斗挽具 II", 10)
-    val COMBAT_HARNESS_III: SlimefunItemStack = combatHarness(COMBAT_HARNESS_III_ID, Material.ORANGE_HARNESS, "&6战斗挽具 III", 20)
-    val COMBAT_HARNESS_IV: SlimefunItemStack = combatHarness(COMBAT_HARNESS_IV_ID, Material.RED_HARNESS, "&c战斗挽具 IV", 25)
+    val COMBAT_HARNESS_I: SlimefunItemStack = combatHarness(COMBAT_HARNESS_I_ID, Material.WHITE_HARNESS, I18n.raw("items.items-072"), 5)
+    val COMBAT_HARNESS_II: SlimefunItemStack = combatHarness(COMBAT_HARNESS_II_ID, Material.LIME_HARNESS, I18n.raw("items.items-073"), 10)
+    val COMBAT_HARNESS_III: SlimefunItemStack = combatHarness(COMBAT_HARNESS_III_ID, Material.ORANGE_HARNESS, I18n.raw("items.items-074"), 20)
+    val COMBAT_HARNESS_IV: SlimefunItemStack = combatHarness(COMBAT_HARNESS_IV_ID, Material.RED_HARNESS, I18n.raw("items.items-075"), 25)
 
     /** I: 海晶碎片环绕白色挽具 (守护者激光之源)。 */
     val COMBAT_HARNESS_I_RECIPE: Array<ItemStack?> = arrayOf(
@@ -392,19 +393,19 @@ object Items {
     val QUARRY: SlimefunItemStack = SEText.stack(
         QUARRY_ID,
         Material.OBSERVER,
-        "&b采石场",
+        I18n.raw("items.items-076"),
         "",
-        "&7观察者方块。&f脸朝向 &7的圆石若同时相邻",
-        "&c岩浆 &7与 &9水 &7(不必是源头), 便持续产出圆石",
-        "&7(不破坏该圆石)。",
+        I18n.raw("items.items-077"),
+        I18n.raw("items.items-078"),
+        I18n.raw("items.items-079"),
         "",
-        "&7本身 &f无容积&7, 产物直接输出到周围的",
-        "&f容器 / 抽屉 / 翻页箱&7。",
+        I18n.raw("items.items-080"),
+        I18n.raw("items.items-081"),
         "",
-        "&7右键打开界面放入 &f效率升级 I~V &7提速:",
-        "&7空槽使用基础速率; I~V 逐档提速,",
-        "&7实际间隔与产量以服务器配置为准。",
-        "&7另可安装 &c地狱岩升级 &7或 &e末地石升级 &7改变产物。"
+        I18n.raw("items.items-082"),
+        I18n.raw("items.items-083"),
+        I18n.raw("items.items-084"),
+        I18n.raw("items.items-085")
     )
 
     /**
@@ -432,21 +433,21 @@ object Items {
         SEText.stack(
             id, material, name,
             "",
-            "&7放入采石场的 &f效率升级槽&7。",
-            "&7生产速率由档位与服务器配置决定。",
-            "&8(仅认物品身份, 堆叠数量无关)"
+            I18n.raw("items.items-086"),
+            I18n.raw("items.items-087"),
+            I18n.raw("items.items-088")
         )
 
     val QUARRY_EFFICIENCY_I: SlimefunItemStack =
-        quarryEfficiency(QUARRY_EFFICIENCY_I_ID, Material.COPPER_INGOT, "&f采石场效率升级 I")
+        quarryEfficiency(QUARRY_EFFICIENCY_I_ID, Material.COPPER_INGOT, I18n.raw("items.items-089"))
     val QUARRY_EFFICIENCY_II: SlimefunItemStack =
-        quarryEfficiency(QUARRY_EFFICIENCY_II_ID, Material.IRON_INGOT, "&a采石场效率升级 II")
+        quarryEfficiency(QUARRY_EFFICIENCY_II_ID, Material.IRON_INGOT, I18n.raw("items.items-090"))
     val QUARRY_EFFICIENCY_III: SlimefunItemStack =
-        quarryEfficiency(QUARRY_EFFICIENCY_III_ID, Material.GOLD_INGOT, "&e采石场效率升级 III")
+        quarryEfficiency(QUARRY_EFFICIENCY_III_ID, Material.GOLD_INGOT, I18n.raw("items.items-091"))
     val QUARRY_EFFICIENCY_IV: SlimefunItemStack =
-        quarryEfficiency(QUARRY_EFFICIENCY_IV_ID, Material.DIAMOND, "&b采石场效率升级 IV")
+        quarryEfficiency(QUARRY_EFFICIENCY_IV_ID, Material.DIAMOND, I18n.raw("items.items-092"))
     val QUARRY_EFFICIENCY_V: SlimefunItemStack =
-        quarryEfficiency(QUARRY_EFFICIENCY_V_ID, Material.NETHERITE_INGOT, "&6采石场效率升级 V")
+        quarryEfficiency(QUARRY_EFFICIENCY_V_ID, Material.NETHERITE_INGOT, I18n.raw("items.items-093"))
 
     /** I: 活塞 (效率) 与红石环绕铜锭 (基础档)。 */
     val QUARRY_EFFICIENCY_I_RECIPE: Array<ItemStack?> = arrayOf(
@@ -487,10 +488,10 @@ object Items {
     const val QUARRY_END_STONE_UPGRADE_ID = "SE_QUARRY_END_STONE_UPGRADE"
 
     val QUARRY_NETHERRACK_UPGRADE: SlimefunItemStack = SEText.stack(
-        QUARRY_NETHERRACK_UPGRADE_ID, Material.NETHERRACK, "&c采石场地狱岩升级",
-        "", "&7放入采石场的 &f产物升级槽&7。",
-        "&7使采石场把产物从圆石改为 &c地狱岩&7。",
-        "&8圆石、岩浆与水的生产结构保持不变。"
+        QUARRY_NETHERRACK_UPGRADE_ID, Material.NETHERRACK, I18n.raw("items.items-094"),
+        "", I18n.raw("items.items-095"),
+        I18n.raw("items.items-096"),
+        I18n.raw("items.items-097")
     )
     val QUARRY_NETHERRACK_UPGRADE_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.NETHER_BRICKS), ItemStack(Material.NETHERRACK), ItemStack(Material.NETHER_BRICKS),
@@ -499,10 +500,10 @@ object Items {
     )
 
     val QUARRY_END_STONE_UPGRADE: SlimefunItemStack = SEText.stack(
-        QUARRY_END_STONE_UPGRADE_ID, Material.END_STONE, "&e采石场末地石升级",
-        "", "&7放入采石场的 &f产物升级槽&7。",
-        "&7使采石场把产物从圆石改为 &e末地石&7。",
-        "&8圆石、岩浆与水的生产结构保持不变。"
+        QUARRY_END_STONE_UPGRADE_ID, Material.END_STONE, I18n.raw("items.items-098"),
+        "", I18n.raw("items.items-099"),
+        I18n.raw("items.items-100"),
+        I18n.raw("items.items-101")
     )
     val QUARRY_END_STONE_UPGRADE_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.PURPUR_BLOCK), ItemStack(Material.END_STONE), ItemStack(Material.PURPUR_BLOCK),
