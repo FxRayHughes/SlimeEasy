@@ -25,6 +25,7 @@ import top.maplex.slimeEasy.machine.butcher.ButcherDeathListener
 import top.maplex.slimeEasy.machine.clicker.AutoClicker
 import top.maplex.slimeEasy.machine.placer.AutoPlacer
 import top.maplex.slimeEasy.machine.quarry.Quarry
+import top.maplex.slimeEasy.machine.sieve.Sieve
 import top.maplex.slimeEasy.storage.box.PagedBox
 import top.maplex.slimeEasy.storage.drawer.Drawer
 import top.maplex.slimeEasy.storage.drawer.DrawerListener
@@ -60,6 +61,7 @@ object Registration {
     private val GROWTH_INHIBITOR_RESEARCH_COST get() = SEConfig.growthInhibitorResearch
     private val COMBAT_HARNESS_RESEARCH_COST get() = SEConfig.combatHarnessResearch
     private val SURVEY_RULER_RESEARCH_COST get() = SEConfig.surveyRulerResearch
+    private val SIEVE_RESEARCH_COST get() = SEConfig.sieveResearch
 
     private val DRAWER_RESEARCH_COST get() = SEConfig.storageDrawerResearch
     private val BOX_RESEARCH_COST get() = SEConfig.storageBoxResearch
@@ -132,6 +134,44 @@ object Registration {
                 addItems(autoPlacer)
                 register()
             }
+        }
+
+        // 筛分原料先挂到 Slimefun 磨石，再登记活板门多方块筛子，最后统一绑定研究。
+        if (SEConfig.sieveEnabled) {
+            val sieveMaterials = listOf(
+                SlimefunItem(
+                    Groups.UTILITY_MACHINES,
+                    Items.SIEVE_DUST,
+                    RecipeType.GRIND_STONE,
+                    Items.SIEVE_DUST_RECIPE
+                ).also { it.register(addon) },
+                SlimefunItem(
+                    Groups.UTILITY_MACHINES,
+                    Items.CRUSHED_NETHERRACK,
+                    RecipeType.GRIND_STONE,
+                    Items.CRUSHED_NETHERRACK_RECIPE
+                ).also { it.register(addon) },
+                SlimefunItem(
+                    Groups.UTILITY_MACHINES,
+                    Items.CRUSHED_END_STONE,
+                    RecipeType.GRIND_STONE,
+                    Items.CRUSHED_END_STONE_RECIPE
+                ).also { it.register(addon) },
+                SlimefunItem(
+                    Groups.UTILITY_MACHINES,
+                    Items.CRUSHED_BLACKSTONE,
+                    RecipeType.GRIND_STONE,
+                    Items.CRUSHED_BLACKSTONE_RECIPE
+                ).also { it.register(addon) }
+            )
+            val sieve = Sieve(Groups.UTILITY_MACHINES, Items.SIEVE).also { it.register(addon) }
+            research(
+                "sieve",
+                9022,
+                I18n.text("research.sieve"),
+                SIEVE_RESEARCH_COST,
+                *(sieveMaterials + sieve).toTypedArray()
+            )
         }
 
         // 6. 注册苦力怕驱逐方块 (增强工作台配方); 关闭时连同管控监听器一并跳过
@@ -213,9 +253,10 @@ object Registration {
             val effV = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_V, Items.QUARRY_EFFICIENCY_V_RECIPE)
             val netherrackUp = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_NETHERRACK_UPGRADE, Items.QUARRY_NETHERRACK_UPGRADE_RECIPE)
             val endStoneUp = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_END_STONE_UPGRADE, Items.QUARRY_END_STONE_UPGRADE_RECIPE)
+            val blackstoneUp = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_BLACKSTONE_UPGRADE, Items.QUARRY_BLACKSTONE_UPGRADE_RECIPE)
 
             research("quarry", 9021, I18n.text("research.quarry"), QUARRY_RESEARCH_COST,
-                quarry, effI, effII, effIII, effIV, effV, netherrackUp, endStoneUp)
+                quarry, effI, effII, effIII, effIV, effV, netherrackUp, endStoneUp, blackstoneUp)
         }
 
         // 9~11. 注册矿物勘察尺 (普通 + 进阶) 及其左键展示切换监听器; 关闭时整体跳过

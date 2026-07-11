@@ -63,6 +63,22 @@ object SEConfig {
     val autoPlacerEnabled: Boolean get() = bool("auto-placer.enabled", true)
     val autoPlacerResearch: Int get() = int("auto-placer.research-level", 10, 0)
 
+    // ==================== 筛子 ====================
+
+    /** 是否注册筛子、筛分原料及其研究。 */
+    val sieveEnabled: Boolean get() = bool("sieve.enabled", true)
+
+    /** 解锁筛子和四种筛分原料所需的经验等级。 */
+    val sieveResearch: Int get() = int("sieve.research-level", 8, 0)
+
+    /**
+     * 读取某项筛分产物的独立百分比概率。
+     *
+     * 配置值被限制在 0..100；每次筛选时即时读取，因此 `/se reload` 后立即生效。
+     */
+    fun sieveChance(input: String, output: String, default: Int): Int =
+        int("sieve.chances.$input.$output", default, 0).coerceAtMost(100)
+
     // ==================== 苦力怕驱逐方块 ====================
 
     val creeperWardEnabled: Boolean get() = bool("creeper-ward.enabled", true)

@@ -20,7 +20,7 @@ import top.maplex.slimeEasy.storage.core.CargoBufferBlock
  * 1. 脸朝向那格是 **圆石** (`COBBLESTONE`);
  * 2. 该圆石的 6 个正交邻居中**同时**存在**岩浆**与**水** (不必是源头, 任意水位即可)。
  *
- * 满足时按档位产出当前选择的材料 (默认圆石, 可升级为地狱岩 / 末地石), 并推送到
+ * 满足时按档位产出当前选择的材料 (默认圆石, 可升级为地狱岩 / 末地石 / 黑石), 并推送到
  * 采石场自身 6 邻的容器:
  * - **原版容器** ([Container]): 直接 `inventory.addItem`;
  * - **本插件存储方块** ([CargoBufferBlock] 抽屉 / 翻页箱): 走其虚拟库存插入。

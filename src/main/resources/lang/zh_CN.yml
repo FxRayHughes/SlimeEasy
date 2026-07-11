@@ -28,6 +28,32 @@ items:
 
       &7从箱内 &f第一个可放置方块 &7开始取用,
       &7目标非空位或无方块时自动跳过。
+  sieve:
+    name: "&6筛子"
+    lore: |-
+
+      &7像磨石一样搭建: 将橡木活板门
+      &7放在一个朝上的发射器上方。
+
+      &7右键活板门可即时筛选发射器内的一份材料。
+      &7每项产物概率均独立计算, 可同时产出多种物品。
+  sieve-materials:
+    dust:
+      name: "&f尘土"
+      lore: |-
+        &7用磨石粉碎沙子获得, 可放入筛子筛选。
+    crushed-netherrack:
+      name: "&c粉碎地狱岩"
+      lore: |-
+        &7用磨石粉碎地狱岩获得, 可放入筛子筛选。
+    crushed-end-stone:
+      name: "&e粉碎末地石"
+      lore: |-
+        &7用磨石粉碎末地石获得, 可放入筛子筛选。
+    crushed-blackstone:
+      name: "&8粉碎黑石"
+      lore: |-
+        &7用磨石粉碎黑石获得, 可放入筛子筛选。
   creeper-ward:
     name: "&a苦力怕驱逐方块"
     lore: |-
@@ -218,6 +244,13 @@ items:
         &7放入采石场的 &f产物升级槽&7。
         &7使采石场把产物从圆石改为 &e末地石&7。
         &8圆石、岩浆与水的生产结构保持不变。
+    blackstone:
+      name: "&8采石场黑石升级"
+      lore: |-
+
+        &7放入采石场的 &f产物升级槽&7。
+        &7使采石场把产物从圆石改为 &8黑石&7。
+        &8成本更高, 但生产结构保持不变。
   storage:
     drawer:
       name: "&e海量抽屉"
@@ -885,6 +918,7 @@ names:
     cobblestone: "圆石"
     netherrack: "地狱岩"
     end-stone: "末地石"
+    blackstone: "黑石"
   survey-tier:
     industrial-miner: "工业矿机"
     advanced-industrial-miner: "进阶工业矿机"
@@ -995,6 +1029,7 @@ formats:
 research:
   auto-breaker: "自动破坏机"
   auto-placer: "自动放置机"
+  sieve: "筛子"
   creeper-ward: "苦力怕驱逐方块"
   butcher: "屠夫机器"
   auto-clicker: "自动点击器"

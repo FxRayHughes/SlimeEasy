@@ -13,6 +13,36 @@ import top.maplex.slimeEasy.config.SEText
  */
 object Items {
 
+    // ============================ 筛子与筛分原料 ============================
+
+    const val SIEVE_ID = "SE_SIEVE"
+
+    /** 筛子指南图标；实际结构为橡木活板门与其下方朝上的发射器。 */
+    val SIEVE: SlimefunItemStack =
+        SEText.localized(SIEVE_ID, Material.OAK_TRAPDOOR, "items.sieve")
+
+    /** 四种需要先通过磨石制得的筛分原料 ID。 */
+    const val SIEVE_DUST_ID = "SE_SIEVE_DUST"
+    const val CRUSHED_NETHERRACK_ID = "SE_CRUSHED_NETHERRACK"
+    const val CRUSHED_END_STONE_ID = "SE_CRUSHED_END_STONE"
+    const val CRUSHED_BLACKSTONE_ID = "SE_CRUSHED_BLACKSTONE"
+
+    /** 磨石产物模板；筛子据 Slimefun 物品身份区分它们与同材质的原版物品。 */
+    val SIEVE_DUST: SlimefunItemStack =
+        SEText.localized(SIEVE_DUST_ID, Material.SUGAR, "items.sieve-materials.dust")
+    val CRUSHED_NETHERRACK: SlimefunItemStack =
+        SEText.localized(CRUSHED_NETHERRACK_ID, Material.NETHERRACK, "items.sieve-materials.crushed-netherrack")
+    val CRUSHED_END_STONE: SlimefunItemStack =
+        SEText.localized(CRUSHED_END_STONE_ID, Material.END_STONE, "items.sieve-materials.crushed-end-stone")
+    val CRUSHED_BLACKSTONE: SlimefunItemStack =
+        SEText.localized(CRUSHED_BLACKSTONE_ID, Material.BLACKSTONE, "items.sieve-materials.crushed-blackstone")
+
+    /** 注册到原版 Slimefun 磨石的一格输入配方。 */
+    val SIEVE_DUST_RECIPE: Array<ItemStack?> = arrayOf(ItemStack(Material.SAND))
+    val CRUSHED_NETHERRACK_RECIPE: Array<ItemStack?> = arrayOf(ItemStack(Material.NETHERRACK))
+    val CRUSHED_END_STONE_RECIPE: Array<ItemStack?> = arrayOf(ItemStack(Material.END_STONE))
+    val CRUSHED_BLACKSTONE_RECIPE: Array<ItemStack?> = arrayOf(ItemStack(Material.BLACKSTONE))
+
     /** 自动破坏机的全局唯一 ID。 */
     const val AUTO_BREAKER_ID = "SE_AUTO_BREAKER"
 
@@ -344,6 +374,7 @@ object Items {
 
     const val QUARRY_NETHERRACK_UPGRADE_ID = "SE_QUARRY_NETHERRACK_UPGRADE"
     const val QUARRY_END_STONE_UPGRADE_ID = "SE_QUARRY_END_STONE_UPGRADE"
+    const val QUARRY_BLACKSTONE_UPGRADE_ID = "SE_QUARRY_BLACKSTONE_UPGRADE"
 
     val QUARRY_NETHERRACK_UPGRADE: SlimefunItemStack =
         SEText.localized(QUARRY_NETHERRACK_UPGRADE_ID, Material.NETHERRACK, "items.quarry-output.netherrack")
@@ -359,5 +390,17 @@ object Items {
         ItemStack(Material.PURPUR_BLOCK), ItemStack(Material.END_STONE), ItemStack(Material.PURPUR_BLOCK),
         ItemStack(Material.END_STONE), ItemStack(Material.ENDER_EYE), ItemStack(Material.END_STONE),
         ItemStack(Material.PURPUR_BLOCK), ItemStack(Material.END_STONE), ItemStack(Material.PURPUR_BLOCK)
+    )
+
+    /**
+     * 黑石产物升级比现有产物升级更昂贵：黑曜石四角、黑石四边、钻石块居中。
+     * 不使用远古残骸作为前置，保持无中生有资源链从零起步。
+     */
+    val QUARRY_BLACKSTONE_UPGRADE: SlimefunItemStack =
+        SEText.localized(QUARRY_BLACKSTONE_UPGRADE_ID, Material.BLACKSTONE, "items.quarry-output.blackstone")
+    val QUARRY_BLACKSTONE_UPGRADE_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.OBSIDIAN), ItemStack(Material.BLACKSTONE), ItemStack(Material.OBSIDIAN),
+        ItemStack(Material.BLACKSTONE), ItemStack(Material.DIAMOND_BLOCK), ItemStack(Material.BLACKSTONE),
+        ItemStack(Material.OBSIDIAN), ItemStack(Material.BLACKSTONE), ItemStack(Material.OBSIDIAN)
     )
 }

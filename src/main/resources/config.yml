@@ -35,6 +35,139 @@ auto-placer:
   enabled: true
   research-level: 10
 
+# ---------- 筛子 ----------
+sieve:
+  enabled: true
+  research-level: 8
+  # 每个条目独立判定，取值范围 0-100；修改后执行 /se reload 即时生效。
+  chances:
+    dirt:
+      # 小麦种子
+      wheat-seeds: 7
+      # 矮草（草籽）
+      short-grass: 7
+      # 西瓜种子
+      melon-seeds: 3
+      # 南瓜种子
+      pumpkin-seeds: 3
+      # 甘蔗
+      sugar-cane: 3
+      # 胡萝卜
+      carrot: 2
+      # 马铃薯
+      potato: 2
+      # 橡树树苗（橡子）
+      oak-sapling: 2
+      # 金合欢树苗
+      acacia-sapling: 1
+      # 云杉树苗
+      spruce-sapling: 1
+      # 白桦树苗
+      birch-sapling: 1
+    gravel:
+      # 燧石
+      flint: 25
+      # 煤炭
+      coal: 13
+      # 青金石
+      lapis-lazuli: 5
+      # 钻石
+      diamond: 1
+      # 绿宝石
+      emerald: 1
+      # 铁原矿
+      raw-iron: 20
+      # 金原矿
+      raw-gold: 3
+      # 铜原矿
+      raw-copper: 6
+      # Slimefun 锡粉
+      tin-dust: 6
+      # Slimefun 铝粉
+      aluminum-dust: 13
+    dust:
+      # 骨粉
+      bone-meal: 20
+      # 红石
+      redstone: 13
+      # 火药
+      gunpowder: 7
+      # 萤石粉
+      glowstone-dust: 6
+      # 烈焰粉
+      blaze-powder: 5
+      # Slimefun 铁粉
+      iron-dust: 20
+      # Slimefun 金粉
+      gold-dust: 3
+      # Slimefun 铜粉
+      copper-dust: 6
+      # Slimefun 锡粉
+      tin-dust: 7
+      # Slimefun 铝粉
+      aluminum-dust: 13
+    crushed-netherrack:
+      # 铁原矿
+      raw-iron: 17
+      # 金原矿
+      raw-gold: 17
+      # 铜原矿
+      raw-copper: 10
+    soul-sand:
+      # 地狱疣
+      nether-wart: 5
+      # 恶魂之泪
+      ghast-tear: 2
+      # 额外的下界石英（保底 1 个不受此项影响）
+      extra-quartz: 33
+    sand:
+      # 可可豆
+      cocoa-beans: 3
+      # 仙人掌（仙人掌种子）
+      cactus: 3
+      # 丛林树苗
+      jungle-sapling: 2
+      # 棕色蘑菇（古代孢子）
+      brown-mushroom: 1
+      # 铁原矿
+      raw-iron: 20
+      # 金原矿
+      raw-gold: 3
+      # 铜原矿
+      raw-copper: 6
+      # Slimefun 锡粉
+      tin-dust: 6
+      # Slimefun 铝粉
+      aluminum-dust: 13
+    crushed-end-stone:
+      # Slimefun 锡粉
+      tin-dust: 10
+      # 末影珍珠
+      ender-pearl: 5
+      # 紫颂果
+      chorus-fruit: 8
+      # 爆裂紫颂果
+      popped-chorus-fruit: 4
+      # 潜影壳
+      shulker-shell: 1
+    crushed-blackstone:
+      # 玄武岩
+      basalt: 20
+      # 下界石英
+      quartz: 15
+      # 金粒
+      gold-nugget: 12
+      # 岩浆膏
+      magma-cream: 5
+      # 萤石粉
+      glowstone-dust: 6
+      # 烈焰粉
+      blaze-powder: 4
+      # 哭泣的黑曜石
+      crying-obsidian: 2
+      # 远古残骸
+      ancient-debris: 1
+
 # ---------- 苦力怕驱逐方块 ----------
 creeper-ward:
   enabled: true
