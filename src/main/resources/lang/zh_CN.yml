@@ -53,7 +53,8 @@ items:
     crushed-blackstone:
       name: "&8粉碎黑石"
       lore: |-
-        &7用磨石粉碎黑石获得, 可放入筛子筛选。
+        &7用磨石粉碎磨制黑石获得, 可放入筛子筛选。
+        &8普通黑石仍按 Slimefun 原配方磨成沙砾。
   creeper-ward:
     name: "&a苦力怕驱逐方块"
     lore: |-

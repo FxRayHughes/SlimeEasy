@@ -37,11 +37,15 @@ object Items {
     val CRUSHED_BLACKSTONE: SlimefunItemStack =
         SEText.localized(CRUSHED_BLACKSTONE_ID, Material.BLACKSTONE, "items.sieve-materials.crushed-blackstone")
 
-    /** 注册到原版 Slimefun 磨石的一格输入配方。 */
+    /**
+     * 注册到原版 Slimefun 磨石的一格输入配方。
+     *
+     * 普通黑石已被 Slimefun 占用为“黑石 → 沙砾”，因此粉碎黑石使用磨制黑石作为不冲突的输入。
+     */
     val SIEVE_DUST_RECIPE: Array<ItemStack?> = arrayOf(ItemStack(Material.SAND))
     val CRUSHED_NETHERRACK_RECIPE: Array<ItemStack?> = arrayOf(ItemStack(Material.NETHERRACK))
     val CRUSHED_END_STONE_RECIPE: Array<ItemStack?> = arrayOf(ItemStack(Material.END_STONE))
-    val CRUSHED_BLACKSTONE_RECIPE: Array<ItemStack?> = arrayOf(ItemStack(Material.BLACKSTONE))
+    val CRUSHED_BLACKSTONE_RECIPE: Array<ItemStack?> = arrayOf(ItemStack(Material.POLISHED_BLACKSTONE))
 
     /** 自动破坏机的全局唯一 ID。 */
     const val AUTO_BREAKER_ID = "SE_AUTO_BREAKER"
