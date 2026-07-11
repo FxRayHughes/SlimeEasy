@@ -22,7 +22,8 @@ object CompressionMenu {
         val menu = ChestMenu(I18n.text("menus.compression.title"))
         menu.setEmptySlotsClickable(false)
         menu.addPlayerInventoryClickHandler { _, _, item, _ ->
-            if (!item.type.isAir) {
+            // Slimefun 点击玩家背包空槽时会传入 null，必须先判空再读取物品类型。
+            if (item != null && !item.type.isAir) {
                 ItemFilter.COMPRESSION.toggle(block.location, item)
                 render(menu, block)
             }
