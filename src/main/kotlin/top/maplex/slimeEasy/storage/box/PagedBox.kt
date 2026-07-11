@@ -7,7 +7,7 @@ import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.storage.core.CargoBufferBlock
-import top.maplex.slimeEasy.storage.core.HopperExtract
+import top.maplex.slimeEasy.storage.core.ContainerIO
 import top.maplex.slimeEasy.storage.core.ItemKey
 import top.maplex.slimeEasy.storage.core.VirtualStorage
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
@@ -113,8 +113,10 @@ class PagedBox(
 
     override fun onCustomTick(block: Block) {
         val upgrades = UpgradeStore.resolve(block.location)
-        // 抽取升级: 从相邻六向漏斗主动提取物品入库 (经验模式下容器改存经验, 不抽物品)
-        if (upgrades.hasExtract && !upgrades.hasExpStorage) HopperExtract.pull(this, block)
+        // 抽取升级: 从相邻六向的漏斗 / 箱子等容器主动提取物品入库 (经验模式下容器改存经验, 不抽物品)
+        if (upgrades.hasExtract && !upgrades.hasExpStorage) ContainerIO.pull(this, block)
+        // 输出升级: 把库存物品主动推送到相邻六向的容器
+        if (upgrades.hasOutput && !upgrades.hasExpStorage) ContainerIO.push(this, block)
         if (!upgrades.hasMagnet) return
         if (upgrades.hasExpStorage) {
             // 经验磁铁: 登记 + tick 主动吸取附近经验球

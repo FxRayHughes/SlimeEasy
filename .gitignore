@@ -1,6 +1,7 @@
 # Gradle
 .gradle/
 build/
+.kotlin/
 
 # IDE
 .idea/
@@ -19,3 +20,4 @@ run-server.log
 Thumbs.db
 
 # 注意: libs/ 不忽略 —— 其中的 Slimefun jar 是编译期依赖, CI 构建需要它
+.ace-tool/

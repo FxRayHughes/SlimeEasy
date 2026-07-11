@@ -85,6 +85,11 @@ auto-clicker:
   # 单个 Slimefun tick 内的最多点击次数 (防卡)。
   max-clicks-per-tick: 20
 
+# ---------- 采石场 (观察者方块; 附着圆石 + 岩浆 + 水 -> 产圆石) ----------
+quarry:
+  enabled: true
+  research-level: 12
+
 # ---------- 矿物勘察尺 ----------
 survey-ruler:
   enabled: true

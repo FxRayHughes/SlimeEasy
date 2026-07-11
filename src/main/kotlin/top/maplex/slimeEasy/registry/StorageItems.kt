@@ -151,18 +151,19 @@ object StorageItems {
         "&7经验容器 &f吸入经验 &7时,",
         "&7有 &f20% &7几率使该次经验翻倍。",
         "&8(需与经验+磁铁升级同装)")
-    val WISE_UPGRADE_RECIPE: Array<ItemStack?> = surround(Material.EXPERIENCE_BOTTLE, talisman("WISE_TALISMAN", Material.EMERALD))
+    val WISE_UPGRADE_RECIPE: Array<ItemStack?> = surround(Material.EXPERIENCE_BOTTLE, sfItemOr("WISE_TALISMAN", Material.EMERALD))
 
     val ENDER_WISE_UPGRADE = upgrade("SE_ENDER_WISE_UPGRADE", Material.EMERALD, "&5末影智者升级",
         "&7经验容器 &f吸入经验 &7时,",
         "&7有 &f50% &7几率使该次经验翻倍。",
         "&7可与智者升级叠加 (独立触发)。",
         "&8(需与经验+磁铁升级同装)")
-    val ENDER_WISE_UPGRADE_RECIPE: Array<ItemStack?> = surround(Material.ENDER_PEARL, talisman("ENDER_WISE_TALISMAN", Material.EMERALD))
+    val ENDER_WISE_UPGRADE_RECIPE: Array<ItemStack?> = surround(Material.ENDER_PEARL, sfItemOr("ENDER_WISE_TALISMAN", Material.EMERALD))
 
     val EXTRACT_UPGRADE = upgrade("SE_EXTRACT_UPGRADE", Material.HOPPER, "&e抽取升级",
-        "&7装入容器后, 每 tick 从相邻",
-        "&7六个方向的漏斗主动提取物品入库。",
+        "&7装入容器 / 自动点击器后, 每 tick 从相邻六向的",
+        "&7漏斗 / 箱子 / 本插件存储容器主动提取物品。",
+        "&7可在升级 GUI 内配置黑 / 白名单与 &f生效面&7, 精确控制抽取。",
         "&8(经验模式下不生效)")
     val EXTRACT_UPGRADE_RECIPE = surround(Material.HOPPER, Material.IRON_INGOT)
 
@@ -173,11 +174,19 @@ object StorageItems {
         "&7(无视物理相邻范围)。")
     val REMOTE_UPGRADE_RECIPE = surround(Material.ENDER_PEARL, Material.ENDER_EYE)
 
+    val OUTPUT_UPGRADE = upgrade("SE_OUTPUT_UPGRADE", Material.DROPPER, "&e物品输出升级",
+        "&7装入容器后, 每 tick 把库存物品主动推送到相邻",
+        "&7六向的容器 (箱子 / 漏斗 / 输出箱 / 本插件存储容器)。",
+        "&7可在升级 GUI 内配置黑 / 白名单与 &f生效面&7, 精确控制输出。",
+        "&8(经验模式下不生效)")
+    // 1 个物品输出箱居中 + 8 张纸围绕
+    val OUTPUT_UPGRADE_RECIPE: Array<ItemStack?> = surround(Material.PAPER, sfItemOr("OUTPUT_CHEST", Material.CHEST))
+
     /**
-     * 取某 Slimefun 护身符的物品作为配方核心; 未加载到 (如版本无此物品) 则回退到
-     * 一个原版占位物, 保证配方仍可注册不崩溃。
+     * 取某 Slimefun 物品作为配方核心 (护身符 / 物品输出箱等); 未加载到 (如版本无此物品)
+     * 则回退到一个原版占位物, 保证配方仍可注册不崩溃。
      */
-    private fun talisman(id: String, fallback: Material): ItemStack =
+    private fun sfItemOr(id: String, fallback: Material): ItemStack =
         io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem.getById(id)?.item ?: ItemStack(fallback)
 
     /** 构造升级组件模板 (统一附加"升级组件"提示行)。 */

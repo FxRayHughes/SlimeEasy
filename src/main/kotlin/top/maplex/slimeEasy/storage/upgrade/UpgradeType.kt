@@ -26,7 +26,8 @@ enum class UpgradeType(val itemId: String, val multiplier: Double) {
     WISE("SE_WISE_UPGRADE", 1.0),
     ENDER_WISE("SE_ENDER_WISE_UPGRADE", 1.0),
     EXTRACT("SE_EXTRACT_UPGRADE", 1.0),
-    REMOTE("SE_REMOTE_UPGRADE", 1.0);
+    REMOTE("SE_REMOTE_UPGRADE", 1.0),
+    OUTPUT("SE_OUTPUT_UPGRADE", 1.0);
 
     /** 是否为容量 (堆叠) 类升级。 */
     val isStack: Boolean get() = multiplier > 1.0

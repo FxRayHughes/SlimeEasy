@@ -22,6 +22,7 @@ import top.maplex.slimeEasy.machine.butcher.Butcher
 import top.maplex.slimeEasy.machine.butcher.ButcherDeathListener
 import top.maplex.slimeEasy.machine.clicker.AutoClicker
 import top.maplex.slimeEasy.machine.placer.AutoPlacer
+import top.maplex.slimeEasy.machine.quarry.Quarry
 import top.maplex.slimeEasy.storage.box.PagedBox
 import top.maplex.slimeEasy.storage.drawer.Drawer
 import top.maplex.slimeEasy.storage.drawer.DrawerListener
@@ -53,6 +54,7 @@ object Registration {
     private val CREEPER_WARD_RESEARCH_COST get() = SEConfig.creeperWardResearch
     private val BUTCHER_RESEARCH_COST get() = SEConfig.butcherResearch
     private val AUTO_CLICKER_RESEARCH_COST get() = SEConfig.autoClickerResearch
+    private val QUARRY_RESEARCH_COST get() = SEConfig.quarryResearch
     private val GROWTH_INHIBITOR_RESEARCH_COST get() = SEConfig.growthInhibitorResearch
     private val COMBAT_HARNESS_RESEARCH_COST get() = SEConfig.combatHarnessResearch
     private val SURVEY_RULER_RESEARCH_COST get() = SEConfig.surveyRulerResearch
@@ -193,6 +195,22 @@ object Registration {
             )
             autoClicker.register(addon)
             research("auto_clicker", 9018, "自动点击器", AUTO_CLICKER_RESEARCH_COST, autoClicker)
+        }
+
+        // 8e. 注册采石场 (观察者方块; 附着圆石+岩浆+水 → 产圆石) 与五档效率升级组件
+        if (SEConfig.quarryEnabled) {
+            val et = RecipeType.ENHANCED_CRAFTING_TABLE
+            val quarry = Quarry(Groups.UTILITY_MACHINES, Items.QUARRY, et, Items.QUARRY_RECIPE)
+            quarry.register(addon)
+
+            // 五档效率升级为无自定义行为的普通 Slimefun 物品 (档位由采石场读槽内物品身份解析)
+            val effI = SlimefunItem(Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_I, et, Items.QUARRY_EFFICIENCY_I_RECIPE).also { it.register(addon) }
+            val effII = SlimefunItem(Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_II, et, Items.QUARRY_EFFICIENCY_II_RECIPE).also { it.register(addon) }
+            val effIII = SlimefunItem(Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_III, et, Items.QUARRY_EFFICIENCY_III_RECIPE).also { it.register(addon) }
+            val effIV = SlimefunItem(Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_IV, et, Items.QUARRY_EFFICIENCY_IV_RECIPE).also { it.register(addon) }
+            val effV = SlimefunItem(Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_V, et, Items.QUARRY_EFFICIENCY_V_RECIPE).also { it.register(addon) }
+
+            research("quarry", 9021, "采石场", QUARRY_RESEARCH_COST, quarry, effI, effII, effIII, effIV, effV)
         }
 
         // 9~11. 注册矿物勘察尺 (普通 + 进阶) 及其左键展示切换监听器; 关闭时整体跳过
@@ -379,8 +397,9 @@ object Registration {
             // 远程升级有 ItemUseHandler (右键控制器写 PDC), 故用专用子类而非 plain
             val remoteUp = RemoteUpgrade(Groups.STORAGE, StorageItems.REMOTE_UPGRADE, et, StorageItems.REMOTE_UPGRADE_RECIPE)
                 .also { it.register(addon) }
+            val outputUp = plain(StorageItems.OUTPUT_UPGRADE, StorageItems.OUTPUT_UPGRADE_RECIPE)
             research("storage_upgrades", 9008, "存储升级组件", STORAGE_UPGRADE_RESEARCH_COST,
-                stackI, stackII, stackIII, expUp, magnetUp, voidUp, pageUp, wiseUp, enderWiseUp, extractUp, remoteUp)
+                stackI, stackII, stackIII, expUp, magnetUp, voidUp, pageUp, wiseUp, enderWiseUp, extractUp, remoteUp, outputUp)
         }
         if (networkOn) {
             val controller = NetworkController(Groups.STORAGE, StorageItems.CONTROLLER, et, StorageItems.CONTROLLER_RECIPE).also { it.register(addon) }

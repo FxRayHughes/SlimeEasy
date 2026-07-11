@@ -5,6 +5,8 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.storage.drawer.VoidMenu
+import top.maplex.slimeEasy.storage.upgrade.FaceConfig
+import top.maplex.slimeEasy.storage.upgrade.ItemFilter
 import top.maplex.slimeEasy.storage.upgrade.UpgradeSet
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
 import top.maplex.slimeEasy.storage.upgrade.UpgradeType
@@ -24,8 +26,10 @@ object UpgradeMenu {
 
     private val UPGRADE_SLOTS = (0 until UpgradeStore.MAX_SLOTS).toList()
     private const val VOID_SLOT = 13
+    private const val EXTRACT_SLOT = 14
+    private const val OUTPUT_SLOT = 15
 
-    fun open(block: CargoBufferBlock, target: Block, player: Player, title: String) {
+    fun open(block: UpgradeHost, target: Block, player: Player, title: String) {
         val menu = ChestMenu(title)
         menu.setEmptySlotsClickable(false)
         // 点击背包内的升级组件也可安装 (不必手持)
@@ -37,7 +41,7 @@ object UpgradeMenu {
         menu.open(player)
     }
 
-    private fun render(menu: ChestMenu, block: CargoBufferBlock, target: Block) {
+    private fun render(menu: ChestMenu, block: UpgradeHost, target: Block) {
         val items = UpgradeStore.readItems(target.location)
         for ((i, slot) in UPGRADE_SLOTS.withIndex()) {
             val installed = items.getOrNull(i)
@@ -49,8 +53,19 @@ object UpgradeMenu {
                 }
             }
         }
-        if (UpgradeStore.resolve(target.location).hasVoid) {
+        val set = UpgradeStore.resolve(target.location)
+        if (set.hasVoid) {
             menu.addItem(VOID_SLOT, GuiItems.VOID_CONFIG) { p, _, _, _ -> VoidMenu.open(target, p); false }
+        }
+        if (set.hasExtract) {
+            menu.addItem(EXTRACT_SLOT, GuiItems.EXTRACT_CONFIG) { p, _, _, _ ->
+                FilterMenu.open(target, p, ItemFilter.EXTRACT, FaceConfig.EXTRACT, "§8抽取配置"); false
+            }
+        }
+        if (set.hasOutput) {
+            menu.addItem(OUTPUT_SLOT, GuiItems.OUTPUT_CONFIG) { p, _, _, _ ->
+                FilterMenu.open(target, p, ItemFilter.OUTPUT, FaceConfig.OUTPUT, "§8输出配置"); false
+            }
         }
     }
 
@@ -60,7 +75,7 @@ object UpgradeMenu {
      * [source] 既可能是玩家主手, 也可能是背包中被点击的那一组; 统一按物品身份从背包
      * 移除一枚 (不依赖具体槽位), 确保手持与背包点击两条路径行为一致。
      */
-    private fun install(menu: ChestMenu, block: CargoBufferBlock, target: Block, player: Player, source: ItemStack) {
+    private fun install(menu: ChestMenu, block: UpgradeHost, target: Block, player: Player, source: ItemStack) {
         val type = UpgradeType.fromItem(source) ?: return
         val items = UpgradeStore.readItems(target.location).toMutableList()
         if (items.size >= UpgradeStore.MAX_SLOTS) return
@@ -78,7 +93,7 @@ object UpgradeMenu {
         afterChange(menu, block, target, player)
     }
 
-    private fun uninstall(menu: ChestMenu, block: CargoBufferBlock, target: Block, player: Player, index: Int) {
+    private fun uninstall(menu: ChestMenu, block: UpgradeHost, target: Block, player: Player, index: Int) {
         val items = UpgradeStore.readItems(target.location).toMutableList()
         val removed = items.getOrNull(index) ?: return
         val type = UpgradeType.fromItem(removed)
@@ -98,7 +113,7 @@ object UpgradeMenu {
         afterChange(menu, block, target, player)
     }
 
-    private fun afterChange(menu: ChestMenu, block: CargoBufferBlock, target: Block, player: Player) {
+    private fun afterChange(menu: ChestMenu, block: UpgradeHost, target: Block, player: Player) {
         block.onUpgradesChanged(target)
         player.updateInventory()
         render(menu, block, target)

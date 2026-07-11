@@ -23,6 +23,14 @@ object GuiItems {
     val VOID_CONFIG: ItemStack =
         named(Material.BLACK_CONCRETE, "§8虚空过滤配置", "§7点击管理销毁列表")
 
+    /** 抽取过滤配置按钮。 */
+    val EXTRACT_CONFIG: ItemStack =
+        named(Material.HOPPER, "§e抽取过滤配置", "§7点击管理抽取黑 / 白名单")
+
+    /** 输出过滤配置按钮。 */
+    val OUTPUT_CONFIG: ItemStack =
+        named(Material.DROPPER, "§e输出过滤配置", "§7点击管理输出黑 / 白名单")
+
     /** 上一页按钮。 */
     val PREV_PAGE: ItemStack = named(Material.ARROW, "§e上一页")
 

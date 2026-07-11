@@ -6,6 +6,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
+import io.github.thebusybiscuit.slimefun4.core.attributes.NotHopperable
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.interfaces.InventoryBlock
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu
@@ -35,6 +36,11 @@ import java.util.concurrent.ConcurrentHashMap
  * 玩家面向的交互 UI (展示框 / 分页 GUI) 由子类自行实现, 与本缓冲菜单解耦。
  * 每个方块位置的库存实例按需从 BlockData 载入并缓存于 [storageCache]。
  *
+ * 实现 [NotHopperable]: 外观是原版木桶, 若不拦截原版漏斗会把物品塞进木桶自带的
+ * 27 格原版库存 —— 该库存本插件从不读写, 物品即被"吞掉"永久不可见。故拒绝原版漏斗
+ * 塞入; 漏斗喂料统一走 [top.maplex.slimeEasy.storage.core.HopperExtract] 抽取升级。
+ * (SlimeFun 货运网络经其自有传输而非 InventoryMoveItemEvent, 不受影响。)
+ *
  * 所有存储读写约定在主线程进行 (ticker [BlockTicker.isSynchronized] = true)。
  */
 abstract class CargoBufferBlock(
@@ -42,7 +48,7 @@ abstract class CargoBufferBlock(
     item: SlimefunItemStack,
     recipeType: RecipeType,
     recipe: Array<ItemStack?>
-) : SlimefunItem(itemGroup, item, recipeType, recipe), InventoryBlock {
+) : SlimefunItem(itemGroup, item, recipeType, recipe), InventoryBlock, NotHopperable, UpgradeHost {
 
     /** 位置键 → 该方块的虚拟库存 (懒加载缓存)。 */
     private val storageCache = ConcurrentHashMap<String, VirtualStorage>()
@@ -149,14 +155,14 @@ abstract class CargoBufferBlock(
      * @param install true = 安装该升级; false = 卸下该升级
      * @return null 表示允许; 非 null 为拒绝原因 (展示给玩家)
      */
-    open fun rejectUpgradeChange(block: Block, type: UpgradeType, install: Boolean): String? = null
+    override fun rejectUpgradeChange(block: Block, type: UpgradeType, install: Boolean): String? = null
 
     /**
      * 升级组件变更后的回调 (安装 / 卸下升级后由升级 GUI 调用)。
      *
      * 子类据此按新升级重算库存容量并刷新展示。默认空实现。
      */
-    open fun onUpgradesChanged(block: Block) {}
+    override fun onUpgradesChanged(block: Block) {}
 
     /**
      * 判断在仅保留 [remainingStackMultiplier] 倍率后, 现存库存是否仍装得下。
@@ -166,7 +172,7 @@ abstract class CargoBufferBlock(
      *
      * @param remainingStackMultiplier 卸下目标升级后剩余的堆叠倍率连乘
      */
-    open fun capacityAllowsRemoval(block: Block, remainingStackMultiplier: Double): Boolean = true
+    override fun capacityAllowsRemoval(block: Block, remainingStackMultiplier: Double): Boolean = true
 
     /**
      * 插入前的容量准备钩子。

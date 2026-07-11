@@ -10,16 +10,25 @@ import io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Directional
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.machine.butcher.ButcherLogic
 import top.maplex.slimeEasy.machine.common.MachineProtection
+import top.maplex.slimeEasy.storage.core.CargoBufferBlock
+import top.maplex.slimeEasy.storage.core.ContainerIO
+import top.maplex.slimeEasy.storage.core.UpgradeHost
+import top.maplex.slimeEasy.storage.upgrade.FaceConfig
+import top.maplex.slimeEasy.storage.upgrade.ItemFilter
+import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
+import top.maplex.slimeEasy.storage.upgrade.UpgradeType
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -37,13 +46,17 @@ class AutoClicker(
     item: SlimefunItemStack,
     recipeType: RecipeType,
     recipe: Array<ItemStack?>
-) : SlimefunItem(itemGroup, item, recipeType, recipe) {
+) : SlimefunItem(itemGroup, item, recipeType, recipe), UpgradeHost {
 
     /** 每台机器的 tick 累加器 (键为方块位置字符串), 仅用于节流, 无需持久化。 */
     private val counters = ConcurrentHashMap<String, Double>()
 
     /** 单个 tick 内最多连点次数 (安全上限, 防止极端间隔造成瞬时过量点击); 实时读取配置。 */
     private val maxClicksPerTick: Int get() = SEConfig.autoClickerMaxClicksPerTick
+
+    /** 自动点击器仅支持抽取升级 (扩展补料能力); 其余存储类升级对点击器无意义, 拒绝安装。 */
+    override fun rejectUpgradeChange(block: Block, type: UpgradeType, install: Boolean): String? =
+        if (install && type != UpgradeType.EXTRACT) "§c自动点击器仅支持抽取升级" else null
 
     override fun preRegister() {
         addItemHandler(object : BlockPlaceHandler(false) {
@@ -54,10 +67,11 @@ class AutoClicker(
         addItemHandler(object : BlockBreakHandler(false, false) {
             override fun onPlayerBreak(e: BlockBreakEvent, tool: ItemStack, drops: MutableList<ItemStack>) {
                 spillMenu(e.block, drops)
+                drops.addAll(UpgradeStore.readItems(e.block.location)) // 返还已装升级组件
                 counters.remove(e.block.locationKey())
             }
         })
-        AutoClickerMenuPreset(id, itemName)
+        AutoClickerMenuPreset(id, itemName, this)
         addItemHandler(object : BlockTicker() {
             override fun tick(b: Block, item: SlimefunItem, data: SlimefunBlockData) = onTick(b)
             // 涉及事件派发、方块 handler 调用与容器读写, 必须主线程
@@ -93,25 +107,44 @@ class AutoClicker(
     }
 
     /**
-     * 从"输出方向对准本机"的相邻漏斗抽取物品到物品槽 (观察者非容器, 漏斗无法推入, 故主动抽取)。
+     * 补料到物品槽 (观察者非容器, 无法被推入, 故主动抽取)。
+     *
+     * - **无抽取升级** (默认): 仅从"输出方向正对本机"的相邻漏斗抽取 (维持原行为);
+     * - **装抽取升级**: 从相邻任意容器 (漏斗 + 箱子等, 排除本插件存储块) 抽取, 并经抽取
+     *   黑 / 白名单 ([ItemFilter.EXTRACT]) 过滤, 不再要求漏斗朝向。
      */
     private fun pullFromHoppers(machine: Block, menu: BlockMenu) {
+        val loc = machine.location
+        if (UpgradeStore.resolve(loc).hasExtract) {
+            // 抽取升级: 每 tick 尽量把物品槽补满 (远快于原版每 tick 仅补一个), 仅在配置的生效面
+            val faces = FaceConfig.EXTRACT.faces(loc)
+            for (inv in ContainerIO.adjacentSources(machine, faces)) {
+                if (fillFromInventory(menu, inv, loc)) return
+            }
+            for ((nb, logic) in ContainerIO.adjacentPluginStores(machine, faces)) {
+                if (fillFromStore(menu, nb, logic, loc)) return
+            }
+            return
+        }
         for (face in NEIGHBOR_FACES) {
             val neighbor = machine.getRelative(face)
             if (neighbor.type != Material.HOPPER) continue
             val dir = (neighbor.blockData as? Directional)?.facing ?: continue
             if (dir != face.oppositeFace) continue // 漏斗输出方向须正对本机
             val hopper = neighbor.state as? org.bukkit.block.Hopper ?: continue
-            if (drainOne(menu, hopper)) return // 每 tick 至多抽一个, 贴近原版节流
+            if (drainOne(menu, hopper.inventory, null)) return // 每 tick 至多抽一个, 贴近原版节流
         }
     }
 
-    /** 从漏斗取一个物品塞入物品槽 (槽满或异类则失败); 成功返回 true。 */
-    private fun drainOne(menu: BlockMenu, hopper: org.bukkit.block.Hopper): Boolean {
-        val inv = hopper.inventory
+    /**
+     * 从容器取一个物品塞入物品槽 (槽满或异类则失败); 成功返回 true。
+     * [filterLoc] 非 null 时经抽取黑 / 白名单过滤 (仅抽取升级路径传入)。
+     */
+    private fun drainOne(menu: BlockMenu, inv: Inventory, filterLoc: Location?): Boolean {
         for (i in 0 until inv.size) {
             val stack = inv.getItem(i) ?: continue
             if (stack.type.isAir) continue
+            if (filterLoc != null && !ItemFilter.EXTRACT.allows(filterLoc, stack)) continue
             val one = stack.clone().apply { amount = 1 }
             if (menu.pushItem(one, AutoClickerMenuPreset.ITEM_SLOT) != null) continue // 槽满 / 异类
             stack.amount -= 1
@@ -119,6 +152,50 @@ class AutoClicker(
             return true
         }
         return false
+    }
+
+    /**
+     * 从原版容器尽量把物品槽补满 (抽取升级路径, 一次补整格)。
+     * 返回物品槽是否已补满 (满则可停止扫描后续源)。
+     */
+    private fun fillFromInventory(menu: BlockMenu, inv: Inventory, loc: Location): Boolean {
+        for (i in 0 until inv.size) {
+            val stack = inv.getItem(i) ?: continue
+            if (stack.type.isAir) continue
+            if (!ItemFilter.EXTRACT.allows(loc, stack)) continue
+            val leftAmount = menu.pushItem(stack.clone(), AutoClickerMenuPreset.ITEM_SLOT)?.amount ?: 0
+            val moved = stack.amount - leftAmount
+            if (moved > 0) {
+                stack.amount -= moved
+                inv.setItem(i, stack.takeIf { it.amount > 0 })
+                if (leftAmount > 0) return true // 同类但物品槽已满
+            }
+            // moved == 0 且有剩余: 与槽内物品异类, 继续找同类
+        }
+        return false
+    }
+
+    /**
+     * 从相邻本插件容器的虚拟库存尽量把物品槽补满 (抽取升级路径)。返回物品槽是否已补满。
+     */
+    private fun fillFromStore(menu: BlockMenu, nb: Block, logic: CargoBufferBlock, loc: Location): Boolean {
+        val store = logic.storageAt(nb)
+        var storeChanged = false
+        var full = false
+        for ((key, amount) in store.entries()) {
+            if (amount <= 0) continue
+            if (!ItemFilter.EXTRACT.allows(loc, key.template)) continue
+            val push = minOf(amount, key.vanillaMaxStack.toLong()).toInt()
+            if (push <= 0) continue
+            val leftAmount = menu.pushItem(
+                key.template.clone().apply { this.amount = push }, AutoClickerMenuPreset.ITEM_SLOT
+            )?.amount ?: 0
+            val moved = push - leftAmount
+            if (moved > 0) { store.extract(key, moved.toLong(), simulate = false); storeChanged = true }
+            if (moved > 0 && leftAmount > 0) { full = true; break } // 同类但物品槽已满
+        }
+        if (storeChanged) logic.saveStorage(nb, store)
+        return full
     }
 
     /** 破坏时把物品槽内容作为掉落散落。 */

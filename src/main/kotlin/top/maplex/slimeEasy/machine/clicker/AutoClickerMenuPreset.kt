@@ -13,6 +13,8 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.storage.core.GuiItems
+import top.maplex.slimeEasy.storage.core.UpgradeHost
+import top.maplex.slimeEasy.storage.core.UpgradeMenu
 
 /**
  * 自动点击器的操作界面 (Slimefun 原生 [BlockMenu] 预设)。
@@ -24,11 +26,11 @@ import top.maplex.slimeEasy.storage.core.GuiItems
  * 且这些槽**不能**在 [init] 里被 `drawBackground` 占用 —— 否则 `BlockMenuPreset.clone` 会在 newInstance 之后
  * 用预设的空点击处理器把按钮 handler 覆盖掉 (点击失效)。参见 Slimefun `AbstractCargoNode` 信道按钮。
  */
-class AutoClickerMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
+class AutoClickerMenuPreset(id: String, title: String, private val host: UpgradeHost) : BlockMenuPreset(id, title) {
 
     override fun init() {
         // 只铺装饰性背景: 排除物品槽、静态标签与全部按钮槽 (按钮在 newInstance 内绘制/挂钩)
-        val reserved = intArrayOf(ITEM_SLOT, LABEL_ITEM, LEFT_TOGGLE, RIGHT_TOGGLE, INTERVAL_DOWN, INTERVAL_INFO, INTERVAL_UP)
+        val reserved = intArrayOf(ITEM_SLOT, LABEL_ITEM, LEFT_TOGGLE, RIGHT_TOGGLE, INTERVAL_DOWN, INTERVAL_INFO, INTERVAL_UP, UPGRADE_ENTRY)
         drawBackground(GuiItems.BACKGROUND, (0 until 27).filter { it !in reserved }.toIntArray())
         addItem(
             LABEL_ITEM,
@@ -66,6 +68,11 @@ class AutoClickerMenuPreset(id: String, title: String) : BlockMenuPreset(id, tit
             AutoClickerState.addInterval(block, stepOf(action)); paint(menu, block); false
         })
         menu.addMenuClickHandler(INTERVAL_INFO, ChestMenuUtils.getEmptyClickHandler())
+        // 升级入口: 打开通用升级 GUI (点击器仅接受抽取升级, 由 host.rejectUpgradeChange 约束)
+        menu.replaceExistingItem(UPGRADE_ENTRY, GuiItems.UPGRADE_ENTRY)
+        menu.addMenuClickHandler(UPGRADE_ENTRY, ChestMenu.MenuClickHandler { p, _, _, _ ->
+            UpgradeMenu.open(host, block, p, "§9点击器升级"); false
+        })
     }
 
     /** 按块状态绘制按钮图标 (replaceExistingItem, 与官方交互按钮一致)。 */
@@ -110,5 +117,6 @@ class AutoClickerMenuPreset(id: String, title: String) : BlockMenuPreset(id, tit
         const val INTERVAL_DOWN = 21
         const val INTERVAL_INFO = 22
         const val INTERVAL_UP = 23
+        const val UPGRADE_ENTRY = 8
     }
 }

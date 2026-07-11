@@ -133,6 +133,11 @@ object SEConfig {
     /** 单个 Slimefun tick 内的最多点击次数 (防卡)。 */
     val autoClickerMaxClicksPerTick: Int get() = int("auto-clicker.max-clicks-per-tick", 20, 1)
 
+    // ==================== 采石场 ====================
+
+    val quarryEnabled: Boolean get() = bool("quarry.enabled", true)
+    val quarryResearch: Int get() = int("quarry.research-level", 12, 0)
+
     // ==================== 矿物勘察尺 ====================
 
     val surveyRulerEnabled: Boolean get() = bool("survey-ruler.enabled", true)

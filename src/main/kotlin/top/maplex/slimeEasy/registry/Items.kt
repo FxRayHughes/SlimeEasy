@@ -267,7 +267,7 @@ object Items {
      * 自动点击器物品模板 (观察者外观)。
      *
      * 脸朝向 = 点击方向; 需红石激活, 激活后不断左键 / 右键正前方方块 (含 Slimefun 方块)。
-     * 内置一格容积, 点击时假玩家手持该物品交互, 可用漏斗补料。
+     * 内置一格容积, 点击时假玩家手持该物品交互, 可用漏斗补料。可装抽取升级从箱子等容器补料。
      */
     val AUTO_CLICKER: SlimefunItemStack = SEText.stack(
         AUTO_CLICKER_ID,
@@ -279,7 +279,8 @@ object Items {
         "&c需红石激活&7: 通电时工作, 断电即停。",
         "&7右键打开界面放入 &f一格物品&7: 点击时假玩家",
         "&7手持该物品交互 (如骨粉施肥 / 桶取放液体), 消耗后回写。",
-        "&7物品可用 &f相邻漏斗 &7(输出对准本机) 或物流网络补充。",
+        "&7物品可用 &f相邻漏斗 &7(输出对准本机) 或物流网络补充;",
+        "&7界面内可装 &f抽取升级&7: 改为从相邻箱子 / 容器补料并支持黑 / 白名单。",
         "",
         "&7支持点击 &fSlimefun (粘液) 方块&7, 且 &f绕过其研究解锁限制&7。",
         "&8约每秒点击一次。"
@@ -376,5 +377,107 @@ object Items {
         ItemStack(Material.PRISMARINE_CRYSTALS), ItemStack(Material.NETHER_STAR), ItemStack(Material.PRISMARINE_CRYSTALS),
         ItemStack(Material.PRISMARINE_CRYSTALS), COMBAT_HARNESS_III.clone(), ItemStack(Material.PRISMARINE_CRYSTALS),
         ItemStack(Material.PRISMARINE_CRYSTALS), ItemStack(Material.PRISMARINE_CRYSTALS), ItemStack(Material.PRISMARINE_CRYSTALS)
+    )
+
+    // ============================ 采石场 (观察者方块, 圆石 + 岩浆 + 水 → 产圆石) ============================
+
+    /** 采石场的全局唯一 ID。 */
+    const val QUARRY_ID = "SE_QUARRY"
+
+    /**
+     * 采石场物品模板 (观察者外观)。
+     *
+     * 脸朝向的圆石同时相邻岩浆与水时产出圆石; 无容积, 产物输出到周围容器。
+     */
+    val QUARRY: SlimefunItemStack = SEText.stack(
+        QUARRY_ID,
+        Material.OBSERVER,
+        "&b采石场",
+        "",
+        "&7观察者方块。&f脸朝向 &7的圆石若同时相邻",
+        "&c岩浆 &7与 &9水 &7(不必是源头), 便持续产出圆石",
+        "&7(不破坏该圆石)。",
+        "",
+        "&7本身 &f无容积&7, 产物直接输出到周围的",
+        "&f容器 / 抽屉 / 翻页箱&7。",
+        "",
+        "&7右键打开界面放入 &f效率升级 I~V &7提速:",
+        "&7空槽 &f1 个/秒&7; I=1 · II=6 · III=12 · IV=32 · V=64 &f个/0.5s&7。"
+    )
+
+    /**
+     * 增强工作台配方 (3x3)。
+     *
+     * 观察者居中 (侦测), 圆石四角 (采石主题), 水桶 / 岩浆桶点睛 (生产条件),
+     * 活塞与红石块供能。
+     */
+    val QUARRY_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.COBBLESTONE), ItemStack(Material.WATER_BUCKET), ItemStack(Material.COBBLESTONE),
+        ItemStack(Material.LAVA_BUCKET), ItemStack(Material.OBSERVER), ItemStack(Material.PISTON),
+        ItemStack(Material.COBBLESTONE), ItemStack(Material.REDSTONE_BLOCK), ItemStack(Material.COBBLESTONE)
+    )
+
+    // 五档效率升级组件: 档位仅由物品身份决定 (与 [top.maplex.slimeEasy.machine.quarry.QuarryTier] 一致), 与堆叠数量无关。
+
+    const val QUARRY_EFFICIENCY_I_ID = "SE_QUARRY_EFFICIENCY_I"
+    const val QUARRY_EFFICIENCY_II_ID = "SE_QUARRY_EFFICIENCY_II"
+    const val QUARRY_EFFICIENCY_III_ID = "SE_QUARRY_EFFICIENCY_III"
+    const val QUARRY_EFFICIENCY_IV_ID = "SE_QUARRY_EFFICIENCY_IV"
+    const val QUARRY_EFFICIENCY_V_ID = "SE_QUARRY_EFFICIENCY_V"
+
+    /** 构造某档采石场效率升级模板 (统一说明放入槽位与速率)。 */
+    private fun quarryEfficiency(id: String, material: Material, name: String, rate: Int): SlimefunItemStack =
+        SEText.stack(
+            id, material, name,
+            "",
+            "&7放入采石场的 &f效率升级槽&7。",
+            "&7生产速率提升至 &f$rate 个&7 / 0.5 秒。",
+            "&8(仅认物品身份, 堆叠数量无关)"
+        )
+
+    val QUARRY_EFFICIENCY_I: SlimefunItemStack =
+        quarryEfficiency(QUARRY_EFFICIENCY_I_ID, Material.COPPER_INGOT, "&f采石场效率升级 I", 1)
+    val QUARRY_EFFICIENCY_II: SlimefunItemStack =
+        quarryEfficiency(QUARRY_EFFICIENCY_II_ID, Material.IRON_INGOT, "&a采石场效率升级 II", 6)
+    val QUARRY_EFFICIENCY_III: SlimefunItemStack =
+        quarryEfficiency(QUARRY_EFFICIENCY_III_ID, Material.GOLD_INGOT, "&e采石场效率升级 III", 12)
+    val QUARRY_EFFICIENCY_IV: SlimefunItemStack =
+        quarryEfficiency(QUARRY_EFFICIENCY_IV_ID, Material.DIAMOND, "&b采石场效率升级 IV", 32)
+    val QUARRY_EFFICIENCY_V: SlimefunItemStack =
+        quarryEfficiency(QUARRY_EFFICIENCY_V_ID, Material.NETHERITE_INGOT, "&6采石场效率升级 V", 64)
+
+    /** I: 活塞 (效率) 与红石环绕铜锭 (基础档)。 */
+    val QUARRY_EFFICIENCY_I_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.REDSTONE), ItemStack(Material.PISTON), ItemStack(Material.REDSTONE),
+        ItemStack(Material.PISTON), ItemStack(Material.COPPER_INGOT), ItemStack(Material.PISTON),
+        ItemStack(Material.REDSTONE), ItemStack(Material.PISTON), ItemStack(Material.REDSTONE)
+    )
+
+    /** II: 铁锭环绕上一档。 */
+    val QUARRY_EFFICIENCY_II_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.IRON_INGOT), ItemStack(Material.IRON_INGOT), ItemStack(Material.IRON_INGOT),
+        ItemStack(Material.IRON_INGOT), QUARRY_EFFICIENCY_I.clone(), ItemStack(Material.IRON_INGOT),
+        ItemStack(Material.IRON_INGOT), ItemStack(Material.IRON_INGOT), ItemStack(Material.IRON_INGOT)
+    )
+
+    /** III: 金锭环绕上一档。 */
+    val QUARRY_EFFICIENCY_III_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.GOLD_INGOT), ItemStack(Material.GOLD_INGOT), ItemStack(Material.GOLD_INGOT),
+        ItemStack(Material.GOLD_INGOT), QUARRY_EFFICIENCY_II.clone(), ItemStack(Material.GOLD_INGOT),
+        ItemStack(Material.GOLD_INGOT), ItemStack(Material.GOLD_INGOT), ItemStack(Material.GOLD_INGOT)
+    )
+
+    /** IV: 钻石环绕上一档。 */
+    val QUARRY_EFFICIENCY_IV_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.DIAMOND), ItemStack(Material.DIAMOND), ItemStack(Material.DIAMOND),
+        ItemStack(Material.DIAMOND), QUARRY_EFFICIENCY_III.clone(), ItemStack(Material.DIAMOND),
+        ItemStack(Material.DIAMOND), ItemStack(Material.DIAMOND), ItemStack(Material.DIAMOND)
+    )
+
+    /** V: 下界合金锭环绕上一档。 */
+    val QUARRY_EFFICIENCY_V_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.NETHERITE_INGOT), ItemStack(Material.NETHERITE_INGOT), ItemStack(Material.NETHERITE_INGOT),
+        ItemStack(Material.NETHERITE_INGOT), QUARRY_EFFICIENCY_IV.clone(), ItemStack(Material.NETHERITE_INGOT),
+        ItemStack(Material.NETHERITE_INGOT), ItemStack(Material.NETHERITE_INGOT), ItemStack(Material.NETHERITE_INGOT)
     )
 }
