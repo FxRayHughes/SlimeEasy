@@ -29,6 +29,7 @@ import top.maplex.slimeEasy.storage.upgrade.FaceConfig
 import top.maplex.slimeEasy.storage.upgrade.ItemFilter
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
 import top.maplex.slimeEasy.storage.upgrade.UpgradeType
+import top.maplex.slimeEasy.util.locationKey
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -116,13 +117,16 @@ class AutoClicker(
     private fun pullFromHoppers(machine: Block, menu: BlockMenu) {
         val loc = machine.location
         if (UpgradeStore.resolve(loc).hasExtract) {
-            // 抽取升级: 每 tick 尽量把物品槽补满 (远快于原版每 tick 仅补一个), 仅在配置的生效面
+            // 抽取升级: 按配置吞吐补充物品槽, 仅在配置的生效面
             val faces = FaceConfig.EXTRACT.faces(loc)
+            var budget = SEConfig.autoClickerExtractMaxItemsPerTick
             for (inv in ContainerIO.adjacentSources(machine, faces)) {
-                if (fillFromInventory(menu, inv, loc)) return
+                budget -= fillFromInventory(menu, inv, loc, budget)
+                if (budget <= 0) return
             }
             for ((nb, logic) in ContainerIO.adjacentPluginStores(machine, faces)) {
-                if (fillFromStore(menu, nb, logic, loc)) return
+                budget -= fillFromStore(menu, nb, logic, loc, budget)
+                if (budget <= 0) return
             }
             return
         }
@@ -155,47 +159,63 @@ class AutoClicker(
     }
 
     /**
-     * 从原版容器尽量把物品槽补满 (抽取升级路径, 一次补整格)。
-     * 返回物品槽是否已补满 (满则可停止扫描后续源)。
+     * 从原版容器补充物品槽, 最多移动 [maxItems] 个; 返回实际移动量。
      */
-    private fun fillFromInventory(menu: BlockMenu, inv: Inventory, loc: Location): Boolean {
+    private fun fillFromInventory(menu: BlockMenu, inv: Inventory, loc: Location, maxItems: Int): Int {
+        var movedTotal = 0
         for (i in 0 until inv.size) {
+            if (movedTotal >= maxItems) break
             val stack = inv.getItem(i) ?: continue
             if (stack.type.isAir) continue
             if (!ItemFilter.EXTRACT.allows(loc, stack)) continue
-            val leftAmount = menu.pushItem(stack.clone(), AutoClickerMenuPreset.ITEM_SLOT)?.amount ?: 0
-            val moved = stack.amount - leftAmount
+            val requested = minOf(stack.amount, maxItems - movedTotal)
+            val leftAmount = menu.pushItem(
+                stack.clone().apply { amount = requested }, AutoClickerMenuPreset.ITEM_SLOT
+            )?.amount ?: 0
+            val moved = requested - leftAmount
             if (moved > 0) {
                 stack.amount -= moved
+                movedTotal += moved
                 inv.setItem(i, stack.takeIf { it.amount > 0 })
-                if (leftAmount > 0) return true // 同类但物品槽已满
+                if (leftAmount > 0) break // 同类但物品槽已满
             }
             // moved == 0 且有剩余: 与槽内物品异类, 继续找同类
         }
-        return false
+        return movedTotal
     }
 
     /**
-     * 从相邻本插件容器的虚拟库存尽量把物品槽补满 (抽取升级路径)。返回物品槽是否已补满。
+     * 从相邻本插件容器的虚拟库存补充物品槽, 最多移动 [maxItems] 个; 返回实际移动量。
      */
-    private fun fillFromStore(menu: BlockMenu, nb: Block, logic: CargoBufferBlock, loc: Location): Boolean {
+    private fun fillFromStore(
+        menu: BlockMenu,
+        nb: Block,
+        logic: CargoBufferBlock,
+        loc: Location,
+        maxItems: Int
+    ): Int {
         val store = logic.storageAt(nb)
         var storeChanged = false
-        var full = false
+        var movedTotal = 0
         for ((key, amount) in store.entries()) {
+            if (movedTotal >= maxItems) break
             if (amount <= 0) continue
             if (!ItemFilter.EXTRACT.allows(loc, key.template)) continue
-            val push = minOf(amount, key.vanillaMaxStack.toLong()).toInt()
+            val push = minOf(amount, key.vanillaMaxStack.toLong(), (maxItems - movedTotal).toLong()).toInt()
             if (push <= 0) continue
             val leftAmount = menu.pushItem(
                 key.template.clone().apply { this.amount = push }, AutoClickerMenuPreset.ITEM_SLOT
             )?.amount ?: 0
             val moved = push - leftAmount
-            if (moved > 0) { store.extract(key, moved.toLong(), simulate = false); storeChanged = true }
-            if (moved > 0 && leftAmount > 0) { full = true; break } // 同类但物品槽已满
+            if (moved > 0) {
+                store.extract(key, moved.toLong(), simulate = false)
+                movedTotal += moved
+                storeChanged = true
+            }
+            if (moved > 0 && leftAmount > 0) break // 同类但物品槽已满
         }
         if (storeChanged) logic.saveStorage(nb, store)
-        return full
+        return movedTotal
     }
 
     /** 破坏时把物品槽内容作为掉落散落。 */
@@ -203,8 +223,6 @@ class AutoClicker(
         val menu = StorageCacheUtils.getMenu(machine.location) ?: return
         menu.getItemInSlot(AutoClickerMenuPreset.ITEM_SLOT)?.let { if (!it.type.isAir) drops.add(it.clone()) }
     }
-
-    private fun Block.locationKey(): String = "${world.name}:$x:$y:$z"
 
     private companion object {
         /** 抽取漏斗时扫描的六个相邻方向。 */

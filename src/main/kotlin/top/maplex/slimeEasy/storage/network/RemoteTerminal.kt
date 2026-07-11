@@ -1,25 +1,30 @@
 package top.maplex.slimeEasy.storage.network
 
-import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
 import io.github.thebusybiscuit.slimefun4.core.handlers.ItemUseHandler
-import org.bukkit.Bukkit
+import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import top.maplex.slimeEasy.SlimeEasy
+import top.maplex.slimeEasy.config.SEConfig
+import top.maplex.slimeEasy.storage.core.GuiItems
+import top.maplex.slimeEasy.util.BlockLocationCodec
 
 /**
  * 远程终端 (手持工具)。
  *
  * 用法:
- * - **手持右键网络控制器**: 把本终端绑定到该控制器 (绑定信息存于物品 PDC);
- * - **手持右键空气 / 其它方块**: 远程打开已绑定网络的聚合终端 ([NetworkMenu]),
+ * - **手持右键网络控制器**: 把控制器追加到本终端的绑定列表 (绑定信息存于物品 PDC);
+ * - **手持右键空气 / 其它方块**: 远程打开当前选中的网络终端 ([NetworkMenu]);
+ * - **潜行右键**: 打开绑定管理界面, 可选择或移除控制器;
+ * - 远程终端底栏中“下一页”左侧的按钮可轮换绑定的控制器,
  *   随时随地存取全网库存。
  *
  * 绑定是"物品维度"的: 不同的终端可绑定不同控制器; 复制 / 堆叠的终端共享同一绑定。
@@ -37,53 +42,192 @@ class RemoteTerminal(
             val player = e.player
             val item = e.item
             val block = e.clickedBlock.orElse(null)
-            if (block != null && isController(block)) bind(player, item, block)
+            if (player.isSneaking) openManager(player, item)
+            else if (block != null && NetworkControllerAccess.isController(block)) bind(player, item, block)
             else openBound(player, item)
         })
     }
 
-    /** 把终端绑定到指定控制器方块。 */
+    /** 把控制器追加到终端绑定列表; 已存在时仅切换为当前控制器。 */
     private fun bind(player: Player, item: ItemStack, controller: Block) {
+        if (!NetworkControllerAccess.canUse(player, controller)) return
         val loc = controller.location
-        val value = "${loc.world?.name};${loc.blockX};${loc.blockY};${loc.blockZ}"
-        item.editMeta { it.persistentDataContainer.set(KEY_BIND, PersistentDataType.STRING, value) }
-        player.sendMessage("§b[远程终端] §7已绑定到网络控制器 §f(${loc.blockX}, ${loc.blockY}, ${loc.blockZ})")
+        val value = BlockLocationCodec.encode(controller)
+        val bindings = readBindings(item)
+        val existing = bindings.indexOf(value)
+        val maxBindings = SEConfig.storageNetworkRemoteTerminalMaxBindings
+        if (existing < 0 && maxBindings > 0 && bindings.size >= maxBindings) {
+            player.sendMessage("§c[远程终端] §7绑定数量已达到配置上限 §f$maxBindings")
+            return
+        }
+        val selected = if (existing >= 0) existing else bindings.size.also { bindings.add(value) }
+        writeBindings(item, bindings, selected)
+        val action = if (existing >= 0) "已切换到" else "已绑定"
+        player.sendMessage("§b[远程终端] §7$action 网络控制器 §f(${loc.blockX}, ${loc.blockY}, ${loc.blockZ}) §8[共 ${bindings.size} 个]")
     }
 
-    /** 打开已绑定网络; 未绑定 / 绑定失效时提示。 */
+    /** 打开当前选中的网络; 未绑定、绑定失效或无权限时提示。 */
     private fun openBound(player: Player, item: ItemStack) {
-        val raw = item.itemMeta?.persistentDataContainer?.get(KEY_BIND, PersistentDataType.STRING)
-        if (raw.isNullOrEmpty()) {
+        val bindings = readBindings(item)
+        if (bindings.isEmpty()) {
             player.sendMessage("§c[远程终端] §7尚未绑定, 请手持右键网络控制器进行绑定")
             return
         }
-        val block = resolve(raw)
-        if (block == null || !isController(block)) {
-            player.sendMessage("§c[远程终端] §7绑定的网络控制器已不存在, 请重新绑定")
+        val selected = selectedIndex(item, bindings.size)
+        val raw = bindings[selected]
+        val block = BlockLocationCodec.decode(raw)
+        if (block == null || !NetworkControllerAccess.isController(block)) {
+            player.sendMessage("§c[远程终端] §7当前绑定的网络控制器已不存在, 请潜行右键打开管理界面")
             return
         }
-        NetworkMenu.open(NetworkRegistry.get(block), player)
+        if (!NetworkControllerAccess.canUse(player, block)) return
+        val switcher = if (bindings.size > 1) ({ p: Player -> switchBound(p, item) }) else null
+        NetworkMenu.open(NetworkRegistry.get(block), player, switcher)
     }
 
-    /** 判断方块是否为网络控制器。 */
-    private fun isController(block: Block): Boolean {
-        val id = StorageCacheUtils.getBlock(block.location)?.sfId ?: return false
-        return SlimefunItem.getById(id) is NetworkController
+    /** 切换到下一个仍然有效且玩家有 Slimefun 使用权限的控制器。 */
+    private fun switchBound(player: Player, item: ItemStack) {
+        val bindings = readBindings(item)
+        if (bindings.size <= 1) {
+            player.sendMessage("§e[远程终端] §7没有其它已绑定的控制器")
+            return
+        }
+        val current = selectedIndex(item, bindings.size)
+        for (offset in 1 until bindings.size) {
+            val next = (current + offset) % bindings.size
+            val block = BlockLocationCodec.decode(bindings[next]) ?: continue
+            if (!NetworkControllerAccess.isController(block) || !NetworkControllerAccess.canUse(player, block, false)) continue
+            writeBindings(item, bindings, next)
+            player.sendMessage("§b[远程终端] §7已切换到 §f${describe(block)}")
+            NetworkMenu.open(NetworkRegistry.get(block), player) { p -> switchBound(p, item) }
+            return
+        }
+        player.sendMessage("§c[远程终端] §7没有其它可用且有权限访问的控制器")
     }
 
-    /** 解析绑定字符串为方块; 世界未加载 / 格式错误返回 null。 */
-    private fun resolve(raw: String): Block? {
-        val parts = raw.split(";")
-        if (parts.size < 4) return null
-        val world = Bukkit.getWorld(parts[0]) ?: return null
-        val x = parts[1].toIntOrNull() ?: return null
-        val y = parts[2].toIntOrNull() ?: return null
-        val z = parts[3].toIntOrNull() ?: return null
-        return world.getBlockAt(x, y, z)
+    /** 打开绑定管理界面: 左键选择, 右键移除。 */
+    private fun openManager(player: Player, item: ItemStack) {
+        ManagerView(player, item).menu.open(player)
     }
+
+    private inner class ManagerView(private val player: Player, private val item: ItemStack) {
+        val menu = ChestMenu("§5远程终端管理")
+        private var page = 0
+
+        init {
+            menu.setEmptySlotsClickable(false)
+            menu.setPlayerInventoryClickable(false)
+            render()
+        }
+
+        private fun render() {
+            val bindings = readBindings(item)
+            val selected = selectedIndex(item, bindings.size)
+            val pages = maxOf(1, (bindings.size + MANAGER_PAGE_SIZE - 1) / MANAGER_PAGE_SIZE)
+            page = page.coerceIn(0, pages - 1)
+            val from = page * MANAGER_PAGE_SIZE
+            for (slot in 0 until MANAGER_PAGE_SIZE) {
+                val index = from + slot
+                val raw = bindings.getOrNull(index)
+                if (raw == null) {
+                    menu.addItem(slot, GuiItems.BACKGROUND) { _, _, _, _ -> false }
+                    continue
+                }
+                val block = BlockLocationCodec.decode(raw)
+                val valid = block != null && NetworkControllerAccess.isController(block)
+                val icon = when {
+                    !valid -> GuiItems.named(Material.BARRIER, "§c失效的控制器", "§7$raw", "§8右键移除")
+                    index == selected -> GuiItems.named(Material.LIME_STAINED_GLASS_PANE, "§a当前: ${describe(block)}", "§7左键保持选中", "§7右键移除绑定")
+                    else -> GuiItems.named(Material.ENDER_CHEST, "§d${describe(block)}", "§7左键设为当前终端", "§7右键移除绑定")
+                }
+                menu.addItem(slot, icon) { _, _, _, action ->
+                    if (action.isRightClicked) removeBinding(index) else selectBinding(index)
+                    false
+                }
+            }
+            for (slot in MANAGER_PAGE_SIZE until 54) {
+                menu.addItem(slot, GuiItems.BACKGROUND) { _, _, _, _ -> false }
+            }
+            menu.addItem(MANAGER_PREV_SLOT, GuiItems.PREV_PAGE) { _, _, _, _ ->
+                if (page > 0) { page--; render() }
+                false
+            }
+            menu.addItem(MANAGER_INFO_SLOT, GuiItems.named(Material.PAPER,
+                "§e第 ${page + 1}/$pages 页", "§7已绑定: ${bindings.size} 个")) { _, _, _, _ -> false }
+            menu.addItem(MANAGER_NEXT_SLOT, GuiItems.NEXT_PAGE) { _, _, _, _ ->
+                if (page < pages - 1) { page++; render() }
+                false
+            }
+        }
+
+        private fun selectBinding(index: Int) {
+            val bindings = readBindings(item)
+            val raw = bindings.getOrNull(index) ?: return
+            val block = BlockLocationCodec.decode(raw)
+            if (block == null || !NetworkControllerAccess.isController(block)) {
+                player.sendMessage("§c[远程终端] §7该控制器已失效, 可右键将其移除")
+                return
+            }
+            if (!NetworkControllerAccess.canUse(player, block)) return
+            writeBindings(item, bindings, index)
+            player.sendMessage("§b[远程终端] §7当前终端已设为 §f${describe(block)}")
+            render()
+        }
+
+        private fun removeBinding(index: Int) {
+            val bindings = readBindings(item)
+            if (index !in bindings.indices) return
+            val selected = selectedIndex(item, bindings.size)
+            bindings.removeAt(index)
+            val nextSelected = when {
+                bindings.isEmpty() -> 0
+                index < selected -> selected - 1
+                selected >= bindings.size -> bindings.lastIndex
+                else -> selected
+            }
+            writeBindings(item, bindings, nextSelected)
+            player.sendMessage("§b[远程终端] §7已移除绑定 §8[剩余 ${bindings.size} 个]")
+            render()
+        }
+    }
+
+    /** 读取绑定列表。旧版单坐标值天然按一行读入, 无需迁移。 */
+    private fun readBindings(item: ItemStack): MutableList<String> {
+        val raw = item.itemMeta?.persistentDataContainer?.get(KEY_BIND, PersistentDataType.STRING)
+        if (raw.isNullOrEmpty()) return mutableListOf()
+        return raw.lineSequence().filter { it.isNotEmpty() }.distinct().toMutableList()
+    }
+
+    private fun selectedIndex(item: ItemStack, size: Int): Int {
+        if (size <= 0) return 0
+        val stored = item.itemMeta?.persistentDataContainer?.get(KEY_SELECTED, PersistentDataType.INTEGER) ?: 0
+        return stored.coerceIn(0, size - 1)
+    }
+
+    private fun writeBindings(item: ItemStack, bindings: List<String>, selected: Int) {
+        item.editMeta { meta ->
+            val pdc = meta.persistentDataContainer
+            if (bindings.isEmpty()) {
+                pdc.remove(KEY_BIND)
+                pdc.remove(KEY_SELECTED)
+            } else {
+                pdc.set(KEY_BIND, PersistentDataType.STRING, bindings.joinToString("\n"))
+                pdc.set(KEY_SELECTED, PersistentDataType.INTEGER, selected.coerceIn(bindings.indices))
+            }
+        }
+    }
+
+    private fun describe(block: Block): String =
+        "${block.world.name} (${block.x}, ${block.y}, ${block.z})"
 
     companion object {
-        /** 绑定信息在物品 PDC 中的键 (值格式: "world;x;y;z")。 */
+        private const val MANAGER_PAGE_SIZE = 45
+        private const val MANAGER_PREV_SLOT = 45
+        private const val MANAGER_INFO_SLOT = 49
+        private const val MANAGER_NEXT_SLOT = 53
+
+        /** 绑定信息在物品 PDC 中的键 (每行一个 "world;x;y;z", 兼容旧单值)。 */
         private val KEY_BIND = NamespacedKey(SlimeEasy.instance, "terminal_bind")
+        private val KEY_SELECTED = NamespacedKey(SlimeEasy.instance, "terminal_selected")
     }
 }

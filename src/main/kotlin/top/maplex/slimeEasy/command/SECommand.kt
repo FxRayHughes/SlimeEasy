@@ -10,7 +10,7 @@ import top.maplex.slimeEasy.config.SEConfig
  * `/se` 指令入口。
  *
  * 目前提供:
- * - `/se reload` —— 重新加载 config.yml。运行时数值 (伤害 / 范围 / 冷却 / 间隔 / 上限) 立即生效;
+ * - `/se reload` —— 重新加载 config.yml。运行时数值 (伤害 / 范围 / 间隔 / 产量 / 吞吐 / 上限) 立即生效;
  *   物品文本 / 功能开关 / 研究等级因 Slimefun 注册后冻结, 需**重启服务端**方可生效。
  */
 class SECommand : Command("se") {
@@ -34,7 +34,7 @@ class SECommand : Command("se") {
         runCatching { SEConfig.reload() }
             .onSuccess {
                 sender.sendMessage("§aSlimeEasy 配置已重载。")
-                sender.sendMessage("§7运行时数值 (伤害/范围/冷却/间隔/上限) §a已即时生效§7。")
+                sender.sendMessage("§7运行时数值 (含产量 / 吞吐 / 上限) §a已即时生效§7。")
                 sender.sendMessage("§7物品文本 / 功能开关 / 研究等级 §e需重启服务端§7方可生效。")
             }
             .onFailure {

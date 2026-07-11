@@ -2,13 +2,13 @@
 #  SlimeEasy 配置文件
 # ============================================================
 # 说明:
-#  - 时间间隔均以「秒」为单位, 内部按墙钟时间判定, 不受服务器 tick / 重载影响。
+#  - 时间单位以各字段注释为准: 秒为墙钟时间, tick 为 Slimefun/Bukkit 调度单位。
 #  - enabled:        功能开关。false = 不注册该内容 (需重启生效)。
 #  - research-level: 研究解锁所需经验等级 (需重启生效)。
 #  - 其余数值:       运行时读取, /se reload 后立即生效。
 #
 #  重载: 游戏内执行 /se reload。
-#   · 运行时数值 (伤害/范围/冷却/间隔/上限) —— 立即生效。
+#   · 运行时数值 (伤害/范围/冷却/间隔/产量/吞吐/上限) —— 立即生效。
 #   · 功能开关 / 研究等级 / 物品文本 (items 段) —— 需重启服务端。
 #
 #  物品文本 (名称与 Lore) 见文件末尾 items 段, 首次启动自动生成, 可自由编辑, 颜色码用 &。
@@ -84,11 +84,26 @@ auto-clicker:
   coarse-step: 0.25
   # 单个 Slimefun tick 内的最多点击次数 (防卡)。
   max-clicks-per-tick: 20
+  # 安装抽取升级后, 单个 tick 最多补入物品槽的数量。
+  extract-max-items-per-tick: 64
 
-# ---------- 采石场 (观察者方块; 附着圆石 + 岩浆 + 水 -> 产圆石) ----------
+# ---------- 采石场 (观察者方块; 附着圆石 + 岩浆 + 水 -> 产出配置材料) ----------
 quarry:
   enabled: true
   research-level: 12
+  # 无效率升级时, 每隔多少个 Slimefun tick 生产一次。
+  base-interval-ticks: 2
+  # 无效率升级时每次生产数量。
+  base-output: 1
+  # 五档效率升级每个 Slimefun tick 的生产数量。
+  efficiency-output:
+    tier-1: 1
+    tier-2: 6
+    tier-3: 12
+    tier-4: 32
+    tier-5: 64
+  # 周围容器放不下时是否把剩余产物掉落在采石场位置; false = 直接丢弃。
+  drop-overflow: false
 
 # ---------- 矿物勘察尺 ----------
 survey-ruler:
@@ -149,16 +164,26 @@ storage:
   upgrade:
     enabled: true
     research-level: 20
-    # 升级槽位上限。
+    # 升级槽位上限 (界面最多 13)。
     max-slots: 12
     # 翻页升级的最大页数。
     max-pages: 5
+    # 抽取 / 输出过滤名单最大物品种类数 (界面上限 27)。
+    filter-max-items: 27
+    # 新过滤器是否默认使用白名单模式; false = 默认黑名单。
+    filter-default-whitelist: false
+  # 抽取 / 输出升级的主动搬运吞吐。0 = 不限制。
+  io:
+    pull-max-items-per-tick: 0
+    push-max-items-per-tick: 0
   # 存储网络
   network:
     enabled: true
     research-level: 30
     # 网络扫描半径 (格)。
     scan-radius: 24
+    # 单个远程终端最多绑定的控制器数量。0 = 不限制。
+    remote-terminal-max-bindings: 0
 
 # ---------- 简易村民 ----------
 villager:

@@ -1,6 +1,7 @@
 package top.maplex.slimeEasy.registry
 
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon
+import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
@@ -197,20 +198,23 @@ object Registration {
             research("auto_clicker", 9018, "自动点击器", AUTO_CLICKER_RESEARCH_COST, autoClicker)
         }
 
-        // 8e. 注册采石场 (观察者方块; 附着圆石+岩浆+水 → 产圆石) 与五档效率升级组件
+        // 8e. 注册采石场与效率 / 产物升级组件
         if (SEConfig.quarryEnabled) {
             val et = RecipeType.ENHANCED_CRAFTING_TABLE
             val quarry = Quarry(Groups.UTILITY_MACHINES, Items.QUARRY, et, Items.QUARRY_RECIPE)
             quarry.register(addon)
 
             // 五档效率升级为无自定义行为的普通 Slimefun 物品 (档位由采石场读槽内物品身份解析)
-            val effI = SlimefunItem(Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_I, et, Items.QUARRY_EFFICIENCY_I_RECIPE).also { it.register(addon) }
-            val effII = SlimefunItem(Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_II, et, Items.QUARRY_EFFICIENCY_II_RECIPE).also { it.register(addon) }
-            val effIII = SlimefunItem(Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_III, et, Items.QUARRY_EFFICIENCY_III_RECIPE).also { it.register(addon) }
-            val effIV = SlimefunItem(Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_IV, et, Items.QUARRY_EFFICIENCY_IV_RECIPE).also { it.register(addon) }
-            val effV = SlimefunItem(Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_V, et, Items.QUARRY_EFFICIENCY_V_RECIPE).also { it.register(addon) }
+            val effI = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_I, Items.QUARRY_EFFICIENCY_I_RECIPE)
+            val effII = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_II, Items.QUARRY_EFFICIENCY_II_RECIPE)
+            val effIII = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_III, Items.QUARRY_EFFICIENCY_III_RECIPE)
+            val effIV = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_IV, Items.QUARRY_EFFICIENCY_IV_RECIPE)
+            val effV = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_EFFICIENCY_V, Items.QUARRY_EFFICIENCY_V_RECIPE)
+            val netherrackUp = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_NETHERRACK_UPGRADE, Items.QUARRY_NETHERRACK_UPGRADE_RECIPE)
+            val endStoneUp = registerPlain(addon, Groups.UTILITY_MACHINES, Items.QUARRY_END_STONE_UPGRADE, Items.QUARRY_END_STONE_UPGRADE_RECIPE)
 
-            research("quarry", 9021, "采石场", QUARRY_RESEARCH_COST, quarry, effI, effII, effIII, effIV, effV)
+            research("quarry", 9021, "采石场", QUARRY_RESEARCH_COST,
+                quarry, effI, effII, effIII, effIV, effV, netherrackUp, endStoneUp)
         }
 
         // 9~11. 注册矿物勘察尺 (普通 + 进阶) 及其左键展示切换监听器; 关闭时整体跳过
@@ -366,7 +370,7 @@ object Registration {
 
         // 升级组件 (无自定义行为的普通 Slimefun 物品)
         fun plain(stack: SlimefunItemStack, recipe: Array<ItemStack?>): SlimefunItem =
-            SlimefunItem(Groups.STORAGE, stack, et, recipe).also { it.register(addon) }
+            registerPlain(addon, Groups.STORAGE, stack, recipe)
 
         val drawerOn = SEConfig.storageDrawerEnabled
         val boxOn = SEConfig.storageBoxEnabled
@@ -429,4 +433,13 @@ object Registration {
             register()
         }
     }
+
+    /** 注册无自定义行为的增强工作台物品。 */
+    private fun registerPlain(
+        addon: SlimefunAddon,
+        group: ItemGroup,
+        stack: SlimefunItemStack,
+        recipe: Array<ItemStack?>
+    ): SlimefunItem = SlimefunItem(group, stack, RecipeType.ENHANCED_CRAFTING_TABLE, recipe)
+        .also { it.register(addon) }
 }

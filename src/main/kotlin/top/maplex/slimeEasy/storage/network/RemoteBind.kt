@@ -2,11 +2,11 @@ package top.maplex.slimeEasy.storage.network
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
-import org.bukkit.Bukkit
 import org.bukkit.block.Block
 import top.maplex.slimeEasy.storage.core.CargoBufferBlock
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
 import top.maplex.slimeEasy.storage.upgrade.UpgradeType
+import top.maplex.slimeEasy.util.BlockLocationCodec
 
 /**
  * 远程升级的双向绑定索引 (容器 ↔ 控制器)。
@@ -40,8 +40,8 @@ object RemoteBind {
         val now = controllerFromUpgrades(container)
         val old = StorageCacheUtils.getData(container.location, KEY_CONTAINER_CTRL)?.takeUnless { it.isEmpty() }
         if (now == old) return
-        if (old != null) decodeLoc(old)?.let { removeMember(it, container) }
-        if (now != null) decodeLoc(now)?.let { addMember(it, container) }
+        if (old != null) BlockLocationCodec.decode(old)?.let { removeMember(it, container) }
+        if (now != null) BlockLocationCodec.decode(now)?.let { addMember(it, container) }
         StorageCacheUtils.setData(container.location, KEY_CONTAINER_CTRL, now ?: "")
         NetworkRegistry.invalidateAll() // 拓扑变更: 远程成员增减后重建网络
     }
@@ -49,7 +49,7 @@ object RemoteBind {
     /** 容器破坏时清理: 从挂靠控制器移除本容器并清空自身记录。 */
     fun clear(container: Block) {
         val old = StorageCacheUtils.getData(container.location, KEY_CONTAINER_CTRL)?.takeUnless { it.isEmpty() } ?: return
-        decodeLoc(old)?.let { removeMember(it, container) }
+        BlockLocationCodec.decode(old)?.let { removeMember(it, container) }
         StorageCacheUtils.setData(container.location, KEY_CONTAINER_CTRL, "")
         NetworkRegistry.invalidateAll()
     }
@@ -61,10 +61,10 @@ object RemoteBind {
     fun remoteMembersOf(controller: Block): List<Pair<Block, CargoBufferBlock>> {
         val list = readMembers(controller)
         if (list.isEmpty()) return emptyList()
-        val ctrlEnc = encodeLoc(controller)
+        val ctrlEnc = BlockLocationCodec.encode(controller)
         val result = ArrayList<Pair<Block, CargoBufferBlock>>(list.size)
         for (enc in list) {
-            val b = decodeLoc(enc) ?: continue
+            val b = BlockLocationCodec.decode(enc) ?: continue
             if (!StorageCacheUtils.hasBlock(b.location)) continue
             val sf = SlimefunItem.getById(StorageCacheUtils.getBlock(b.location)?.sfId ?: continue) as? CargoBufferBlock ?: continue
             if (StorageCacheUtils.getData(b.location, KEY_CONTAINER_CTRL) != ctrlEnc) continue // 反向记录须指向本控制器
@@ -86,27 +86,13 @@ object RemoteBind {
     }
 
     private fun addMember(controller: Block, container: Block) {
-        val enc = encodeLoc(container)
+        val enc = BlockLocationCodec.encode(container)
         val list = readMembers(controller)
         if (enc !in list) { list.add(enc); writeMembers(controller, list) }
     }
 
     private fun removeMember(controller: Block, container: Block) {
         val list = readMembers(controller)
-        if (list.remove(encodeLoc(container))) writeMembers(controller, list)
-    }
-
-    // ---- 坐标编解码 (与 RemoteUpgrade 写入 PDC 的格式一致) ----
-
-    private fun encodeLoc(b: Block): String = "${b.world.name};${b.x};${b.y};${b.z}"
-
-    private fun decodeLoc(raw: String): Block? {
-        val p = raw.split(";")
-        if (p.size < 4) return null
-        val w = Bukkit.getWorld(p[0]) ?: return null
-        val x = p[1].toIntOrNull() ?: return null
-        val y = p[2].toIntOrNull() ?: return null
-        val z = p[3].toIntOrNull() ?: return null
-        return w.getBlockAt(x, y, z)
+        if (list.remove(BlockLocationCodec.encode(container))) writeMembers(controller, list)
     }
 }

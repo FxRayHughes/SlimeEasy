@@ -402,7 +402,9 @@ object Items {
         "&f容器 / 抽屉 / 翻页箱&7。",
         "",
         "&7右键打开界面放入 &f效率升级 I~V &7提速:",
-        "&7空槽 &f1 个/秒&7; I=1 · II=6 · III=12 · IV=32 · V=64 &f个/0.5s&7。"
+        "&7空槽使用基础速率; I~V 逐档提速,",
+        "&7实际间隔与产量以服务器配置为准。",
+        "&7另可安装 &c地狱岩升级 &7或 &e末地石升级 &7改变产物。"
     )
 
     /**
@@ -426,25 +428,25 @@ object Items {
     const val QUARRY_EFFICIENCY_V_ID = "SE_QUARRY_EFFICIENCY_V"
 
     /** 构造某档采石场效率升级模板 (统一说明放入槽位与速率)。 */
-    private fun quarryEfficiency(id: String, material: Material, name: String, rate: Int): SlimefunItemStack =
+    private fun quarryEfficiency(id: String, material: Material, name: String): SlimefunItemStack =
         SEText.stack(
             id, material, name,
             "",
             "&7放入采石场的 &f效率升级槽&7。",
-            "&7生产速率提升至 &f$rate 个&7 / 0.5 秒。",
+            "&7生产速率由档位与服务器配置决定。",
             "&8(仅认物品身份, 堆叠数量无关)"
         )
 
     val QUARRY_EFFICIENCY_I: SlimefunItemStack =
-        quarryEfficiency(QUARRY_EFFICIENCY_I_ID, Material.COPPER_INGOT, "&f采石场效率升级 I", 1)
+        quarryEfficiency(QUARRY_EFFICIENCY_I_ID, Material.COPPER_INGOT, "&f采石场效率升级 I")
     val QUARRY_EFFICIENCY_II: SlimefunItemStack =
-        quarryEfficiency(QUARRY_EFFICIENCY_II_ID, Material.IRON_INGOT, "&a采石场效率升级 II", 6)
+        quarryEfficiency(QUARRY_EFFICIENCY_II_ID, Material.IRON_INGOT, "&a采石场效率升级 II")
     val QUARRY_EFFICIENCY_III: SlimefunItemStack =
-        quarryEfficiency(QUARRY_EFFICIENCY_III_ID, Material.GOLD_INGOT, "&e采石场效率升级 III", 12)
+        quarryEfficiency(QUARRY_EFFICIENCY_III_ID, Material.GOLD_INGOT, "&e采石场效率升级 III")
     val QUARRY_EFFICIENCY_IV: SlimefunItemStack =
-        quarryEfficiency(QUARRY_EFFICIENCY_IV_ID, Material.DIAMOND, "&b采石场效率升级 IV", 32)
+        quarryEfficiency(QUARRY_EFFICIENCY_IV_ID, Material.DIAMOND, "&b采石场效率升级 IV")
     val QUARRY_EFFICIENCY_V: SlimefunItemStack =
-        quarryEfficiency(QUARRY_EFFICIENCY_V_ID, Material.NETHERITE_INGOT, "&6采石场效率升级 V", 64)
+        quarryEfficiency(QUARRY_EFFICIENCY_V_ID, Material.NETHERITE_INGOT, "&6采石场效率升级 V")
 
     /** I: 活塞 (效率) 与红石环绕铜锭 (基础档)。 */
     val QUARRY_EFFICIENCY_I_RECIPE: Array<ItemStack?> = arrayOf(
@@ -479,5 +481,32 @@ object Items {
         ItemStack(Material.NETHERITE_INGOT), ItemStack(Material.NETHERITE_INGOT), ItemStack(Material.NETHERITE_INGOT),
         ItemStack(Material.NETHERITE_INGOT), QUARRY_EFFICIENCY_IV.clone(), ItemStack(Material.NETHERITE_INGOT),
         ItemStack(Material.NETHERITE_INGOT), ItemStack(Material.NETHERITE_INGOT), ItemStack(Material.NETHERITE_INGOT)
+    )
+
+    const val QUARRY_NETHERRACK_UPGRADE_ID = "SE_QUARRY_NETHERRACK_UPGRADE"
+    const val QUARRY_END_STONE_UPGRADE_ID = "SE_QUARRY_END_STONE_UPGRADE"
+
+    val QUARRY_NETHERRACK_UPGRADE: SlimefunItemStack = SEText.stack(
+        QUARRY_NETHERRACK_UPGRADE_ID, Material.NETHERRACK, "&c采石场地狱岩升级",
+        "", "&7放入采石场的 &f产物升级槽&7。",
+        "&7使采石场把产物从圆石改为 &c地狱岩&7。",
+        "&8圆石、岩浆与水的生产结构保持不变。"
+    )
+    val QUARRY_NETHERRACK_UPGRADE_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.NETHER_BRICKS), ItemStack(Material.NETHERRACK), ItemStack(Material.NETHER_BRICKS),
+        ItemStack(Material.NETHERRACK), ItemStack(Material.MAGMA_BLOCK), ItemStack(Material.NETHERRACK),
+        ItemStack(Material.NETHER_BRICKS), ItemStack(Material.NETHERRACK), ItemStack(Material.NETHER_BRICKS)
+    )
+
+    val QUARRY_END_STONE_UPGRADE: SlimefunItemStack = SEText.stack(
+        QUARRY_END_STONE_UPGRADE_ID, Material.END_STONE, "&e采石场末地石升级",
+        "", "&7放入采石场的 &f产物升级槽&7。",
+        "&7使采石场把产物从圆石改为 &e末地石&7。",
+        "&8圆石、岩浆与水的生产结构保持不变。"
+    )
+    val QUARRY_END_STONE_UPGRADE_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.PURPUR_BLOCK), ItemStack(Material.END_STONE), ItemStack(Material.PURPUR_BLOCK),
+        ItemStack(Material.END_STONE), ItemStack(Material.ENDER_EYE), ItemStack(Material.END_STONE),
+        ItemStack(Material.PURPUR_BLOCK), ItemStack(Material.END_STONE), ItemStack(Material.PURPUR_BLOCK)
     )
 }

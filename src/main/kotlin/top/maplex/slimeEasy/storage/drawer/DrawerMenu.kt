@@ -10,6 +10,7 @@ import top.maplex.slimeEasy.storage.core.GuiItems
 import top.maplex.slimeEasy.storage.core.QuantityFormat
 import top.maplex.slimeEasy.storage.core.StorageChangeBus
 import top.maplex.slimeEasy.storage.core.UpgradeMenu
+import top.maplex.slimeEasy.util.locationKey
 
 /**
  * 抽屉主界面 (空手潜行右键打开)。
@@ -29,11 +30,9 @@ object DrawerMenu {
 
     init {
         StorageChangeBus.subscribe { block ->
-            openViews[key(block)]?.toList()?.forEach { it.render() }
+            openViews[block.locationKey()]?.toList()?.forEach { it.render() }
         }
     }
-
-    private fun key(b: Block) = "${b.world.name}:${b.x}:${b.y}:${b.z}"
 
     fun open(drawer: Drawer, block: Block, player: Player) {
         View(drawer, block).apply { menu.open(player) }
@@ -45,8 +44,8 @@ object DrawerMenu {
         init {
             menu.setEmptySlotsClickable(false)
             for (i in 0 until 27) menu.addItem(i, GuiItems.BACKGROUND) { _, _, _, _ -> false }
-            openViews.computeIfAbsent(key(block)) { java.util.concurrent.ConcurrentHashMap.newKeySet() }.add(this)
-            menu.addMenuCloseHandler { openViews[key(block)]?.remove(this) }
+            openViews.computeIfAbsent(block.locationKey()) { java.util.concurrent.ConcurrentHashMap.newKeySet() }.add(this)
+            menu.addMenuCloseHandler { openViews[block.locationKey()]?.remove(this) }
             render()
         }
 

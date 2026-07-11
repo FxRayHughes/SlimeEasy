@@ -3,6 +3,7 @@ package top.maplex.slimeEasy.storage.upgrade
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import org.bukkit.Location
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.storage.core.ItemCodec
 import top.maplex.slimeEasy.storage.core.ItemKey
 
@@ -34,10 +35,13 @@ class ItemFilter(private val listKey: String, private val modeKey: String) {
         return set
     }
 
-    /** 当前模式; 未设置默认 [FilterMode.BLACKLIST]。 */
+    /** 当前模式; 未设置时由全局配置决定默认黑 / 白名单。 */
     fun mode(location: Location): FilterMode =
-        if (StorageCacheUtils.getData(location, modeKey) == FilterMode.WHITELIST.name)
-            FilterMode.WHITELIST else FilterMode.BLACKLIST
+        when (StorageCacheUtils.getData(location, modeKey)) {
+            FilterMode.WHITELIST.name -> FilterMode.WHITELIST
+            FilterMode.BLACKLIST.name -> FilterMode.BLACKLIST
+            else -> if (SEConfig.storageFilterDefaultWhitelist) FilterMode.WHITELIST else FilterMode.BLACKLIST
+        }
 
     /** 设置模式。 */
     fun setMode(location: Location, mode: FilterMode) {
@@ -54,7 +58,11 @@ class ItemFilter(private val listKey: String, private val modeKey: String) {
     fun toggle(location: Location, item: ItemStack): Boolean {
         val key = ItemKey.of(item) ?: return false
         val set = read(location)
-        val nowMarked = if (!set.remove(key)) { set.add(key); true } else false
+        val nowMarked = if (!set.remove(key)) {
+            if (set.size >= SEConfig.storageFilterMaxItems) return false
+            set.add(key)
+            true
+        } else false
         write(location, set)
         return nowMarked
     }

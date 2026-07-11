@@ -133,10 +133,21 @@ object SEConfig {
     /** 单个 Slimefun tick 内的最多点击次数 (防卡)。 */
     val autoClickerMaxClicksPerTick: Int get() = int("auto-clicker.max-clicks-per-tick", 20, 1)
 
+    /** 安装抽取升级后, 单个 tick 最多补入物品槽的数量。 */
+    val autoClickerExtractMaxItemsPerTick: Int get() = int("auto-clicker.extract-max-items-per-tick", 64, 1)
+
     // ==================== 采石场 ====================
 
     val quarryEnabled: Boolean get() = bool("quarry.enabled", true)
     val quarryResearch: Int get() = int("quarry.research-level", 12, 0)
+    val quarryBaseIntervalTicks: Int get() = int("quarry.base-interval-ticks", 2, 1)
+    val quarryBaseOutput: Int get() = int("quarry.base-output", 1, 1)
+    val quarryTier1Output: Int get() = int("quarry.efficiency-output.tier-1", 1, 1)
+    val quarryTier2Output: Int get() = int("quarry.efficiency-output.tier-2", 6, 1)
+    val quarryTier3Output: Int get() = int("quarry.efficiency-output.tier-3", 12, 1)
+    val quarryTier4Output: Int get() = int("quarry.efficiency-output.tier-4", 32, 1)
+    val quarryTier5Output: Int get() = int("quarry.efficiency-output.tier-5", 64, 1)
+    val quarryDropOverflow: Boolean get() = bool("quarry.drop-overflow", false)
 
     // ==================== 矿物勘察尺 ====================
 
@@ -206,13 +217,29 @@ object SEConfig {
     val storageUpgradeResearch: Int get() = int("storage.upgrade.research-level", 20, 0)
 
     /** 升级槽位上限。 */
-    val storageUpgradeMaxSlots: Int get() = int("storage.upgrade.max-slots", 12, 1)
+    val storageUpgradeMaxSlots: Int get() = int("storage.upgrade.max-slots", 12, 1).coerceAtMost(13)
 
     /** 翻页升级的最大页数。 */
     val storageUpgradeMaxPages: Int get() = int("storage.upgrade.max-pages", 5, 1)
 
+    /** 抽取 / 输出过滤名单最大物品种类数 (GUI 上限 27)。 */
+    val storageFilterMaxItems: Int get() = int("storage.upgrade.filter-max-items", 27, 1).coerceAtMost(27)
+
+    /** 新过滤器是否默认白名单; false 为默认黑名单。 */
+    val storageFilterDefaultWhitelist: Boolean get() = bool("storage.upgrade.filter-default-whitelist", false)
+
+    /** 每个存储容器每 tick 主动抽取的最大物品数; 0 为不限。 */
+    val storageIoPullMaxItemsPerTick: Int get() = int("storage.io.pull-max-items-per-tick", 0, 0)
+
+    /** 每个存储容器每 tick 主动输出的最大物品数; 0 为不限。 */
+    val storageIoPushMaxItemsPerTick: Int get() = int("storage.io.push-max-items-per-tick", 0, 0)
+
     val storageNetworkEnabled: Boolean get() = bool("storage.network.enabled", true)
     val storageNetworkResearch: Int get() = int("storage.network.research-level", 30, 0)
+
+    /** 单个远程终端最多绑定的控制器数量; 0 为不限。 */
+    val storageNetworkRemoteTerminalMaxBindings: Int get() =
+        int("storage.network.remote-terminal-max-bindings", 0, 0)
 
     /**
      * 网络扫描半径 (格)。

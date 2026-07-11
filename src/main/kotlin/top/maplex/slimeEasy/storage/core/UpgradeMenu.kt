@@ -24,7 +24,7 @@ import top.maplex.slimeEasy.storage.upgrade.UpgradeType
  */
 object UpgradeMenu {
 
-    private val UPGRADE_SLOTS = (0 until UpgradeStore.MAX_SLOTS).toList()
+    private val upgradeSlots: IntRange get() = 0 until UpgradeStore.MAX_SLOTS
     private const val VOID_SLOT = 13
     private const val EXTRACT_SLOT = 14
     private const val OUTPUT_SLOT = 15
@@ -43,7 +43,7 @@ object UpgradeMenu {
 
     private fun render(menu: ChestMenu, block: UpgradeHost, target: Block) {
         val items = UpgradeStore.readItems(target.location)
-        for ((i, slot) in UPGRADE_SLOTS.withIndex()) {
+        for ((i, slot) in upgradeSlots.withIndex()) {
             val installed = items.getOrNull(i)
             if (installed != null) {
                 menu.addItem(slot, installed) { p, _, _, _ -> uninstall(menu, block, target, p, i); false }

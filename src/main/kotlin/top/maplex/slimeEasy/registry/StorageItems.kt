@@ -35,7 +35,7 @@ object StorageItems {
     const val BOX_ID = "SE_PAGED_BOX"
     val BOX = SEText.stack(
         BOX_ID, Material.BARREL, "&6翻页存储箱",
-        "", "&7存储 &f多种 &7物品 (每种一格, 至多 45 种),",
+        "", "&7存储 &f多种 &7物品 (每种一格, 每页容量由配置决定),",
         "&7每格数量远超原版堆叠。",
         "", "&7右键打开分页界面: 点击箱内物品取出,",
         "&7点击背包物品存入; 界面内可打开升级 GUI。",
@@ -56,7 +56,7 @@ object StorageItems {
         "&7右键打开 &f聚合终端&7: 一处存取全网所有",
         "&7抽屉 / 存储箱的库存。",
         "", "&7每 tick 驱动网络内的输入 / 输出端口路由,",
-        "&7桥接原版货运。覆盖半径 &f24 格&7。"
+        "&7桥接原版货运。覆盖半径由服务器配置决定。"
     )
     val CONTROLLER_RECIPE: Array<ItemStack?> = arrayOf(
         ItemStack(Material.IRON_INGOT), ItemStack(Material.ENDER_EYE), ItemStack(Material.IRON_INGOT),
@@ -104,8 +104,10 @@ object StorageItems {
     const val REMOTE_TERMINAL_ID = "SE_REMOTE_TERMINAL"
     val REMOTE_TERMINAL = SEText.stack(
         REMOTE_TERMINAL_ID, Material.ENDER_EYE, "&d远程终端",
-        "", "&7手持右键 &f网络控制器 &7进行绑定;",
-        "&7之后手持右键即可 &f远程打开 &7该网络终端,",
+        "", "&7手持右键 &f网络控制器 &7追加绑定;",
+        "&7手持右键可远程打开当前网络终端,",
+        "&7点击 &f下一页左侧按钮 &7切换其它终端,",
+        "&7Shift + 右键 &f管理所有绑定。",
         "&7随时随地存取全网库存。",
         "", "&7绑定信息存于物品自身。"
     )
@@ -132,7 +134,7 @@ object StorageItems {
     val EXP_UPGRADE_RECIPE = surround(Material.EXPERIENCE_BOTTLE, Material.GOLD_INGOT)
 
     val MAGNET_UPGRADE = upgrade("SE_MAGNET_UPGRADE", Material.IRON_NUGGET, "&b磁铁升级",
-        "&7每 tick 吸附附近 &f6 格 &7内的掉落物 / 经验球。")
+        "&7每 tick 吸附配置半径内的掉落物 / 经验球。")
     val MAGNET_UPGRADE_RECIPE = surround(Material.IRON_NUGGET, Material.HEAVY_WEIGHTED_PRESSURE_PLATE)
 
     val VOID_UPGRADE = upgrade("SE_VOID_UPGRADE", Material.LAVA_BUCKET, "&8虚空升级",
@@ -143,7 +145,7 @@ object StorageItems {
 
     val PAGE_UPGRADE = upgrade("SE_PAGE_UPGRADE", Material.BOOK, "&d翻页扩容",
         "&7为&f翻页存储箱&7增加 &f1 页 &7容量;",
-        "&7可叠装, 基础 1 页最多扩至 &f5 页&7 (装 4 枚)。",
+        "&7可叠装, 最大页数由服务器配置决定。",
         "&8(对抽屉无效)")
     val PAGE_UPGRADE_RECIPE = surround(Material.BOOK, Material.CHEST)
 

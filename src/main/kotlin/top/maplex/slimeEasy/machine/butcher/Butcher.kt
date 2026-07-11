@@ -17,6 +17,7 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.machine.common.MachineProtection
+import top.maplex.slimeEasy.util.locationKey
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -88,9 +89,6 @@ class Butcher(
         counters[key] = 0
         attack(machine, menu)
     }
-
-    /** 生成方块位置的稳定字符串键。 */
-    private fun Block.locationKey(): String = "${world.name}:$x:$y:$z"
 
     /**
      * 从"输出方向对准本机"的相邻漏斗抽取物品 (原版漏斗喂料)。

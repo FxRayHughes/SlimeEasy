@@ -14,6 +14,7 @@ import top.maplex.slimeEasy.machine.common.BlockEffect
 import top.maplex.slimeEasy.machine.common.FrequencyResolver
 import top.maplex.slimeEasy.machine.common.MachineProtection
 import top.maplex.slimeEasy.machine.common.PistonSupport
+import top.maplex.slimeEasy.util.locationKey
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -83,8 +84,4 @@ class AutoPlacer(
             BlockEffect.playPlace(target, target.blockData)
         }
     }
-
-    /** 生成方块位置的稳定字符串键。 */
-    private fun Block.locationKey(): String =
-        "${world.name}:$x:$y:$z"
 }

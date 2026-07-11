@@ -8,6 +8,7 @@ import org.bukkit.block.BlockFace
 import org.bukkit.block.Container
 import org.bukkit.block.data.Directional
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.storage.core.CargoBufferBlock
 
 /**
@@ -19,7 +20,8 @@ import top.maplex.slimeEasy.storage.core.CargoBufferBlock
  * 1. 脸朝向那格是 **圆石** (`COBBLESTONE`);
  * 2. 该圆石的 6 个正交邻居中**同时**存在**岩浆**与**水** (不必是源头, 任意水位即可)。
  *
- * 满足时按档位产出圆石 (不破坏该圆石), 并推送到采石场自身 6 邻的容器:
+ * 满足时按档位产出当前选择的材料 (默认圆石, 可升级为地狱岩 / 末地石), 并推送到
+ * 采石场自身 6 邻的容器:
  * - **原版容器** ([Container]): 直接 `inventory.addItem`;
  * - **本插件存储方块** ([CargoBufferBlock] 抽屉 / 翻页箱): 走其虚拟库存插入。
  *
@@ -66,20 +68,27 @@ object QuarryLogic {
     }
 
     /**
-     * 向采石场 6 邻的容器输出 [amount] 个圆石; 放不下的部分丢弃。
+     * 向采石场 6 邻的容器输出 [amount] 个 [material]; 放不下的部分丢弃。
      *
      * 逐个邻居尝试, 直到全部放入或邻居遍历完。原版容器与本插件存储方块分别处理。
      */
-    fun output(quarry: Block, amount: Int) {
+    fun output(quarry: Block, material: Material, amount: Int) {
         var remaining = amount
         for (face in FACES) {
-            if (remaining <= 0) return
+            if (remaining <= 0) break
             val neighbor = quarry.getRelative(face)
             val cargo = cargoBufferAt(neighbor)
             remaining -= when {
-                cargo != null -> insertToCargo(cargo, neighbor, remaining)
-                neighbor.state is Container -> insertToVanilla(neighbor, remaining)
+                cargo != null -> insertToCargo(cargo, neighbor, material, remaining)
+                neighbor.state is Container -> insertToVanilla(neighbor, material, remaining)
                 else -> 0
+            }
+        }
+        if (remaining > 0 && SEConfig.quarryDropOverflow) {
+            while (remaining > 0) {
+                val amount = minOf(remaining, material.maxStackSize)
+                quarry.world.dropItemNaturally(quarry.location.toCenterLocation(), ItemStack(material, amount))
+                remaining -= amount
             }
         }
     }
@@ -92,13 +101,13 @@ object QuarryLogic {
     }
 
     /**
-     * 向本插件存储方块的虚拟库存插入圆石; 返回实际放入数量。
+     * 向本插件存储方块的虚拟库存插入指定材料; 返回实际放入数量。
      *
      * 与 [top.maplex.slimeEasy.storage.network.StorageNetwork.insert] 一致:
      * 插入前调用 [CargoBufferBlock.prepareForInsert] 校准容量, 有变动才回写。
      */
-    private fun insertToCargo(logic: CargoBufferBlock, block: Block, amount: Int): Int {
-        val template = ItemStack(Material.COBBLESTONE)
+    private fun insertToCargo(logic: CargoBufferBlock, block: Block, material: Material, amount: Int): Int {
+        val template = ItemStack(material)
         val storage = logic.storageAt(block)
         logic.prepareForInsert(block, template)
         val left = storage.insert(template, amount.toLong(), simulate = false)
@@ -108,19 +117,19 @@ object QuarryLogic {
     }
 
     /**
-     * 向原版容器插入圆石; 返回实际放入数量。
+     * 向原版容器插入指定材料; 返回实际放入数量。
      *
      * 用库存快照模拟, 只放得下的部分才真正写入 (避免溢出洒落)。
      */
-    private fun insertToVanilla(block: Block, amount: Int): Int {
+    private fun insertToVanilla(block: Block, material: Material, amount: Int): Int {
         val container = block.state as? Container ?: return 0
         val inventory = container.inventory
-        // addItem 返回未放入的残余; 圆石按 64 堆叠, 一次最多放一组避免超堆
+        // addItem 返回未放入的残余; 一次最多放一组避免超堆
         var remaining = amount
         var accepted = 0
         while (remaining > 0) {
-            val put = minOf(remaining, MAX_STACK)
-            val leftover = inventory.addItem(ItemStack(Material.COBBLESTONE, put))
+            val put = minOf(remaining, material.maxStackSize)
+            val leftover = inventory.addItem(ItemStack(material, put))
             val notPlaced = leftover.values.sumOf { it.amount }
             accepted += put - notPlaced
             remaining -= put
@@ -128,6 +137,4 @@ object QuarryLogic {
         }
         return accepted
     }
-
-    private const val MAX_STACK = 64
 }

@@ -13,11 +13,11 @@ import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset
 import me.mrCookieSlime.Slimefun.api.inventory.DirtyChestMenu
 import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow
-import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.storage.upgrade.UpgradeType
+import top.maplex.slimeEasy.util.locationKey
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -284,12 +284,6 @@ abstract class CargoBufferBlock(
 
         /** 缓冲菜单输出槽 (货运抽出)。 */
         const val OUTPUT_SLOT = 1
-
-        /** 生成方块位置的稳定字符串键。 */
-        fun Block.locationKey(): String = "${world.name}:$x:$y:$z"
-
-        /** 位置到字符串键 (供无 Block 上下文处) 。 */
-        fun Location.locationKey(): String = "${world?.name}:$blockX:$blockY:$blockZ"
 
     }
 }

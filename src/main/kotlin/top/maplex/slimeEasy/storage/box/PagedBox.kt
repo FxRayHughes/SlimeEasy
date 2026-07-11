@@ -36,7 +36,7 @@ class PagedBox(
         return VirtualStorage(maxTypes = budget, maxSlots = budget, stackMultiplier = multiplier(block))
     }
 
-    /** 当前页数 (基础 1 页, 每个翻页扩容 +1, 封顶 5)。 */
+    /** 当前页数 (基础 1 页, 每个翻页扩容 +1, 上限由配置决定)。 */
     fun pages(block: Block): Int = UpgradeStore.resolve(block.location).boxPages
 
     /** 总槽位预算 = 页数 × 每页格数; 存储容量与展示均以此为上限。 */
@@ -122,7 +122,11 @@ class PagedBox(
             // 经验磁铁: 登记 + tick 主动吸取附近经验球
             top.maplex.slimeEasy.storage.drawer.MagnetRegistry.mark(block)
             val center = block.location.toCenterLocation()
-            for (orb in block.world.getNearbyEntitiesByType(org.bukkit.entity.ExperienceOrb::class.java, center, 6.0)) {
+            for (orb in block.world.getNearbyEntitiesByType(
+                org.bukkit.entity.ExperienceOrb::class.java,
+                center,
+                SEConfig.storageBoxMagnetRadius
+            )) {
                 top.maplex.slimeEasy.storage.drawer.DrawerExp.addAbsorbed(block, orb.experience.toLong())
                 orb.remove()
             }

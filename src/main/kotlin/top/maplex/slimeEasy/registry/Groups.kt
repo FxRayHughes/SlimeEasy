@@ -65,7 +65,7 @@ object Groups {
     /**
      * "简易村民" 分类。
      *
-     * 图标使用村民刷怪蛋, 涵盖村民捕捉器、僵尸信号、村民交易器、胶囊刷铁机、村民小学与遗忘药剂。
+     * 图标使用村民刷怪蛋, 涵盖村民捕捉器、僵尸信号、交易器、刷铁机、小学、治愈机与遗忘药剂。
      */
     val VILLAGER: ItemGroup = ItemGroup(
         NamespacedKey(SlimeEasy.instance, "villager"),

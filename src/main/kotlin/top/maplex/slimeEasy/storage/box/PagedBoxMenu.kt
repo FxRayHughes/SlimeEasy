@@ -8,6 +8,7 @@ import top.maplex.slimeEasy.storage.core.GuiItems
 import top.maplex.slimeEasy.storage.core.ItemKey
 import top.maplex.slimeEasy.storage.core.StorageDisplay
 import top.maplex.slimeEasy.storage.core.UpgradeMenu
+import top.maplex.slimeEasy.util.locationKey
 
 /**
  * 翻页箱的分页存取 GUI。
@@ -37,11 +38,9 @@ object PagedBoxMenu {
         top.maplex.slimeEasy.storage.core.StorageChangeBus.subscribe { block -> refreshAll(block) }
     }
 
-    private fun locKey(b: Block) = "${b.world.name}:${b.x}:${b.y}:${b.z}"
-
     /** 刷新某方块所有已打开视图 (即时同步, 保证数据一致)。 */
     fun refreshAll(block: Block) {
-        openViews[locKey(block)]?.toList()?.forEach { it.render() }
+        openViews[block.locationKey()]?.toList()?.forEach { it.render() }
     }
 
     fun open(box: PagedBox, block: Block, player: Player) {
@@ -57,8 +56,8 @@ object PagedBoxMenu {
             // 玩家点击自己背包的物品 → 存入
             menu.setPlayerInventoryClickable(true)
             menu.addPlayerInventoryClickHandler { p, slot, item, _ -> depositFromInventory(p, slot, item); false }
-            openViews.computeIfAbsent(locKey(block)) { java.util.concurrent.ConcurrentHashMap.newKeySet() }.add(this)
-            menu.addMenuCloseHandler { openViews[locKey(block)]?.remove(this) }
+            openViews.computeIfAbsent(block.locationKey()) { java.util.concurrent.ConcurrentHashMap.newKeySet() }.add(this)
+            menu.addMenuCloseHandler { openViews[block.locationKey()]?.remove(this) }
             render()
         }
 

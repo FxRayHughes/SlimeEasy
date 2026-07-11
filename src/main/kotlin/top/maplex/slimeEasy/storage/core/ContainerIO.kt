@@ -5,6 +5,7 @@ import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.storage.upgrade.FaceConfig
 import top.maplex.slimeEasy.storage.upgrade.ItemFilter
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
@@ -71,32 +72,45 @@ object ContainerIO {
         box.prepareForInsert(block, box.item) // 同步槽位预算与倍率
         val hasVoid = UpgradeStore.resolve(block.location).hasVoid
         val faces = FaceConfig.EXTRACT.faces(block.location)
+        var budget = transferBudget(SEConfig.storageIoPullMaxItemsPerTick)
         var changed = false
+        sourceLoop@
         for (inv in adjacentSources(block, faces)) {
             for (i in 0 until inv.size) {
+                if (budget <= 0) break@sourceLoop
                 val stack = inv.getItem(i) ?: continue
                 if (stack.type.isAir || stack.amount <= 0) continue
                 if (!ItemFilter.EXTRACT.allows(block.location, stack)) continue // 黑 / 白名单过滤
                 val key = ItemKey.of(stack) ?: continue
-                val admit = if (hasVoid) VoidFilter.admit(block.location, stack, storage.count(key), stack.amount.toLong())
-                            else stack.amount.toLong()
+                val requested = minOf(stack.amount.toLong(), budget)
+                val admit = if (hasVoid) VoidFilter.admit(block.location, stack, storage.count(key), requested)
+                            else requested
                 val leftover = if (admit > 0) storage.insert(stack, admit, simulate = false) else admit
-                val consumed = stack.amount - leftover.toInt() // 离开源容器 = 真正入库 + 湮灭
+                val consumed = (requested - leftover).toInt() // 离开源容器 = 真正入库 + 湮灭
                 if (consumed <= 0) continue
                 changed = true
+                budget -= consumed
                 inv.setItem(i, stack.clone().apply { amount = stack.amount - consumed }.takeIf { it.amount > 0 })
             }
         }
         // 从相邻本插件存储容器的虚拟库存抽取 (不走虚空湮灭, 避免销毁玩家的存储内容)
         for ((nb, logic) in adjacentPluginStores(block, faces)) {
+            if (budget <= 0) break
             val src = logic.storageAt(nb)
             var srcChanged = false
             for ((key, amount) in src.entries()) {
+                if (budget <= 0) break
                 if (amount <= 0) continue
                 if (!ItemFilter.EXTRACT.allows(block.location, key.template)) continue
-                val leftover = storage.insert(key.template, amount, simulate = false)
-                val moved = amount - leftover
-                if (moved > 0) { src.extract(key, moved, simulate = false); changed = true; srcChanged = true }
+                val requested = minOf(amount, budget)
+                val leftover = storage.insert(key.template, requested, simulate = false)
+                val moved = requested - leftover
+                if (moved > 0) {
+                    src.extract(key, moved, simulate = false)
+                    budget -= moved
+                    changed = true
+                    srcChanged = true
+                }
             }
             if (srcChanged) logic.saveStorage(nb, src)
         }
@@ -111,16 +125,18 @@ object ContainerIO {
         val storage = box.storageAt(block)
         if (storage.isEmpty()) return
         val faces = FaceConfig.OUTPUT.faces(block.location)
+        var budget = transferBudget(SEConfig.storageIoPushMaxItemsPerTick)
         var changed = false
         // ① 推入相邻原版容器
         val targets = adjacentSources(block, faces)
         for ((key, amount) in storage.entries()) {
+            if (budget <= 0) break
             if (amount <= 0) continue
             if (!ItemFilter.OUTPUT.allows(block.location, key.template)) continue // 黑 / 白名单过滤
             var remaining = amount
             for (inv in targets) {
-                if (remaining <= 0) break
-                val push = minOf(remaining, key.vanillaMaxStack.toLong()).toInt()
+                if (remaining <= 0 || budget <= 0) break
+                val push = minOf(remaining, key.vanillaMaxStack.toLong(), budget).toInt()
                 if (push <= 0) break
                 // addItem 返回未放入的物品; 实际放入 = 请求 - 未放入
                 val notAdded = inv.addItem(key.template.clone().apply { this.amount = push })
@@ -129,24 +145,36 @@ object ContainerIO {
                 if (added > 0) {
                     storage.extract(key, added.toLong(), simulate = false)
                     remaining -= added
+                    budget -= added
                     changed = true
                 }
             }
         }
         // ② 推入相邻本插件存储容器的虚拟库存
         for ((nb, logic) in adjacentPluginStores(block, faces)) {
+            if (budget <= 0) break
             val dst = logic.storageAt(nb)
             logic.prepareForInsert(nb, logic.item)
             var dstChanged = false
             for ((key, amount) in storage.entries()) {
+                if (budget <= 0) break
                 if (amount <= 0) continue
                 if (!ItemFilter.OUTPUT.allows(block.location, key.template)) continue
-                val leftover = dst.insert(key.template, amount, simulate = false)
-                val moved = amount - leftover
-                if (moved > 0) { storage.extract(key, moved, simulate = false); changed = true; dstChanged = true }
+                val requested = minOf(amount, budget)
+                val leftover = dst.insert(key.template, requested, simulate = false)
+                val moved = requested - leftover
+                if (moved > 0) {
+                    storage.extract(key, moved, simulate = false)
+                    budget -= moved
+                    changed = true
+                    dstChanged = true
+                }
             }
             if (dstChanged) logic.saveStorage(nb, dst)
         }
         if (changed) box.saveStorage(block, storage)
     }
+
+    private fun transferBudget(configuredLimit: Int): Long =
+        if (configuredLimit <= 0) Long.MAX_VALUE else configuredLimit.toLong()
 }

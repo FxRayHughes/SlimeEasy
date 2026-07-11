@@ -29,6 +29,7 @@ object NetworkMenu {
     private const val SORT_DIR_SLOT = 47
     private const val INFO_SLOT = 48
     private const val SEARCH_SLOT = 49
+    private const val SWITCH_TERMINAL_SLOT = 52
     private const val NEXT_SLOT = 53
 
     /** 当前打开中的全部终端视图 (用于库存变更时实时重绘)。 */
@@ -40,11 +41,15 @@ object NetworkMenu {
         StorageChangeBus.subscribe { _ -> openViews.toList().forEach { it.render() } }
     }
 
-    fun open(net: StorageNetwork, player: Player) {
-        View(net, player).menu.open(player)
+    fun open(net: StorageNetwork, player: Player, switchTerminal: ((Player) -> Unit)? = null) {
+        View(net, player, switchTerminal).menu.open(player)
     }
 
-    private class View(val net: StorageNetwork, val player: Player) {
+    private class View(
+        val net: StorageNetwork,
+        val player: Player,
+        val switchTerminal: ((Player) -> Unit)?
+    ) {
         val menu = ChestMenu("§9存储网络终端")
         var page = 0
 
@@ -126,6 +131,13 @@ object NetworkMenu {
             menu.addItem(NEXT_SLOT, GuiItems.NEXT_PAGE) { _, _, _, _ -> if (page < pages - 1) { page++; render() }; false }
             menu.addItem(INFO_SLOT, GuiItems.named(org.bukkit.Material.PAPER,
                 "§e第 ${page + 1}/$pages 页", "§7成员: ${net.members.size}")) { _, _, _, _ -> false }
+            if (switchTerminal != null) {
+                menu.addItem(SWITCH_TERMINAL_SLOT, GuiItems.named(org.bukkit.Material.ENDER_EYE,
+                    "§d切换远程终端", "§7点击切换到下一个已绑定的控制器")) { p, _, _, _ ->
+                    switchTerminal.invoke(p)
+                    false
+                }
+            }
             renderSortButtons()
             renderSearchButton()
         }
