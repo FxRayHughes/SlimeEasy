@@ -27,13 +27,18 @@ enum class UpgradeType(val itemId: String, val multiplier: Double) {
     ENDER_WISE("SE_ENDER_WISE_UPGRADE", 1.0),
     EXTRACT("SE_EXTRACT_UPGRADE", 1.0),
     REMOTE("SE_REMOTE_UPGRADE", 1.0),
-    OUTPUT("SE_OUTPUT_UPGRADE", 1.0);
+    OUTPUT("SE_OUTPUT_UPGRADE", 1.0),
+    COMPRESSION("SE_COMPRESSION_UPGRADE", 1.0),
+    ADVANCED_COMPRESSION("SE_ADVANCED_COMPRESSION_UPGRADE", 1.0);
 
     /** 是否为容量 (堆叠) 类升级。 */
     val isStack: Boolean get() = multiplier > 1.0
 
     /** 是否允许在同一容器叠装多枚 (仅翻页扩容)。 */
     val isStackable: Boolean get() = this == PAGE_EXPANSION
+
+    /** 是否为翻页箱专属的压制升级。 */
+    val isCompression: Boolean get() = this == COMPRESSION || this == ADVANCED_COMPRESSION
 
     /** 吸入经验时"翻倍"的独立触发概率 (智者系升级; 其余为 0)。 */
     val wiseChance: Double get() = when (this) {

@@ -33,6 +33,10 @@ object GuiItems {
     val OUTPUT_CONFIG: ItemStack =
         localized(Material.DROPPER, "menus.common.output-config")
 
+    /** 压制过滤与不可逆配方配置按钮。 */
+    val COMPRESSION_CONFIG: ItemStack =
+        localized(Material.PISTON, "menus.common.compression-config")
+
     /** 上一页按钮。 */
     val PREV_PAGE: ItemStack = localized(Material.ARROW, "menus.common.previous-page")
 

@@ -114,6 +114,16 @@ object StorageItems {
     // 1 个物品输出箱居中 + 8 张纸围绕
     val OUTPUT_UPGRADE_RECIPE: Array<ItemStack?> = surround(Material.PAPER, sfItemOr("OUTPUT_CHEST", Material.CHEST))
 
+    /** 普通压制升级：运行时仅处理 2×2 压缩配方。 */
+    val COMPRESSION_UPGRADE = upgrade("SE_COMPRESSION_UPGRADE", Material.PISTON, "items.storage.upgrades.compression")
+    val COMPRESSION_UPGRADE_RECIPE = surround(Material.PISTON, Material.CRAFTING_TABLE)
+
+    /** 高级压制升级：由普通版本升级而来，并额外支持 3×3 压缩配方。 */
+    val ADVANCED_COMPRESSION_UPGRADE = upgrade(
+        "SE_ADVANCED_COMPRESSION_UPGRADE", Material.STICKY_PISTON, "items.storage.upgrades.advanced-compression"
+    )
+    val ADVANCED_COMPRESSION_UPGRADE_RECIPE = surround(Material.SLIME_BALL, COMPRESSION_UPGRADE)
+
     /**
      * 取某 Slimefun 物品作为配方核心 (护身符 / 物品输出箱等); 未加载到 (如版本无此物品)
      * 则回退到一个原版占位物, 保证配方仍可注册不崩溃。

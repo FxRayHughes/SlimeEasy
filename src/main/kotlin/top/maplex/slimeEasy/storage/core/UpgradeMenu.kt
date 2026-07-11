@@ -11,6 +11,8 @@ import top.maplex.slimeEasy.storage.upgrade.ItemFilter
 import top.maplex.slimeEasy.storage.upgrade.UpgradeSet
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
 import top.maplex.slimeEasy.storage.upgrade.UpgradeType
+import top.maplex.slimeEasy.storage.box.PagedBox
+import top.maplex.slimeEasy.storage.upgrade.CompressionMenu
 
 /**
  * 通用升级管理 GUI (抽屉 / 箱子共用)。
@@ -26,9 +28,12 @@ import top.maplex.slimeEasy.storage.upgrade.UpgradeType
 object UpgradeMenu {
 
     private val upgradeSlots: IntRange get() = 0 until UpgradeStore.MAX_SLOTS
-    private const val VOID_SLOT = 13
-    private const val EXTRACT_SLOT = 14
-    private const val OUTPUT_SLOT = 15
+    /** 配置按钮始终从升级槽之后的新一行开始，避免可配置槽数与按钮重叠。 */
+    private val configStart: Int get() = ((UpgradeStore.MAX_SLOTS + 8) / 9) * 9
+    private val VOID_SLOT: Int get() = configStart
+    private val EXTRACT_SLOT: Int get() = configStart + 1
+    private val OUTPUT_SLOT: Int get() = configStart + 2
+    private val COMPRESSION_SLOT: Int get() = configStart + 3
 
     fun open(block: UpgradeHost, target: Block, player: Player, title: String) {
         val menu = ChestMenu(title)
@@ -68,6 +73,11 @@ object UpgradeMenu {
                 FilterMenu.open(target, p, ItemFilter.OUTPUT, FaceConfig.OUTPUT, I18n.text("menus.upgrades.output-title")); false
             }
         }
+        if (set.hasCompression) {
+            menu.addItem(COMPRESSION_SLOT, GuiItems.COMPRESSION_CONFIG) { p, _, _, _ ->
+                CompressionMenu.open(target, p); false
+            }
+        }
     }
 
     /**
@@ -78,6 +88,9 @@ object UpgradeMenu {
      */
     private fun install(menu: ChestMenu, block: UpgradeHost, target: Block, player: Player, source: ItemStack) {
         val type = UpgradeType.fromItem(source) ?: return
+        if (type.isCompression && block !is PagedBox) {
+            player.sendMessage(I18n.text("messages.upgrades.compression-paged-box-only")); return
+        }
         val items = UpgradeStore.readItems(target.location).toMutableList()
         if (items.size >= UpgradeStore.MAX_SLOTS) return
         val sameCount = items.count { UpgradeType.fromItem(it) == type }

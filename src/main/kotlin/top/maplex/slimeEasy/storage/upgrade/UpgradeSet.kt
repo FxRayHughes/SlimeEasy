@@ -32,6 +32,16 @@ class UpgradeSet(val types: Set<UpgradeType>, val pageExpansionCount: Int = 0) {
     /** 是否启用远程 (容器远程接入某控制器网络; 控制器坐标存于升级物品 PDC)。 */
     val hasRemote: Boolean get() = UpgradeType.REMOTE in types
 
+    /** 是否启用压制；高级版本优先并额外支持 3×3 配方。 */
+    val compressionGridSize: Int
+        get() = when {
+            UpgradeType.ADVANCED_COMPRESSION in types -> 3
+            UpgradeType.COMPRESSION in types -> 2
+            else -> 0
+        }
+
+    val hasCompression: Boolean get() = compressionGridSize > 0
+
     /** 翻页箱页数: 基础 1 页, 每个扩容组件 +1, 封顶 [MAX_PAGES]。 */
     val boxPages: Int get() = (1 + pageExpansionCount).coerceIn(1, MAX_PAGES)
 

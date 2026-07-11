@@ -300,8 +300,8 @@ storage:
   upgrade:
     enabled: true
     research-level: 20
-    # 升级槽位上限 (界面最多 13)。
-    max-slots: 12
+    # 升级槽位上限。
+    max-slots: 14
     # 翻页升级的最大页数。
     max-pages: 5
     # 抽取 / 输出过滤名单最大物品种类数 (界面上限 27)。

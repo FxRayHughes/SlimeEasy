@@ -444,8 +444,13 @@ object Registration {
             val remoteUp = RemoteUpgrade(Groups.STORAGE, StorageItems.REMOTE_UPGRADE, et, StorageItems.REMOTE_UPGRADE_RECIPE)
                 .also { it.register(addon) }
             val outputUp = plain(StorageItems.OUTPUT_UPGRADE, StorageItems.OUTPUT_UPGRADE_RECIPE)
+            val compressionUp = plain(StorageItems.COMPRESSION_UPGRADE, StorageItems.COMPRESSION_UPGRADE_RECIPE)
+            val advancedCompressionUp = plain(
+                StorageItems.ADVANCED_COMPRESSION_UPGRADE, StorageItems.ADVANCED_COMPRESSION_UPGRADE_RECIPE
+            )
             research("storage_upgrades", 9008, I18n.text("research.storage-upgrades"), STORAGE_UPGRADE_RESEARCH_COST,
-                stackI, stackII, stackIII, expUp, magnetUp, voidUp, pageUp, wiseUp, enderWiseUp, extractUp, remoteUp, outputUp)
+                stackI, stackII, stackIII, expUp, magnetUp, voidUp, pageUp, wiseUp, enderWiseUp, extractUp,
+                remoteUp, outputUp, compressionUp, advancedCompressionUp)
         }
         if (networkOn) {
             val controller = NetworkController(Groups.STORAGE, StorageItems.CONTROLLER, et, StorageItems.CONTROLLER_RECIPE).also { it.register(addon) }

@@ -106,6 +106,8 @@ abstract class CargoBufferBlock(
 
     /** 持久化指定方块的库存内容到 BlockData, 并通知子类刷新其展示。 */
     fun saveStorage(block: Block, storage: VirtualStorage) {
+        val previousData = StorageCacheUtils.getData(block.location, storageDataKey)
+        beforeStorageSave(block, storage, previousData)
         StorageCacheUtils.setData(block.location, storageDataKey, storage.serialize())
         onStorageChanged(block, storage)
         StorageChangeBus.fire(block) // 广播变更, 供打开中的 GUI 实时重绘
@@ -117,6 +119,9 @@ abstract class CargoBufferBlock(
      * 默认空实现。抽屉据此刷新面向玩家的展示框物品与数量文字。
      */
     protected open fun onStorageChanged(block: Block, storage: VirtualStorage) {}
+
+    /** 落盘前变换钩子；翻页箱的压制升级据此只处理相对上次落盘新增的物品。 */
+    protected open fun beforeStorageSave(block: Block, storage: VirtualStorage, previousData: String?) {}
 
     /** 从缓存移除某位置库存 (方块破坏后调用, 防止内存泄漏)。 */
     protected fun evictCache(block: Block) {

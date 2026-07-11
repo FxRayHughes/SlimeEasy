@@ -13,6 +13,7 @@ import top.maplex.slimeEasy.storage.core.ItemKey
 import top.maplex.slimeEasy.storage.core.VirtualStorage
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
 import top.maplex.slimeEasy.storage.upgrade.VoidFilter
+import top.maplex.slimeEasy.storage.upgrade.CompressionProcessor
 
 /**
  * 翻页存储箱 (木桶外观, 以 Slimefun ID 与抽屉区分)。
@@ -79,11 +80,18 @@ class PagedBox(
         PagedBoxMenu.refreshAll(block)
     }
 
+    override fun beforeStorageSave(block: Block, storage: VirtualStorage, previousData: String?) {
+        val gridSize = UpgradeStore.resolve(block.location).compressionGridSize
+        if (gridSize > 0) CompressionProcessor.compressChanged(block, storage, previousData, gridSize)
+    }
+
     override fun rejectUpgradeChange(
         block: Block,
         type: top.maplex.slimeEasy.storage.upgrade.UpgradeType,
         install: Boolean
     ): String? {
+        if (install && type.isCompression && UpgradeStore.resolve(block.location).hasCompression)
+            return I18n.text("messages.paged-box.compression-upgrade-conflict")
         val expType = top.maplex.slimeEasy.storage.upgrade.UpgradeType.EXP_STORAGE
         if (type == expType) {
             // 装经验升级前要求库存为空 (物品与经验两套库存不可共存)

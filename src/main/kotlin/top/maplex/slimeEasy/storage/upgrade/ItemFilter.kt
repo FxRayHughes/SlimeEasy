@@ -21,7 +21,11 @@ enum class FilterMode { BLACKLIST, WHITELIST }
  * ([ItemCodec] 的 base64 字母表不含 `;`, 不冲突)。模式单独存于键 [modeKey]。
  * 数据以 [Location] 定位, 与宿主类型无关 (容器 / 点击器通用)。
  */
-class ItemFilter(private val listKey: String, private val modeKey: String) {
+class ItemFilter(
+    private val listKey: String,
+    private val modeKey: String,
+    private val maxItems: () -> Int = { SEConfig.storageFilterMaxItems }
+) {
 
     /** 读取名单 (保序); 空名单返回空集。 */
     fun read(location: Location): LinkedHashSet<ItemKey> {
@@ -59,7 +63,7 @@ class ItemFilter(private val listKey: String, private val modeKey: String) {
         val key = ItemKey.of(item) ?: return false
         val set = read(location)
         val nowMarked = if (!set.remove(key)) {
-            if (set.size >= SEConfig.storageFilterMaxItems) return false
+            if (set.size >= maxItems()) return false
             set.add(key)
             true
         } else false
@@ -101,5 +105,8 @@ class ItemFilter(private val listKey: String, private val modeKey: String) {
 
         /** 输出升级的过滤器 (控制向相邻容器推送哪些物品)。 */
         val OUTPUT = ItemFilter("se_output_filter", "se_output_mode")
+
+        /** 压制升级的固定 17 格过滤器。 */
+        val COMPRESSION = ItemFilter("se_compression_filter", "se_compression_mode") { 17 }
     }
 }
