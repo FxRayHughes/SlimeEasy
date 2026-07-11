@@ -75,19 +75,19 @@ class IronFarm(
         val interval = (VillagerConfig.ironProduceMillis / (1.0 + speed * VillagerConfig.ironSpeedStep)).toLong().coerceAtLeast(1L)
         val now = System.currentTimeMillis()
         if (now - getLast(block) < interval) {
-            IronFarmMenuPreset.updateInfo(menu, true, I18n.text("messages.iron-farm-001"))
+            IronFarmMenuPreset.updateInfo(menu, true, I18n.text("messages.iron-farm.producing"))
             return
         }
 
         val produced = pushIron(menu)
         if (produced == 0) {
-            IronFarmMenuPreset.updateInfo(menu, true, I18n.text("messages.iron-farm-002"))
+            IronFarmMenuPreset.updateInfo(menu, true, I18n.text("messages.iron-farm.output-full"))
             return
         }
         consumeFood(menu, VillagerConfig.ironFoodPerCycle)
         setLast(block, now)
         IronFarmDisplay.flashGolem(block)
-        IronFarmMenuPreset.updateInfo(menu, true, I18n.text("messages.iron-farm-003", "value0" to (produced)))
+        IronFarmMenuPreset.updateInfo(menu, true, I18n.text("messages.iron-farm.produced", "amount" to produced))
     }
 
     /** 逐个把铁锭推入输出区; 返回实际产出数量 (输出满则提前停止)。 */
@@ -117,9 +117,9 @@ class IronFarm(
     }
 
     private fun missReason(villager: Boolean, signal: Boolean, food: Boolean): String = when {
-        !villager -> I18n.text("messages.iron-farm-004")
-        !signal -> I18n.text("messages.iron-farm-005")
-        !food -> I18n.text("messages.iron-farm-006")
+        !villager -> I18n.text("messages.iron-farm.missing-villager")
+        !signal -> I18n.text("messages.iron-farm.missing-signal")
+        !food -> I18n.text("messages.iron-farm.missing-food")
         else -> ""
     }
 

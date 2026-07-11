@@ -58,27 +58,30 @@ class RemoteTerminal(
         val existing = bindings.indexOf(value)
         val maxBindings = SEConfig.storageNetworkRemoteTerminalMaxBindings
         if (existing < 0 && maxBindings > 0 && bindings.size >= maxBindings) {
-            player.sendMessage(I18n.text("messages.remote-terminal-001", "value0" to (maxBindings)))
+            player.sendMessage(I18n.text("messages.remote-terminal.binding-limit", "max" to maxBindings))
             return
         }
         val selected = if (existing >= 0) existing else bindings.size.also { bindings.add(value) }
         writeBindings(item, bindings, selected)
-        val action = if (existing >= 0) I18n.text("messages.remote-terminal-002") else I18n.text("messages.remote-terminal-003")
-        player.sendMessage(I18n.text("messages.remote-terminal-004", "value0" to (action), "value1" to (loc.blockX), "value2" to (loc.blockY), "value3" to (loc.blockZ), "value4" to (bindings.size)))
+        val action = if (existing >= 0) I18n.text("messages.remote-terminal.actions.switched") else I18n.text("messages.remote-terminal.actions.bound")
+        player.sendMessage(I18n.text(
+            "messages.remote-terminal.bound",
+            "action" to action, "x" to loc.blockX, "y" to loc.blockY, "z" to loc.blockZ, "count" to bindings.size
+        ))
     }
 
     /** 打开当前选中的网络; 未绑定、绑定失效或无权限时提示。 */
     private fun openBound(player: Player, item: ItemStack) {
         val bindings = readBindings(item)
         if (bindings.isEmpty()) {
-            player.sendMessage(I18n.text("messages.remote-terminal-005"))
+            player.sendMessage(I18n.text("messages.remote-terminal.not-bound"))
             return
         }
         val selected = selectedIndex(item, bindings.size)
         val raw = bindings[selected]
         val block = BlockLocationCodec.decode(raw)
         if (block == null || !NetworkControllerAccess.isController(block)) {
-            player.sendMessage(I18n.text("messages.remote-terminal-006"))
+            player.sendMessage(I18n.text("messages.remote-terminal.missing-controller"))
             return
         }
         if (!NetworkControllerAccess.canUse(player, block)) return
@@ -90,7 +93,7 @@ class RemoteTerminal(
     private fun switchBound(player: Player, item: ItemStack) {
         val bindings = readBindings(item)
         if (bindings.size <= 1) {
-            player.sendMessage(I18n.text("messages.remote-terminal-007"))
+            player.sendMessage(I18n.text("messages.remote-terminal.no-other-binding"))
             return
         }
         val current = selectedIndex(item, bindings.size)
@@ -99,11 +102,11 @@ class RemoteTerminal(
             val block = BlockLocationCodec.decode(bindings[next]) ?: continue
             if (!NetworkControllerAccess.isController(block) || !NetworkControllerAccess.canUse(player, block, false)) continue
             writeBindings(item, bindings, next)
-            player.sendMessage(I18n.text("messages.remote-terminal-008", "value0" to (describe(block))))
+            player.sendMessage(I18n.text("messages.remote-terminal.switched", "controller" to describe(block)))
             NetworkMenu.open(NetworkRegistry.get(block), player) { p -> switchBound(p, item) }
             return
         }
-        player.sendMessage(I18n.text("messages.remote-terminal-009"))
+        player.sendMessage(I18n.text("messages.remote-terminal.no-accessible-binding"))
     }
 
     /** 打开绑定管理界面: 左键选择, 右键移除。 */
@@ -112,7 +115,7 @@ class RemoteTerminal(
     }
 
     private inner class ManagerView(private val player: Player, private val item: ItemStack) {
-        val menu = ChestMenu(I18n.text("messages.remote-terminal-010"))
+        val menu = ChestMenu(I18n.text("menus.remote-terminal.title"))
         private var page = 0
 
         init {
@@ -137,9 +140,9 @@ class RemoteTerminal(
                 val block = BlockLocationCodec.decode(raw)
                 val valid = block != null && NetworkControllerAccess.isController(block)
                 val icon = when {
-                    !valid -> GuiItems.named(Material.BARRIER, I18n.text("messages.remote-terminal-011"), "§7$raw", I18n.text("messages.remote-terminal-012"))
-                    index == selected -> GuiItems.named(Material.LIME_STAINED_GLASS_PANE, I18n.text("messages.remote-terminal-013", "value0" to (describe(block))), I18n.text("messages.remote-terminal-014"), I18n.text("messages.remote-terminal-015"))
-                    else -> GuiItems.named(Material.ENDER_CHEST, "§d${describe(block)}", I18n.text("messages.remote-terminal-016"), I18n.text("messages.remote-terminal-017"))
+                    !valid -> GuiItems.localized(Material.BARRIER, "menus.remote-terminal.invalid", "location" to raw)
+                    index == selected -> GuiItems.localized(Material.LIME_STAINED_GLASS_PANE, "menus.remote-terminal.selected", "controller" to describe(block))
+                    else -> GuiItems.localized(Material.ENDER_CHEST, "menus.remote-terminal.binding", "controller" to describe(block))
                 }
                 menu.addItem(slot, icon) { _, _, _, action ->
                     if (action.isRightClicked) removeBinding(index) else selectBinding(index)
@@ -153,8 +156,10 @@ class RemoteTerminal(
                 if (page > 0) { page--; render() }
                 false
             }
-            menu.addItem(MANAGER_INFO_SLOT, GuiItems.named(Material.PAPER,
-                I18n.text("messages.remote-terminal-018", "value0" to (page + 1), "value1" to (pages)), I18n.text("messages.remote-terminal-019", "value0" to (bindings.size)))) { _, _, _, _ -> false }
+            menu.addItem(MANAGER_INFO_SLOT, GuiItems.localized(
+                Material.PAPER, "menus.remote-terminal.page-info",
+                "page" to page + 1, "pages" to pages, "count" to bindings.size
+            )) { _, _, _, _ -> false }
             menu.addItem(MANAGER_NEXT_SLOT, GuiItems.NEXT_PAGE) { _, _, _, _ ->
                 if (page < pages - 1) { page++; render() }
                 false
@@ -166,12 +171,12 @@ class RemoteTerminal(
             val raw = bindings.getOrNull(index) ?: return
             val block = BlockLocationCodec.decode(raw)
             if (block == null || !NetworkControllerAccess.isController(block)) {
-                player.sendMessage(I18n.text("messages.remote-terminal-020"))
+                player.sendMessage(I18n.text("messages.remote-terminal.invalid-binding"))
                 return
             }
             if (!NetworkControllerAccess.canUse(player, block)) return
             writeBindings(item, bindings, index)
-            player.sendMessage(I18n.text("messages.remote-terminal-021", "value0" to (describe(block))))
+            player.sendMessage(I18n.text("messages.remote-terminal.selected", "controller" to describe(block)))
             render()
         }
 
@@ -187,7 +192,7 @@ class RemoteTerminal(
                 else -> selected
             }
             writeBindings(item, bindings, nextSelected)
-            player.sendMessage(I18n.text("messages.remote-terminal-022", "value0" to (bindings.size)))
+            player.sendMessage(I18n.text("messages.remote-terminal.removed", "count" to bindings.size))
             render()
         }
     }

@@ -32,20 +32,11 @@ class QuarryMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
         protectedItem(INFO_SLOT, infoTemplate())
         protectedItem(
             LABEL_UPGRADE,
-            GuiItems.named(
-                Material.YELLOW_STAINED_GLASS_PANE, I18n.text("menus.quarry-menu-preset-001"),
-                I18n.text("menus.quarry-menu-preset-002"),
-                I18n.text("menus.quarry-menu-preset-003"),
-                I18n.text("menus.quarry-menu-preset-004")
-            )
+            GuiItems.localized(Material.YELLOW_STAINED_GLASS_PANE, "menus.quarry.labels.efficiency-upgrade")
         )
         protectedItem(
             LABEL_OUTPUT,
-            GuiItems.named(
-                Material.ORANGE_STAINED_GLASS_PANE, I18n.text("menus.quarry-menu-preset-005"),
-                I18n.text("menus.quarry-menu-preset-006"),
-                I18n.text("menus.quarry-menu-preset-007")
-            )
+            GuiItems.localized(Material.ORANGE_STAINED_GLASS_PANE, "menus.quarry.labels.output-upgrade")
         )
     }
 
@@ -107,34 +98,23 @@ class QuarryMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
             tier: QuarryTier?,
             output: QuarryOutput
         ) {
-            val rate = if (tier != null) I18n.text("menus.quarry-menu-preset-008", "value0" to (tier.perOperation), "value1" to (tier.name))
-            else I18n.text("menus.quarry-menu-preset-009", "value0" to (SEConfig.quarryBaseOutput), "value1" to (SEConfig.quarryBaseIntervalTicks))
+            val rate = if (tier != null) I18n.text("menus.quarry.rate.upgraded", "amount" to tier.perOperation, "tier" to tier.name)
+            else I18n.text("menus.quarry.rate.base", "amount" to SEConfig.quarryBaseOutput, "ticks" to SEConfig.quarryBaseIntervalTicks)
             val status = when {
-                !attached -> I18n.text("menus.quarry-menu-preset-010")
-                !producing -> I18n.text("menus.quarry-menu-preset-011")
-                else -> I18n.text("menus.quarry-menu-preset-012")
+                !attached -> I18n.text("menus.quarry.status.no-cobblestone")
+                !producing -> I18n.text("menus.quarry.status.missing-fluids")
+                else -> I18n.text("menus.quarry.status.running")
             }
             menu.toInventory().setItem(
                 INFO_SLOT,
-                GuiItems.named(
-                    Material.OBSERVER, I18n.text("menus.quarry-menu-preset-013"),
-                    I18n.text("menus.quarry-menu-preset-014", "value0" to (status)),
-                    I18n.text("menus.quarry-menu-preset-015", "value0" to (rate)),
-                    I18n.text("menus.quarry-menu-preset-016", "value0" to (output.displayName)),
-                    "",
-                    I18n.text("menus.quarry-menu-preset-017"),
-                    I18n.text("menus.quarry-menu-preset-018"),
-                    I18n.text("menus.quarry-menu-preset-019")
+                GuiItems.localized(
+                    Material.OBSERVER, "menus.quarry.info",
+                    "status" to status, "rate" to rate, "output" to output.displayName
                 )
             )
         }
 
         /** 信息面板静态模板 (无 block 上下文时的初始占位, 打开 / tick 后由 [updateInfo] 刷新)。 */
-        private fun infoTemplate(): ItemStack = GuiItems.named(
-            Material.OBSERVER, I18n.text("menus.quarry-menu-preset-020"),
-            I18n.text("menus.quarry-menu-preset-021"),
-            I18n.text("menus.quarry-menu-preset-022"),
-            I18n.text("menus.quarry-menu-preset-023")
-        )
+        private fun infoTemplate(): ItemStack = GuiItems.localized(Material.OBSERVER, "menus.quarry.info-template")
     }
 }

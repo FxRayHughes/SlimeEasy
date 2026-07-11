@@ -39,7 +39,7 @@ object BlockInteractor {
 
     private val refl: Refl? by lazy {
         runCatching { build() }.getOrElse {
-            Bukkit.getLogger().warning(I18n.text("messages.block-interactor-001", "value0" to (it.message)))
+            Bukkit.getLogger().warning(I18n.text("logs.auto-clicker.nms-init-failed", "error" to it.message))
             null
         }
     }

@@ -40,9 +40,9 @@ class RemoteUpgrade(
                 val loc = block.location
                 val value = BlockLocationCodec.encode(block)
                 e.item.editMeta { it.persistentDataContainer.set(KEY_CTRL, PersistentDataType.STRING, value) }
-                player.sendMessage(I18n.text("messages.remote-upgrade-001", "value0" to (loc.blockX), "value1" to (loc.blockY), "value2" to (loc.blockZ)))
+                player.sendMessage(I18n.text("messages.remote-upgrade.selected", "x" to loc.blockX, "y" to loc.blockY, "z" to loc.blockZ))
             } else {
-                player.sendMessage(I18n.text("messages.remote-upgrade-002"))
+                player.sendMessage(I18n.text("messages.remote-upgrade.not-selected"))
             }
         })
     }

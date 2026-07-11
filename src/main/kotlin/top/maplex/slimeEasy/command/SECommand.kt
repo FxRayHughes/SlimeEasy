@@ -17,7 +17,7 @@ import top.maplex.slimeEasy.config.SEConfig
 class SECommand : Command("se") {
 
     init {
-        description = I18n.text("messages.s-e-command-001")
+        description = I18n.text("messages.command.description")
         usageMessage = "/se reload"
         permission = "slimeeasy.admin"
         aliases = listOf("slimeeasy")
@@ -25,11 +25,11 @@ class SECommand : Command("se") {
 
     override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
         if (args.isEmpty() || !args[0].equals("reload", ignoreCase = true)) {
-            sender.sendMessage(I18n.text("messages.s-e-command-002"))
+            sender.sendMessage(I18n.text("messages.command.usage"))
             return true
         }
         if (!sender.hasPermission("slimeeasy.admin")) {
-            sender.sendMessage(I18n.text("messages.s-e-command-003"))
+            sender.sendMessage(I18n.text("messages.command.no-permission"))
             return true
         }
         runCatching {
@@ -37,13 +37,13 @@ class SECommand : Command("se") {
             I18n.load()
         }
             .onSuccess {
-                sender.sendMessage(I18n.text("messages.s-e-command-004"))
-                sender.sendMessage(I18n.text("messages.s-e-command-005"))
-                sender.sendMessage(I18n.text("messages.s-e-command-006"))
+                sender.sendMessage(I18n.text("messages.command.reload.success"))
+                sender.sendMessage(I18n.text("messages.command.reload.runtime-applied"))
+                sender.sendMessage(I18n.text("messages.command.reload.restart-required"))
             }
             .onFailure {
-                sender.sendMessage(I18n.text("messages.s-e-command-007", "value0" to (it.message)))
-                SlimeEasy.instance.logger.warning(I18n.text("messages.s-e-command-008", "value0" to (it.message)))
+                sender.sendMessage(I18n.text("messages.command.reload.failed", "error" to it.message))
+                SlimeEasy.instance.logger.warning(I18n.text("logs.command.reload-failed", "error" to it.message))
             }
         return true
     }

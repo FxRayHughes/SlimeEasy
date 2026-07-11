@@ -2,7 +2,6 @@ package top.maplex.slimeEasy.storage.drawer
 
 import top.maplex.slimeEasy.config.I18n
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
-import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
@@ -29,7 +28,7 @@ object VoidMenu {
     private const val MARK_SLOT = 31
 
     fun open(block: Block, player: Player) {
-        val menu = ChestMenu(I18n.text("menus.void-menu-001"))
+        val menu = ChestMenu(I18n.text("menus.void-filter.title"))
         menu.setEmptySlotsClickable(false)
         // 点击背包内的物品也可加入 / 移出销毁列表 (不必手持)
         menu.addPlayerInventoryClickHandler { _, _, item, _ ->
@@ -53,8 +52,7 @@ object VoidMenu {
                 menu.addItem(slot, GuiItems.BACKGROUND) { _, _, _, _ -> false }
             }
         }
-        menu.addItem(MARK_SLOT, GuiItems.named(Material.LAVA_BUCKET, I18n.text("menus.void-menu-002"),
-            I18n.text("menus.void-menu-003"), I18n.text("menus.void-menu-004"))) { p, _, _, _ ->
+        menu.addItem(MARK_SLOT, GuiItems.localized(Material.LAVA_BUCKET, "menus.void-filter.marker")) { p, _, _, _ ->
             val hand = p.inventory.itemInMainHand
             if (!hand.type.isAir) { VoidFilter.toggle(block.location, hand); render(menu, block) }
             false
@@ -65,12 +63,7 @@ object VoidMenu {
     private fun icon(key: ItemKey, keep: Int): ItemStack =
         key.toDisplay(1).apply {
             editMeta {
-                it.lore(listOf(
-                    Component.text(I18n.text("menus.void-menu-005", "value0" to (keep))),
-                    Component.text(I18n.text("menus.void-menu-006")),
-                    Component.text(I18n.text("menus.void-menu-007")),
-                    Component.text(I18n.text("menus.void-menu-008"))
-                ))
+                it.lore(I18n.components("menus.void-filter.listed-item-lore", "keep" to keep))
             }
         }
 

@@ -75,7 +75,7 @@ class VillagerHealer(
         }
         val remaining = VillagerConfig.healerConvertMillis - (now - start)
         if (remaining > 0) {
-            HealerMenuPreset.updateInfo(menu, I18n.text("messages.villager-healer-001", "value0" to ((remaining / 1000) + 1)))
+            HealerMenuPreset.updateInfo(menu, I18n.text("messages.villager-healer.progress", "seconds" to (remaining / 1000) + 1))
             return
         }
 
@@ -84,7 +84,7 @@ class VillagerHealer(
         menu.replaceExistingItem(HealerMenuPreset.OUTPUT_SLOT, VillagerCatcher.fill(data.cured()))
         consumeOneInput(menu, input!!)
         setStart(block, 0L)
-        HealerMenuPreset.updateInfo(menu, I18n.text("messages.villager-healer-002"))
+        HealerMenuPreset.updateInfo(menu, I18n.text("messages.villager-healer.completed"))
     }
 
     /** 金苹果槽 -1 (堆叠则减一, 否则清空)。 */
@@ -108,11 +108,11 @@ class VillagerHealer(
     }
 
     private fun idleReason(data: VillagerData?, hasApple: Boolean, outputOccupied: Boolean): String = when {
-        data == null -> I18n.text("messages.villager-healer-003")
-        !data.zombie -> I18n.text("messages.villager-healer-004")
-        !hasApple -> I18n.text("messages.villager-healer-005")
-        outputOccupied -> I18n.text("messages.villager-healer-006")
-        else -> I18n.text("messages.villager-healer-007")
+        data == null -> I18n.text("messages.villager-healer.waiting-input")
+        !data.zombie -> I18n.text("messages.villager-healer.invalid-input")
+        !hasApple -> I18n.text("messages.villager-healer.missing-apple")
+        outputOccupied -> I18n.text("messages.villager-healer.output-blocked")
+        else -> I18n.text("messages.villager-healer.idle")
     }
 
     private fun getStart(block: Block): Long =

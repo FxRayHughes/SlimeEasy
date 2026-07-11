@@ -73,7 +73,7 @@ class VillagerSchool(
         }
         val remaining = VillagerConfig.schoolConvertMillis - (now - start)
         if (remaining > 0) {
-            SchoolMenuPreset.updateInfo(menu, I18n.text("messages.villager-school-001", "value0" to ((remaining / 1000) + 1)))
+            SchoolMenuPreset.updateInfo(menu, I18n.text("messages.villager-school.progress", "seconds" to (remaining / 1000) + 1))
             return
         }
 
@@ -82,7 +82,7 @@ class VillagerSchool(
         menu.replaceExistingItem(SchoolMenuPreset.OUTPUT_SLOT, VillagerCatcher.fill(jobless))
         consumeOneInput(menu, input!!)
         setStart(block, 0L)
-        SchoolMenuPreset.updateInfo(menu, I18n.text("messages.villager-school-002"))
+        SchoolMenuPreset.updateInfo(menu, I18n.text("messages.villager-school.completed"))
     }
 
     /** 输入槽 -1 (堆叠则减一, 否则清空)。 */
@@ -99,10 +99,10 @@ class VillagerSchool(
     }
 
     private fun idleReason(data: VillagerData?, outputOccupied: Boolean): String = when {
-        data == null -> I18n.text("messages.villager-school-003")
-        !data.isNitwit -> I18n.text("messages.villager-school-004")
-        outputOccupied -> I18n.text("messages.villager-school-005")
-        else -> I18n.text("messages.villager-school-006")
+        data == null -> I18n.text("messages.villager-school.waiting-input")
+        !data.isNitwit -> I18n.text("messages.villager-school.invalid-input")
+        outputOccupied -> I18n.text("messages.villager-school.output-blocked")
+        else -> I18n.text("messages.villager-school.idle")
     }
 
     private fun getStart(block: Block): Long =

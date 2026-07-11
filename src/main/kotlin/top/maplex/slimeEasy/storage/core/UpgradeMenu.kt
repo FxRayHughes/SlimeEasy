@@ -60,12 +60,12 @@ object UpgradeMenu {
         }
         if (set.hasExtract) {
             menu.addItem(EXTRACT_SLOT, GuiItems.EXTRACT_CONFIG) { p, _, _, _ ->
-                FilterMenu.open(target, p, ItemFilter.EXTRACT, FaceConfig.EXTRACT, I18n.text("menus.upgrade-menu-001")); false
+                FilterMenu.open(target, p, ItemFilter.EXTRACT, FaceConfig.EXTRACT, I18n.text("menus.upgrades.extract-title")); false
             }
         }
         if (set.hasOutput) {
             menu.addItem(OUTPUT_SLOT, GuiItems.OUTPUT_CONFIG) { p, _, _, _ ->
-                FilterMenu.open(target, p, ItemFilter.OUTPUT, FaceConfig.OUTPUT, I18n.text("menus.upgrade-menu-002")); false
+                FilterMenu.open(target, p, ItemFilter.OUTPUT, FaceConfig.OUTPUT, I18n.text("menus.upgrades.output-title")); false
             }
         }
     }
@@ -83,9 +83,9 @@ object UpgradeMenu {
         val sameCount = items.count { UpgradeType.fromItem(it) == type }
         if (type.isStackable) {
             // 翻页扩容: 可叠装, 但不超过"抵达最大页数"所需的枚数
-            if (sameCount >= UpgradeSet.MAX_PAGES - 1) { player.sendMessage(I18n.text("menus.upgrade-menu-003")); return }
+            if (sameCount >= UpgradeSet.MAX_PAGES - 1) { player.sendMessage(I18n.text("messages.upgrades.page-limit")); return }
         } else if (sameCount > 0) {
-            player.sendMessage(I18n.text("menus.upgrade-menu-004")); return
+            player.sendMessage(I18n.text("messages.upgrades.duplicate")); return
         }
         block.rejectUpgradeChange(target, type, install = true)?.let { player.sendMessage(it); return }
         items.add(source.clone().apply { amount = 1 })
@@ -104,7 +104,7 @@ object UpgradeMenu {
                 val remaining = items.filterIndexed { i, _ -> i != index }.mapNotNull { UpgradeType.fromItem(it) }.toSet()
                 val mult = UpgradeSet(remaining).capacityMultiplier
                 if (!block.capacityAllowsRemoval(target, mult)) {
-                    player.sendMessage(I18n.text("menus.upgrade-menu-005")); return
+                    player.sendMessage(I18n.text("messages.upgrades.insufficient-capacity")); return
                 }
             }
         }

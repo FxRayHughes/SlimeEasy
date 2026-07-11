@@ -51,13 +51,13 @@ object VillagerCatcher {
         item.editMeta { meta ->
             meta.persistentDataContainer.set(KEY, PersistentDataType.STRING, VillagerCodec.encode(data))
             meta.displayName(
-                Component.text(I18n.text("messages.villager-catcher-001", "value0" to (data.professionLabel))).color(NamedTextColor.GREEN)
+                I18n.component("items.villager.filled-catcher.name", "villager" to data.professionLabel).color(NamedTextColor.GREEN)
             )
             meta.lore(
                 listOf(
-                    Component.text(I18n.text("messages.villager-catcher-002", "value0" to (data.professionLabel))),
-                    Component.text(I18n.text("messages.villager-catcher-003", "value0" to (data.level), "value1" to (data.recipes.size))),
-                    Component.text(I18n.text("messages.villager-catcher-004"))
+                    I18n.component("items.villager.filled-catcher.profession-lore", "profession" to data.professionLabel),
+                    I18n.component("items.villager.filled-catcher.trade-lore", "level" to data.level, "trades" to data.recipes.size),
+                    I18n.component("items.villager.filled-catcher.release-lore")
                 )
             )
         }

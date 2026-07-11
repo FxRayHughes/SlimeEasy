@@ -41,7 +41,7 @@ class CatcherListener : Listener {
         e.isCancelled = true // 拦下原版交易界面
 
         if (VillagerCatcher.isFilled(hand)) {
-            player.sendMessage(I18n.text("messages.catcher-listener-001"))
+            player.sendMessage(I18n.text("messages.catcher.already-filled"))
             return
         }
 
@@ -53,7 +53,7 @@ class CatcherListener : Listener {
         target.remove()
         VillagerCatcher.replaceOneInHand(player, VillagerCatcher.fill(data))
         player.playSound(player.location, Sound.ENTITY_ITEM_PICKUP, 1f, 1.2f)
-        player.sendMessage(I18n.text("messages.catcher-listener-002", "value0" to (data.professionLabel)))
+        player.sendMessage(I18n.text("messages.catcher.captured", "villager" to data.professionLabel))
     }
 
     /** 释放: 潜行 + 右键 (空气 / 方块), 满捕捉器放出村民。 */
@@ -83,7 +83,7 @@ class CatcherListener : Listener {
             else { cur.amount -= 1; player.inventory.setItemInMainHand(cur) }
         }
         player.playSound(loc, Sound.ENTITY_ITEM_PICKUP, 1f, 0.8f)
-        player.sendMessage(I18n.text("messages.catcher-listener-003", "value0" to (data.professionLabel)))
+        player.sendMessage(I18n.text("messages.catcher.released", "villager" to data.professionLabel))
     }
 
     /** 释放坐标: 点到方块则其上方, 否则玩家视线前方 2 格。 */

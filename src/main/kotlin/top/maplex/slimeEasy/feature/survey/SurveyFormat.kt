@@ -25,9 +25,11 @@ object SurveyFormat {
      * 构造总量 + 三种燃料用量估算串, 如:
      * `共123个 (123/96)桶 (123/128)原 (123/256)燃`。
      */
-    fun fuelSummary(total: Int): String =
-        I18n.text("messages.survey-format-001", "value0" to (total)) +
-            I18n.text("messages.survey-format-002", "value0" to (total/PER_BUCKET)) +
-            I18n.text("messages.survey-format-003", "value0" to (total/PER_RAW)) +
-            I18n.text("messages.survey-format-004", "value0" to (total/PER_FUEL))
+    fun fuelSummary(total: Int): String = I18n.text(
+        "formats.survey.fuel-summary",
+        "total" to total,
+        "buckets" to total / PER_BUCKET,
+        "rawFuel" to total / PER_RAW,
+        "fuelBlocks" to total / PER_FUEL
+    )
 }

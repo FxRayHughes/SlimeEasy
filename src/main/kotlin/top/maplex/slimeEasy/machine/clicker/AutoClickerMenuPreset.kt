@@ -35,7 +35,7 @@ class AutoClickerMenuPreset(id: String, title: String, private val host: Upgrade
         drawBackground(GuiItems.BACKGROUND, (0 until 27).filter { it !in reserved }.toIntArray())
         addItem(
             LABEL_ITEM,
-            GuiItems.named(Material.NAME_TAG, I18n.text("menus.auto-clicker-menu-preset-001"), I18n.text("menus.auto-clicker-menu-preset-002"), I18n.text("menus.auto-clicker-menu-preset-003")),
+            GuiItems.localized(Material.NAME_TAG, "menus.auto-clicker.held-item"),
             ChestMenuUtils.getEmptyClickHandler()
         )
     }
@@ -72,7 +72,7 @@ class AutoClickerMenuPreset(id: String, title: String, private val host: Upgrade
         // 升级入口: 打开通用升级 GUI (点击器仅接受抽取升级, 由 host.rejectUpgradeChange 约束)
         menu.replaceExistingItem(UPGRADE_ENTRY, GuiItems.UPGRADE_ENTRY)
         menu.addMenuClickHandler(UPGRADE_ENTRY, ChestMenu.MenuClickHandler { p, _, _, _ ->
-            UpgradeMenu.open(host, block, p, I18n.text("menus.auto-clicker-menu-preset-004")); false
+            UpgradeMenu.open(host, block, p, I18n.text("menus.auto-clicker.upgrade-title")); false
         })
     }
 
@@ -81,21 +81,22 @@ class AutoClickerMenuPreset(id: String, title: String, private val host: Upgrade
         val left = AutoClickerState.leftEnabled(block)
         val right = AutoClickerState.rightEnabled(block)
         val interval = AutoClickerState.interval(block)
-        menu.replaceExistingItem(LEFT_TOGGLE, toggleIcon(I18n.text("menus.auto-clicker-menu-preset-005"), left))
-        menu.replaceExistingItem(RIGHT_TOGGLE, toggleIcon(I18n.text("menus.auto-clicker-menu-preset-006"), right))
-        menu.replaceExistingItem(INTERVAL_DOWN, GuiItems.named(
-            Material.RED_STAINED_GLASS_PANE, I18n.text("menus.auto-clicker-menu-preset-007"),
-            I18n.text("menus.auto-clicker-menu-preset-008", "value0" to (AutoClickerState.COARSE_STEP)), I18n.text("menus.auto-clicker-menu-preset-009", "value0" to (AutoClickerState.STEP))
+        menu.replaceExistingItem(LEFT_TOGGLE, toggleIcon(I18n.text("names.click-mode.left"), left))
+        menu.replaceExistingItem(RIGHT_TOGGLE, toggleIcon(I18n.text("names.click-mode.right"), right))
+        menu.replaceExistingItem(INTERVAL_DOWN, GuiItems.localized(
+            Material.RED_STAINED_GLASS_PANE, "menus.auto-clicker.interval.decrease",
+            "coarseStep" to AutoClickerState.COARSE_STEP, "fineStep" to AutoClickerState.STEP
         ))
-        menu.replaceExistingItem(INTERVAL_INFO, GuiItems.named(
-            Material.CLOCK, I18n.text("menus.auto-clicker-menu-preset-010", "value0" to ("%.2f".format(interval))),
-            I18n.text("menus.auto-clicker-menu-preset-011", "value0" to ("%.2f".format(interval * 0.5))),
-            I18n.text("menus.auto-clicker-menu-preset-012"),
-            I18n.text("menus.auto-clicker-menu-preset-013", "value0" to (AutoClickerState.MIN_INTERVAL), "value1" to (AutoClickerState.MAX_INTERVAL.toInt()))
+        menu.replaceExistingItem(INTERVAL_INFO, GuiItems.localized(
+            Material.CLOCK, "menus.auto-clicker.interval.info",
+            "interval" to "%.2f".format(interval),
+            "seconds" to "%.2f".format(interval * 0.5),
+            "min" to AutoClickerState.MIN_INTERVAL,
+            "max" to AutoClickerState.MAX_INTERVAL.toInt()
         ))
-        menu.replaceExistingItem(INTERVAL_UP, GuiItems.named(
-            Material.LIME_STAINED_GLASS_PANE, I18n.text("menus.auto-clicker-menu-preset-014"),
-            I18n.text("menus.auto-clicker-menu-preset-015", "value0" to (AutoClickerState.COARSE_STEP)), I18n.text("menus.auto-clicker-menu-preset-016", "value0" to (AutoClickerState.STEP))
+        menu.replaceExistingItem(INTERVAL_UP, GuiItems.localized(
+            Material.LIME_STAINED_GLASS_PANE, "menus.auto-clicker.interval.increase",
+            "coarseStep" to AutoClickerState.COARSE_STEP, "fineStep" to AutoClickerState.STEP
         ))
     }
 
@@ -105,8 +106,8 @@ class AutoClickerMenuPreset(id: String, title: String, private val host: Upgrade
         if (action.isShiftClicked) AutoClickerState.STEP else AutoClickerState.COARSE_STEP
 
     private fun toggleIcon(name: String, on: Boolean): ItemStack =
-        if (on) GuiItems.named(Material.LIME_DYE, I18n.text("menus.auto-clicker-menu-preset-017", "value0" to (name)), I18n.text("menus.auto-clicker-menu-preset-018"))
-        else GuiItems.named(Material.GRAY_DYE, I18n.text("menus.auto-clicker-menu-preset-019", "value0" to (name)), I18n.text("menus.auto-clicker-menu-preset-020"))
+        if (on) GuiItems.localized(Material.LIME_DYE, "menus.auto-clicker.toggle.enabled", "mode" to name)
+        else GuiItems.localized(Material.GRAY_DYE, "menus.auto-clicker.toggle.disabled", "mode" to name)
 
     companion object {
         /** 唯一功能槽: 点击时手持的物品 (一格容积)。 */

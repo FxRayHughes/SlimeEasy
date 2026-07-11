@@ -23,8 +23,8 @@ class SchoolMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
     override fun init() {
         drawBackground(GuiItems.BACKGROUND, backgroundSlots())
         protectedItem(INFO_SLOT, infoTemplate())
-        protectedItem(LABEL_INPUT, label(Material.BROWN_STAINED_GLASS_PANE, I18n.text("menus.school-menu-preset-001"), I18n.text("menus.school-menu-preset-002")))
-        protectedItem(LABEL_OUTPUT, label(Material.GREEN_STAINED_GLASS_PANE, I18n.text("menus.school-menu-preset-003"), I18n.text("menus.school-menu-preset-004")))
+        protectedItem(LABEL_INPUT, label(Material.BROWN_STAINED_GLASS_PANE, "menus.villager-school.labels.input"))
+        protectedItem(LABEL_OUTPUT, label(Material.GREEN_STAINED_GLASS_PANE, "menus.villager-school.labels.output"))
     }
 
     private fun protectedItem(slot: Int, item: ItemStack) = addItem(slot, item, ChestMenuUtils.getEmptyClickHandler())
@@ -62,22 +62,12 @@ class SchoolMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) {
         fun updateInfo(menu: BlockMenu, line: String) {
             menu.toInventory().setItem(
                 INFO_SLOT,
-                GuiItems.named(
-                    Material.LECTERN, I18n.text("menus.school-menu-preset-005"),
-                    "§7$line",
-                    "",
-                    I18n.text("menus.school-menu-preset-006"),
-                    I18n.text("menus.school-menu-preset-007")
-                )
+                GuiItems.localized(Material.LECTERN, "menus.villager-school.info", "status" to line)
             )
         }
 
-        private fun infoTemplate(): ItemStack = GuiItems.named(
-            Material.LECTERN, I18n.text("menus.school-menu-preset-008"),
-            I18n.text("menus.school-menu-preset-009")
-        )
+        private fun infoTemplate(): ItemStack = GuiItems.localized(Material.LECTERN, "menus.villager-school.info-template")
 
-        private fun label(material: Material, name: String, vararg lore: String): ItemStack =
-            GuiItems.named(material, name, *lore)
+        private fun label(material: Material, key: String): ItemStack = GuiItems.localized(material, key)
     }
 }

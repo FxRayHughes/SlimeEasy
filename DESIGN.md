@@ -3,8 +3,10 @@
 ## 配置与语言边界
 
 - `config.yml` 只保存功能开关、研究等级和运行参数，不保存面向玩家的文案。
-- `lang/<language>.yml` 保存物品名称与 Lore、分类与研究名称、菜单文本、消息和展示名称。
-- Kotlin 代码只引用稳定语言键；动态值通过 `{placeholder}` 注入，颜色码统一使用 `&`。
+- `lang/<language>.yml` 按功能和组件层级保存物品、分类、研究、菜单、消息与展示名称，不使用扁平数字键。
+- 物品和 UI 图标统一使用包含 `name` 与 `lore` 的基础节点；Lore 采用 YAML `|-` 多行块。
+- Kotlin 代码只引用稳定的语义基础键；动态值通过具名 `{placeholder}` 注入，颜色码统一使用 `&`。
+- `SEText.localized` 与 `GuiItems.localized` 分别封装 Slimefun 物品和 Adventure UI 图标构造。
 - 自定义语言缺失文件或键时回退到插件内置 `zh_CN.yml`，避免升级后出现空文本。
 - `/se reload` 同时重载配置与语言。后续读取的菜单和消息更新；Slimefun 注册阶段冻结的物品、分类、研究及已缓存界面文本需重启生效。
 

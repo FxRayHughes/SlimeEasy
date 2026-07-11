@@ -11,6 +11,8 @@ import java.nio.charset.StandardCharsets
 /** SlimeEasy 的独立语言文件服务。 */
 object I18n {
 
+    data class Display<T>(val name: T, val lore: List<T>)
+
     private val ampersandSerializer = LegacyComponentSerializer.legacyAmpersand()
     private val sectionSerializer = LegacyComponentSerializer.legacySection()
     private lateinit var language: YamlConfiguration
@@ -43,9 +45,9 @@ object I18n {
     fun raw(key: String, vararg placeholders: Pair<String, Any?>): String =
         format(language.getString(key) ?: missing(key), placeholders)
 
-    /** 读取字符串列表，保留 `&` 颜色码。 */
+    /** 读取列表或 YAML 多行块，保留 `&` 颜色码。 */
     fun rawList(key: String, vararg placeholders: Pair<String, Any?>): List<String> =
-        language.getStringList(key).map { format(it, placeholders) }
+        values(key).map { format(it, placeholders) }
 
     /** 读取并转换为 `§` Legacy 颜色码的 Bukkit 文本。 */
     fun text(key: String, vararg placeholders: Pair<String, Any?>): String =
@@ -54,6 +56,33 @@ object I18n {
     /** 读取为 Adventure Component。 */
     fun component(key: String, vararg placeholders: Pair<String, Any?>): Component =
         ampersandSerializer.deserialize(raw(key, *placeholders))
+
+    /** 把已有 `§` Legacy 字符串转换为 Adventure 组件。 */
+    fun legacyComponent(value: String): Component = sectionSerializer.deserialize(value)
+
+    /** 读取列表或 YAML 多行块为 Adventure 组件。 */
+    fun components(key: String, vararg placeholders: Pair<String, Any?>): List<Component> =
+        rawList(key, *placeholders).map(ampersandSerializer::deserialize)
+
+    /** 读取 `{base}.name` 与多行 `{base}.lore`，供 Slimefun 物品使用。 */
+    fun rawDisplay(base: String, vararg placeholders: Pair<String, Any?>): Display<String> =
+        Display(raw("$base.name", *placeholders), rawList("$base.lore", *placeholders))
+
+    /** 读取 `{base}.name` 与多行 `{base}.lore` 为 Adventure 组件，供 UI 图标使用。 */
+    fun componentDisplay(base: String, vararg placeholders: Pair<String, Any?>): Display<Component> =
+        Display(
+            component("$base.name", *placeholders),
+            components("$base.lore", *placeholders)
+        )
+
+    private fun values(key: String): List<String> = when {
+        language.isList(key) -> language.getStringList(key)
+        language.isString(key) -> language.getString(key).orEmpty().split('\n')
+        else -> {
+            missing(key)
+            emptyList()
+        }
+    }
 
     private fun format(value: String, placeholders: Array<out Pair<String, Any?>>): String {
         var result = value

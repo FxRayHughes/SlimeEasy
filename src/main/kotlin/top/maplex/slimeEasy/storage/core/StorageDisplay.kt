@@ -57,7 +57,7 @@ object StorageDisplay {
         val visual = minOf(total, key.vanillaMaxStack.toLong()).toInt().coerceAtLeast(1)
         return key.toDisplay(visual).apply {
             editMeta {
-                it.lore(listOf(Component.text(I18n.text("messages.storage-display-001", "value0" to (QuantityFormat.grouped(total))))))
+                it.lore(listOf(I18n.component("formats.storage.total", "amount" to QuantityFormat.grouped(total))))
             }
         }
     }
@@ -68,8 +68,8 @@ object StorageDisplay {
         return cell.key.toDisplay(visual).apply {
             editMeta {
                 it.lore(listOf(
-                    Component.text(I18n.text("messages.storage-display-002", "value0" to (QuantityFormat.grouped(cell.amount)))),
-                    Component.text(I18n.text("messages.storage-display-003", "value0" to (QuantityFormat.grouped(cell.typeTotal))))
+                    I18n.component("formats.storage.amount", "amount" to QuantityFormat.grouped(cell.amount)),
+                    I18n.component("formats.storage.total-aggregated", "amount" to QuantityFormat.grouped(cell.typeTotal))
                 ))
             }
         }

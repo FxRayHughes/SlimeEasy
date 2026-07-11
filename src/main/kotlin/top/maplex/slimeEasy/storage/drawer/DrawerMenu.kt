@@ -40,7 +40,7 @@ object DrawerMenu {
     }
 
     private class View(val drawer: Drawer, val block: Block) {
-        val menu = ChestMenu(I18n.text("menus.drawer-menu-001"))
+        val menu = ChestMenu(I18n.text("menus.drawer.title"))
 
         init {
             menu.setEmptySlotsClickable(false)
@@ -55,7 +55,7 @@ object DrawerMenu {
             val stored = storage.entries().firstOrNull()
             if (stored == null) {
                 menu.replaceExistingItem(ITEM_SLOT,
-                    GuiItems.named(Material.BARREL, I18n.text("menus.drawer-menu-002"), I18n.text("menus.drawer-menu-003")))
+                    GuiItems.localized(Material.BARREL, "menus.drawer.empty"))
                 menu.addMenuClickHandler(ITEM_SLOT) { _, _, _, _ -> false }
             } else {
                 val (k, count) = stored
@@ -63,11 +63,15 @@ object DrawerMenu {
                 val total = storage.maxSlots.toLong() * storage.cellCapacity(k)
                 val icon = k.toDisplay(minOf(count, k.vanillaMaxStack.toLong()).toInt()).apply {
                     editMeta {
-                        it.lore(listOf(
-                            Component.text(I18n.text("menus.drawer-menu-004", "value0" to (QuantityFormat.grouped(count)), "value1" to (QuantityFormat.grouped(total)))),
-                            Component.text("§8[${QuantityFormat.bar(count, total)}§8] §f${QuantityFormat.percent(count, total)}"),
-                            Component.text(I18n.text("menus.drawer-menu-005"))
-                        ))
+                        it.lore(
+                            I18n.components(
+                                "menus.drawer.item.lore",
+                                "count" to QuantityFormat.grouped(count),
+                                "capacity" to QuantityFormat.grouped(total)
+                            ).toMutableList().apply {
+                                add(1, I18n.legacyComponent("§8[${QuantityFormat.bar(count, total)}§8] §f${QuantityFormat.percent(count, total)}"))
+                            }
+                        )
                     }
                 }
                 menu.replaceExistingItem(ITEM_SLOT, icon)
@@ -79,7 +83,7 @@ object DrawerMenu {
             }
             menu.replaceExistingItem(UPGRADE_SLOT, GuiItems.UPGRADE_ENTRY)
             menu.addMenuClickHandler(UPGRADE_SLOT) { p, _, _, _ ->
-                UpgradeMenu.open(drawer, block, p, I18n.text("menus.drawer-menu-006")); false
+                UpgradeMenu.open(drawer, block, p, I18n.text("menus.drawer.upgrade-title")); false
             }
         }
     }

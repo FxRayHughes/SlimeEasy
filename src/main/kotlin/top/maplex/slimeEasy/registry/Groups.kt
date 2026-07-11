@@ -1,11 +1,10 @@
 package top.maplex.slimeEasy.registry
 
-import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
-import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import top.maplex.slimeEasy.SlimeEasy
+import top.maplex.slimeEasy.config.SEText
 
 /**
  * 物品分类注册中心。
@@ -22,12 +21,10 @@ object Groups {
      */
     val UTILITY_MACHINES: ItemGroup = ItemGroup(
         NamespacedKey(SlimeEasy.instance, "utility_machines"),
-        SlimefunItemStack(
+        SEText.localized(
             "SE_GROUP_UTILITY_MACHINES",
             Material.PISTON,
-            I18n.raw("groups.groups-001"),
-            "",
-            I18n.raw("groups.groups-002")
+            "groups.utility-machines"
         )
     )
 
@@ -38,12 +35,10 @@ object Groups {
      */
     val UTILITY_TOOLS: ItemGroup = ItemGroup(
         NamespacedKey(SlimeEasy.instance, "utility_tools"),
-        SlimefunItemStack(
+        SEText.localized(
             "SE_GROUP_UTILITY_TOOLS",
             Material.COPPER_HOE,
-            I18n.raw("groups.groups-003"),
-            "",
-            I18n.raw("groups.groups-004")
+            "groups.utility-tools"
         )
     )
 
@@ -54,12 +49,10 @@ object Groups {
      */
     val STORAGE: ItemGroup = ItemGroup(
         NamespacedKey(SlimeEasy.instance, "storage"),
-        SlimefunItemStack(
+        SEText.localized(
             "SE_GROUP_STORAGE",
             Material.BARREL,
-            I18n.raw("groups.groups-005"),
-            "",
-            I18n.raw("groups.groups-006")
+            "groups.storage"
         )
     )
 
@@ -70,12 +63,10 @@ object Groups {
      */
     val VILLAGER: ItemGroup = ItemGroup(
         NamespacedKey(SlimeEasy.instance, "villager"),
-        SlimefunItemStack(
+        SEText.localized(
             "SE_GROUP_VILLAGER",
             Material.VILLAGER_SPAWN_EGG,
-            I18n.raw("groups.groups-007"),
-            "",
-            I18n.raw("groups.groups-008")
+            "groups.villager"
         )
     )
 }

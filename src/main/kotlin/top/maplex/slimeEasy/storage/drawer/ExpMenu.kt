@@ -49,7 +49,7 @@ object ExpMenu {
     }
 
     private class View(val block: Block) {
-        val menu = ChestMenu(I18n.text("menus.exp-menu-001"))
+        val menu = ChestMenu(I18n.text("menus.experience.title"))
 
         init {
             menu.setEmptySlotsClickable(false)
@@ -64,13 +64,13 @@ object ExpMenu {
             val levels = ExpUtil.levelsFromPoints(points)
             menu.replaceExistingItem(
                 INFO_SLOT,
-                GuiItems.named(Material.EXPERIENCE_BOTTLE, I18n.text("menus.exp-menu-002"), I18n.text("menus.exp-menu-003", "value0" to (points)), I18n.text("menus.exp-menu-004", "value0" to (levels)))
+                GuiItems.localized(Material.EXPERIENCE_BOTTLE, "menus.experience.stored", "points" to points, "levels" to levels)
             )
             menu.addMenuClickHandler(INFO_SLOT) { _, _, _, _ -> false }
 
             menu.replaceExistingItem(
                 DEPOSIT_SLOT,
-                GuiItems.named(Material.LIME_STAINED_GLASS_PANE, I18n.text("menus.exp-menu-005"), I18n.text("menus.exp-menu-006"))
+                GuiItems.localized(Material.LIME_STAINED_GLASS_PANE, "menus.experience.deposit-all")
             )
             menu.addMenuClickHandler(DEPOSIT_SLOT) { p, _, _, _ ->
                 DrawerExp.deposit(block, p); render(); false
@@ -81,7 +81,7 @@ object ExpMenu {
             menu.addMenuClickHandler(UPGRADE_SLOT) { p, _, _, _ ->
                 val logic = StorageCacheUtils.getBlock(block.location)?.sfId
                     ?.let { SlimefunItem.getById(it) } as? CargoBufferBlock
-                if (logic != null) UpgradeMenu.open(logic, block, p, I18n.text("menus.exp-menu-007"))
+                if (logic != null) UpgradeMenu.open(logic, block, p, I18n.text("menus.experience.upgrade-title"))
                 false
             }
 
@@ -89,7 +89,7 @@ object ExpMenu {
                 val slot = WITHDRAW_SLOTS[idx]
                 menu.replaceExistingItem(
                     slot,
-                    GuiItems.named(Material.EXPERIENCE_BOTTLE, I18n.text("menus.exp-menu-008", "value0" to (lv)), I18n.text("menus.exp-menu-009"), I18n.text("menus.exp-menu-010"))
+                    GuiItems.localized(Material.EXPERIENCE_BOTTLE, "menus.experience.withdraw", "levels" to lv)
                 )
                 menu.addMenuClickHandler(slot) { p, _, _, _ ->
                     DrawerExp.withdrawLevels(block, p, lv); render(); false

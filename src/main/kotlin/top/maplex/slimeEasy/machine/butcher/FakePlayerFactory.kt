@@ -66,7 +66,7 @@ object FakePlayerFactory {
         } catch (e: Throwable) {
             // 首次失败即永久降级: 记一次日志, 之后静默走 Bukkit 普通伤害 + 死亡监听补偿
             disabled = true
-            Bukkit.getLogger().warning(I18n.text("messages.fake-player-factory-001", "value0" to (e.message)))
+            Bukkit.getLogger().warning(I18n.text("logs.butcher.fake-player-failed", "error" to e.message))
             null
         }
     }
@@ -186,13 +186,13 @@ object FakePlayerFactory {
 
             // StoredUserList.map (private, 在 ServerOpList 的父类) → put, 不经 add()/save()
             val mapField = findMapField(opList.javaClass)
-                ?: error(I18n.text("messages.fake-player-factory-002"))
+                ?: error(I18n.text("logs.butcher.user-list-field-missing"))
             mapField.isAccessible = true
             @Suppress("UNCHECKED_CAST")
             val map = mapField.get(opList) as MutableMap<String, Any>
             map[FAKE_UUID.toString()] = entry
         } catch (e: Throwable) {
-            Bukkit.getLogger().warning(I18n.text("messages.fake-player-factory-003", "value0" to (e.message)))
+            Bukkit.getLogger().warning(I18n.text("logs.butcher.op-injection-failed", "error" to e.message))
         }
     }
 

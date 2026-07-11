@@ -68,7 +68,7 @@ class SurveyRuler(
         SurveyState.writeTierIndex(item, next)
         val tier = tiers[next]
         val side = tier.range * 2 + 1
-        player.sendMessage(I18n.text("messages.survey-ruler-001", "value0" to (tier.label), "value1" to (side), "value2" to (side)))
+        player.sendMessage(I18n.text("messages.survey.range-changed", "tier" to tier.label, "size" to side))
     }
 
     /** 处理一次勘察: 冷却校验 -> 按展示形式输出当前选中层级 -> 置入原版冷却。 */
@@ -88,13 +88,13 @@ class SurveyRuler(
 
     /** 聊天栏展示: 坐标抬头 + 单层级明细。 */
     private fun reportToChat(player: Player, block: Block, tier: SurveyTier) {
-        player.sendMessage(I18n.text("messages.survey-ruler-002", "value0" to (block.x), "value1" to (block.y), "value2" to (block.z)))
+        player.sendMessage(I18n.text("messages.survey.report-header", "x" to block.x, "y" to block.y, "z" to block.z))
         val side = tier.range * 2 + 1
         val counts = SurveyScanner.scan(block, tier.range)
         val total = counts.values.sum()
         player.sendMessage("§b— ${tier.label} §7(${side}×${side}) ${SurveyFormat.fuelSummary(total)}")
         if (counts.isEmpty()) {
-            player.sendMessage(I18n.text("messages.survey-ruler-003"))
+            player.sendMessage(I18n.text("messages.survey.no-ores"))
             return
         }
         // 按数量降序, 便于一眼看出主要矿脉

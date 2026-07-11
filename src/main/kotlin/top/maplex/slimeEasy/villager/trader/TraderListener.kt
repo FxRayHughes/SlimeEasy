@@ -75,17 +75,17 @@ class TraderListener : Listener {
             TraderStore.setVillager(block, null)
             VillagerTrader.removeDisplay(block)
             player.playSound(block.location, Sound.ENTITY_ITEM_PICKUP, 1f, 0.8f)
-            player.sendMessage(I18n.text("messages.trader-listener-001", "value0" to (villager.professionLabel)))
+            player.sendMessage(I18n.text("messages.trader.removed-villager", "villager" to villager.professionLabel))
             return
         }
         val workstation = TraderStore.getWorkstation(block)
         if (workstation != null) {
             give(player, ItemStack(workstation))
             TraderStore.setWorkstation(block, null)
-            player.sendMessage(I18n.text("messages.trader-listener-002", "value0" to (workstation.name)))
+            player.sendMessage(I18n.text("messages.trader.removed-workstation", "workstation" to workstation.name))
             return
         }
-        player.sendMessage(I18n.text("messages.trader-listener-003"))
+        player.sendMessage(I18n.text("messages.trader.empty"))
     }
 
     /** 右键: 放入村民 / 工作站, 或打开交易。 */
@@ -97,7 +97,7 @@ class TraderListener : Listener {
             WorkstationMap.isWorkstation(hand.type) && TraderStore.getWorkstation(block) == null ->
                 insertWorkstation(block, player, hand)
             stored != null -> TraderMerchant.open(player, block, stored)
-            else -> player.sendMessage(I18n.text("messages.trader-listener-004"))
+            else -> player.sendMessage(I18n.text("messages.trader.usage"))
         }
     }
 
@@ -108,13 +108,17 @@ class TraderListener : Listener {
         VillagerTrader.spawnDisplay(block, data)
         consumeOne(player)
         player.playSound(block.location, Sound.ENTITY_VILLAGER_AMBIENT, 1f, 1f)
-        player.sendMessage(I18n.text("messages.trader-listener-005", "value0" to (data.professionLabel)))
+        player.sendMessage(I18n.text("messages.trader.inserted-villager", "villager" to data.professionLabel))
     }
 
     private fun insertWorkstation(block: Block, player: Player, hand: ItemStack) {
         TraderStore.setWorkstation(block, hand.type)
         consumeOne(player)
-        player.sendMessage(I18n.text("messages.trader-listener-006", "value0" to (hand.type.name), "value1" to (VillagerConfig.traderRestockMillis / 1000)))
+        player.sendMessage(I18n.text(
+            "messages.trader.inserted-workstation",
+            "workstation" to hand.type.name,
+            "seconds" to VillagerConfig.traderRestockMillis / 1000
+        ))
     }
 
     /** 交易界面关闭: 驱动升级、回存快照并移除代理村民。 */

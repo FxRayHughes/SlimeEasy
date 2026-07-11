@@ -15,9 +15,9 @@ enum class QuarryOutput(
     val material: Material,
     private val displayNameKey: String
 ) {
-    COBBLESTONE(null, Material.COBBLESTONE, "names.quarry-output-001"),
-    NETHERRACK("SE_QUARRY_NETHERRACK_UPGRADE", Material.NETHERRACK, "names.quarry-output-002"),
-    END_STONE("SE_QUARRY_END_STONE_UPGRADE", Material.END_STONE, "names.quarry-output-003");
+    COBBLESTONE(null, Material.COBBLESTONE, "names.quarry-output.cobblestone"),
+    NETHERRACK("SE_QUARRY_NETHERRACK_UPGRADE", Material.NETHERRACK, "names.quarry-output.netherrack"),
+    END_STONE("SE_QUARRY_END_STONE_UPGRADE", Material.END_STONE, "names.quarry-output.end-stone");
 
     val displayName: String get() = I18n.text(displayNameKey)
 

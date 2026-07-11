@@ -238,7 +238,9 @@ https://github.com/FxRayHughes/SlimeEasy/releases/download/latest/SlimeEasy-1.0-
 
 - `/se reload` (`slimeeasy.admin`) 可即时重载运行时数值和当前语言文件。
 - 后续读取的消息与界面文本重载后立即生效；物品、分类、研究及已缓存界面文本与功能开关修改后需重启服务端。
-- 语言文件颜色码使用 `&`，动态值使用 `{placeholder}` 占位符；自定义语言缺失的键自动回退到插件内置简体中文。
+- 语言文件按 `items`、`groups`、`menus`、`messages`、`names`、`research` 等功能层级组织，禁止使用无语义数字键。
+- 物品与 UI 节点统一使用 `name` + `lore`；Lore 使用 YAML `|-` 多行块，颜色码使用 `&`，动态值使用 `{placeholder}`。
+- 自定义语言缺失的键自动回退到插件内置简体中文。
 - 时间单位以字段注释为准: `seconds` 使用墙钟时间, `ticks` 使用 Bukkit / Slimefun 调度单位。
 
 ## 从源码构建

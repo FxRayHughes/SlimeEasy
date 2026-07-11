@@ -49,7 +49,7 @@ object PagedBoxMenu {
     }
 
     private class View(val box: PagedBox, val block: Block, val player: Player) {
-        val menu = ChestMenu(I18n.text("menus.paged-box-menu-001"))
+        val menu = ChestMenu(I18n.text("menus.paged-box.title"))
         var page = 0
 
         init {
@@ -130,9 +130,11 @@ object PagedBoxMenu {
             for (s in PAGE_SIZE until 54) menu.addItem(s, GuiItems.BACKGROUND) { _, _, _, _ -> false }
             menu.addItem(PREV_SLOT, GuiItems.PREV_PAGE) { _, _, _, _ -> if (page > 0) { page--; render() }; false }
             menu.addItem(NEXT_SLOT, GuiItems.NEXT_PAGE) { _, _, _, _ -> if (page < pages - 1) { page++; render() }; false }
-            menu.addItem(INFO_SLOT, GuiItems.named(org.bukkit.Material.PAPER, I18n.text("menus.paged-box-menu-002", "value0" to (page + 1), "value1" to (pages)))) { _, _, _, _ -> false }
+            menu.addItem(INFO_SLOT, GuiItems.localized(
+                org.bukkit.Material.PAPER, "menus.paged-box.page", "page" to page + 1, "pages" to pages
+            )) { _, _, _, _ -> false }
             menu.addItem(UPGRADE_SLOT, GuiItems.UPGRADE_ENTRY) { p, _, _, _ ->
-                UpgradeMenu.open(box, block, p, I18n.text("menus.paged-box-menu-003")); false
+                UpgradeMenu.open(box, block, p, I18n.text("menus.paged-box.upgrade-title")); false
             }
         }
 

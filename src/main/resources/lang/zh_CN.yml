@@ -1,578 +1,1018 @@
 # SlimeEasy 简体中文语言文件。
-# 颜色码使用 &，动态内容使用 {placeholder}。
-
-system:
-  missing: "Missing translation: {key}"
+# 颜色码使用 &；动态内容使用 {placeholder}。
+# 物品与 UI 使用层级 name/lore，lore 采用 YAML 多行块。
 
 items:
-  items-001: "&e自动破坏机"
-  items-002: "&7在相邻放置 &f普通活塞&7, 机器会自动破坏"
-  items-003: "&7活塞推杆朝向的方块并收入本箱子。"
-  items-004: "&7在活塞上放置带拉杆的展示框,"
-  items-005: "&7可通过旋转拉杆调节破坏频率。"
-  items-006: "&7将工具放入箱内 &f任意位置 &7即用该工具"
-  items-007: "&7挖掘 (享受时运/精准采集), 耐久耗尽后"
-  items-008: "&7自动改用其余工具或恢复默认挖掘。"
-  items-009: "&a自动放置机"
-  items-010: "&7在相邻放置 &f粘性活塞&7, 机器会把箱内"
-  items-011: "&7方块自动放置到活塞推杆朝向的空位。"
-  items-012: "&7在活塞上放置带拉杆的展示框,"
-  items-013: "&7可通过旋转拉杆调节放置频率。"
-  items-014: "&7从箱内 &f第一个可放置方块 &7开始取用,"
-  items-015: "&7目标非空位或无方块时自动跳过。"
-  items-016: "&a苦力怕驱逐方块"
-  items-017: "&7放置后, 其所在区块及周围一圈"
-  items-018: "&7共 &f3x3 个区块 &7内不再自然生成苦力怕,"
-  items-019: "&7已进入范围的苦力怕会被持续推出,"
-  items-020: "&7且在范围内 &c无法爆炸&7。"
-  items-021: "&7保护随方块存在而持续, 破坏后失效。"
-  items-022: "&b矿物勘察尺"
-  items-023: "&7右键地面, 按 &f工业矿机 &7的采掘范围"
-  items-024: "&7(&f7×7&7) 向下勘探, 列出可开采的"
-  items-025: "&7矿石种类与数量。"
-  items-026: "&7潜行 + 左键: 切换展示形式 (&f聊天栏 &7/ &f箱子界面&7)"
-  items-027: "&7冷却: &f5 秒"
-  items-028: "&b进阶矿物勘察尺"
-  items-029: "&7右键地面, 按 &f当前勘察范围 &7向下勘探,"
-  items-030: "&7列出可开采的矿石种类与数量。"
-  items-031: "&7潜行 + 右键空气: 在 &f进阶工业矿机 &7(&f11×11&7)"
-  items-032: "&7与 &f工业矿机 &7(&f7×7&7) 两种范围间切换。"
-  items-033: "&7潜行 + 左键: 切换展示形式 (&f聊天栏 &7/ &f箱子界面&7)"
-  items-034: "&7冷却: &f5 秒"
-  items-035: "&c屠夫机器"
-  items-036: "&7自动攻击 &f脸朝向前方 3×3 &7区域内的"
-  items-037: "&7非玩家生物 (范围横扫)。"
-  items-038: "&7右键打开界面:"
-  items-039: "&7· &f7 把武器&7: 第一把优先, 耐久耗尽自动切下一把"
-  items-040: "&7· &f附魔书&7: 抢夺 / 锋利 / 火焰附加等生效"
-  items-041: "&7· &f食物&7: 折算为攻击次数 (每 1 饱食 15 次, 内部缓存上限 100 饱食)"
-  items-042: "&7· &f升级槽&7: 范围 / 伤害组件 (数量即级数, 最多 5)"
-  items-043: "&7所有物品可用 &f物流网络 &7或 &f漏斗 &7自动输入"
-  items-044: "&7(漏斗任意面对准机器即可)。"
-  items-045: "&7击杀正常掉落物品与经验; 在他人领地内失效。"
-  items-046: "&d屠夫 · 范围升级"
-  items-047: "&7放入屠夫机器的范围升级槽。"
-  items-048: "&7每一个: 攻击截面 &f+2 格&7、纵深 &f+1 格&7。"
-  items-049: "&7(3×3 → 5×5 → 7×7 …, 按数量叠加)"
-  items-050: "&c屠夫 · 伤害升级"
-  items-051: "&7放入屠夫机器的伤害升级槽。"
-  items-052: "&7每一个: 攻击伤害 &f+50% 基础值&7。"
-  items-053: "&7(×1.5 → ×2.0 → ×2.5 …, 按数量叠加)"
-  items-054: "&6自动点击器"
-  items-055: "&7以假玩家身份, 不断 &f左键 / 右键 &7脸朝向正前方的方块。"
-  items-056: "&c需红石激活&7: 通电时工作, 断电即停。"
-  items-057: "&7右键打开界面放入 &f一格物品&7: 点击时假玩家"
-  items-058: "&7手持该物品交互 (如骨粉施肥 / 桶取放液体), 消耗后回写。"
-  items-059: "&7物品可用 &f相邻漏斗 &7(输出对准本机) 或物流网络补充;"
-  items-060: "&7界面内可装 &f抽取升级&7: 改为从相邻箱子 / 容器补料并支持黑 / 白名单。"
-  items-061: "&7支持点击 &fSlimefun (粘液) 方块&7, 且 &f绕过其研究解锁限制&7。"
-  items-062: "&8约每秒点击一次。"
-  items-063: "&a生长抑制器"
-  items-064: "&7右键一只 &f幼年生物&7: 锁定其年龄,"
-  items-065: "&7使其 &f永远保持幼小&7、不再长大。"
-  items-066: "&7再次右键 &f已锁定 &7的生物: 解除锁定, 恢复生长。"
-  items-067: "&8(仅对动物 / 村民等可繁殖生物有效)"
-  items-068: "&7给 &f快乐恶魂 (乐魂) &7右键佩戴。"
-  items-069: "&7佩戴后乐魂以 &b守护者激光 &7主动攻击"
-  items-070: "&7周围 &f视线内 &7的敌对生物 (&c不穿透方块&7)。"
-  items-071: "&7每次激光造成 &c{value0} 点 &7伤害 (&d药水/魔法伤害, 无视护甲&7)。"
-  items-072: "&b战斗挽具 I"
-  items-073: "&a战斗挽具 II"
-  items-074: "&6战斗挽具 III"
-  items-075: "&c战斗挽具 IV"
-  items-076: "&b采石场"
-  items-077: "&7观察者方块。&f脸朝向 &7的圆石若同时相邻"
-  items-078: "&c岩浆 &7与 &9水 &7(不必是源头), 便持续产出圆石"
-  items-079: "&7(不破坏该圆石)。"
-  items-080: "&7本身 &f无容积&7, 产物直接输出到周围的"
-  items-081: "&f容器 / 抽屉 / 翻页箱&7。"
-  items-082: "&7右键打开界面放入 &f效率升级 I~V &7提速:"
-  items-083: "&7空槽使用基础速率; I~V 逐档提速,"
-  items-084: "&7实际间隔与产量以服务器配置为准。"
-  items-085: "&7另可安装 &c地狱岩升级 &7或 &e末地石升级 &7改变产物。"
-  items-086: "&7放入采石场的 &f效率升级槽&7。"
-  items-087: "&7生产速率由档位与服务器配置决定。"
-  items-088: "&8(仅认物品身份, 堆叠数量无关)"
-  items-089: "&f采石场效率升级 I"
-  items-090: "&a采石场效率升级 II"
-  items-091: "&e采石场效率升级 III"
-  items-092: "&b采石场效率升级 IV"
-  items-093: "&6采石场效率升级 V"
-  items-094: "&c采石场地狱岩升级"
-  items-095: "&7放入采石场的 &f产物升级槽&7。"
-  items-096: "&7使采石场把产物从圆石改为 &c地狱岩&7。"
-  items-097: "&8圆石、岩浆与水的生产结构保持不变。"
-  items-098: "&e采石场末地石升级"
-  items-099: "&7放入采石场的 &f产物升级槽&7。"
-  items-100: "&7使采石场把产物从圆石改为 &e末地石&7。"
-  items-101: "&8圆石、岩浆与水的生产结构保持不变。"
-  storage-items-001: "&e海量抽屉"
-  storage-items-002: "&7存储 &f单一种类 &7物品, 数量远超原版堆叠。"
-  storage-items-003: "&7放置后朝向你的一面会显示物品; &f准星对准 &7查看数量。"
-  storage-items-004: "&7展示框右键: 存入手中该组; &f双击 &7存入背包全部同类;"
-  storage-items-005: "&7展示框左键: 取出一个; &fShift+左键 &7取出一组;"
-  storage-items-006: "&f右键木桶本体 &7打开操作界面 (含升级入口)。"
-  storage-items-007: "&7可接入原版货运网络。"
-  storage-items-008: "&6翻页存储箱"
-  storage-items-009: "&7存储 &f多种 &7物品 (每种一格, 每页容量由配置决定),"
-  storage-items-010: "&7每格数量远超原版堆叠。"
-  storage-items-011: "&7右键打开分页界面: 点击箱内物品取出,"
-  storage-items-012: "&7点击背包物品存入; 界面内可打开升级 GUI。"
-  storage-items-013: "&7可接入原版货运网络。"
-  storage-items-014: "&b网络控制器"
-  storage-items-015: "&7存储网络的大脑与访问入口。"
-  storage-items-016: "&7右键打开 &f聚合终端&7: 一处存取全网所有"
-  storage-items-017: "&7抽屉 / 存储箱的库存。"
-  storage-items-018: "&7每 tick 驱动网络内的输入 / 输出端口路由,"
-  storage-items-019: "&7桥接原版货运。覆盖半径由服务器配置决定。"
-  storage-items-020: "&7网络连接器"
-  storage-items-021: "&7网络导线: 连接控制器与各存储方块 / 端口。"
-  storage-items-022: "&7相邻放置即导通, 无需朝向。"
-  storage-items-023: "&a网络输入端口"
-  storage-items-024: "&7货运塞入的物品会被 &f分发进网络&7,"
-  storage-items-025: "&7按优先级填入各成员容器。"
-  storage-items-026: "&7需连入含控制器的网络方可工作。"
-  storage-items-027: "&c网络输出端口"
-  storage-items-028: "&7从网络取出物品供货运抽走。"
-  storage-items-029: "&7需连入含控制器的网络方可工作。"
-  storage-items-030: "&d远程终端"
-  storage-items-031: "&7手持右键 &f网络控制器 &7追加绑定;"
-  storage-items-032: "&7手持右键可远程打开当前网络终端,"
-  storage-items-033: "&7点击 &f下一页左侧按钮 &7切换其它终端,"
-  storage-items-034: "&7Shift + 右键 &f管理所有绑定。"
-  storage-items-035: "&7随时随地存取全网库存。"
-  storage-items-036: "&7绑定信息存于物品自身。"
-  storage-items-037: "&f堆叠升级 I"
-  storage-items-038: "&7单格容量 &f×4"
-  storage-items-039: "&e堆叠升级 II"
-  storage-items-040: "&7单格容量 &f×16"
-  storage-items-041: "&6堆叠升级 III"
-  storage-items-042: "&7单格容量 &f×64"
-  storage-items-043: "&a经验存储升级"
-  storage-items-044: "&7装入抽屉后改为 &f存储经验&7 (拒绝物品货运)。"
-  storage-items-045: "&b磁铁升级"
-  storage-items-046: "&7每 tick 吸附配置半径内的掉落物 / 经验球。"
-  storage-items-047: "&8虚空升级"
-  storage-items-048: "&7命中销毁列表的物品在容器内 &f封顶到保留数量&7,"
-  storage-items-049: "&7超出部分入库前 &c湮灭&7 (保留 0 即全毁);"
-  storage-items-050: "&7在升级 GUI 中配置列表与保留数量。"
-  storage-items-051: "&d翻页扩容"
-  storage-items-052: "&7为&f翻页存储箱&7增加 &f1 页 &7容量;"
-  storage-items-053: "&7可叠装, 最大页数由服务器配置决定。"
-  storage-items-054: "&8(对抽屉无效)"
-  storage-items-055: "&a智者升级"
-  storage-items-056: "&7经验容器 &f吸入经验 &7时,"
-  storage-items-057: "&7有 &f20% &7几率使该次经验翻倍。"
-  storage-items-058: "&8(需与经验+磁铁升级同装)"
-  storage-items-059: "&5末影智者升级"
-  storage-items-060: "&7经验容器 &f吸入经验 &7时,"
-  storage-items-061: "&7有 &f50% &7几率使该次经验翻倍。"
-  storage-items-062: "&7可与智者升级叠加 (独立触发)。"
-  storage-items-063: "&8(需与经验+磁铁升级同装)"
-  storage-items-064: "&e抽取升级"
-  storage-items-065: "&7装入容器 / 自动点击器后, 每 tick 从相邻六向的"
-  storage-items-066: "&7漏斗 / 箱子 / 本插件存储容器主动提取物品。"
-  storage-items-067: "&7可在升级 GUI 内配置黑 / 白名单与 &f生效面&7, 精确控制抽取。"
-  storage-items-068: "&8(经验模式下不生效)"
-  storage-items-069: "&d远程升级"
-  storage-items-070: "&7手持右键网络控制器 &f选定目标&7,"
-  storage-items-071: "&7再把本升级装入抽屉 / 箱子升级槽,"
-  storage-items-072: "&7使其 &f远程接入 &7该控制器网络"
-  storage-items-073: "&7(无视物理相邻范围)。"
-  storage-items-074: "&e物品输出升级"
-  storage-items-075: "&7装入容器后, 每 tick 把库存物品主动推送到相邻"
-  storage-items-076: "&7六向的容器 (箱子 / 漏斗 / 输出箱 / 本插件存储容器)。"
-  storage-items-077: "&7可在升级 GUI 内配置黑 / 白名单与 &f生效面&7, 精确控制输出。"
-  storage-items-078: "&8(经验模式下不生效)"
-  storage-items-079: "&8[存储升级组件]"
-  villager-items-001: "&2僵尸信号"
-  villager-items-002: "&7以腐肉与铁锭合成的僵尸气息信号。"
-  villager-items-003: "&7胶囊刷铁机的必备催化剂 (装入即可, 不消耗)。"
-  villager-items-004: "&a村民捕捉器"
-  villager-items-005: "&7右键活体村民: &f收入此瓶 &7(保留其全部属性)。"
-  villager-items-006: "&7潜行 + 右键: &f放出 &7瓶中村民。"
-  villager-items-007: "&7空瓶亦可作交易器 / 刷铁机的合成材料。"
-  villager-items-008: "&b村民交易器"
-  villager-items-009: "&7透明容器, 内嵌一只小村民展示。"
-  villager-items-010: "&7空块右键: 放入 &f村民 (满捕捉器) &7或 &f工作站方块&7;"
-  villager-items-011: "&7已装村民时右键: &f直接打开交易界面&7;"
-  villager-items-012: "&7潜行 + 右键: &f取出 &7村民或工作站方块。"
-  villager-items-013: "&7装配的村民与工作站方块匹配时, 按配置间隔 &f自动补货&7,"
-  villager-items-014: "&7补货不受时间 / 范围等外部因素影响。"
-  villager-items-015: "&7玩家与其交易, 而无需操心保护村民。"
-  villager-items-016: "&f胶囊刷铁机"
-  villager-items-017: "&7透明容器, 内嵌村民与僵尸展示; 产铁瞬间闪现铁傀儡。"
-  villager-items-018: "&7右键打开界面, 放入:"
-  villager-items-019: "&7· &f村民 (满捕捉器)&7 · &f僵尸信号&7 · &f食物&7 · &f速度升级&7;"
-  villager-items-020: "&7三者齐全 (村民 + 僵尸信号 + 食物) 时按周期产出铁锭,"
-  villager-items-021: "&7每周期消耗少量食物; 速度升级可缩短周期。"
-  villager-items-022: "&e刷铁机 · 速度升级"
-  villager-items-023: "&7放入胶囊刷铁机的速度升级槽。"
-  villager-items-024: "&7堆叠数量 = 级数; 级数越高产铁周期越短。"
-  villager-items-025: "&6村民小学"
-  villager-items-026: "&7右键打开界面, 放入 &f傻子村民 (满捕捉器)&7,"
-  villager-items-027: "&7按配置时间后自动转化为 &f无职业普通村民&7 (可再就业),"
-  villager-items-028: "&7转化结果落入输出槽。"
-  villager-items-029: "&6村民治愈机"
-  villager-items-030: "&7右键打开界面, 放入 &f僵尸村民 (满捕捉器)&7 与 &f普通金苹果&7,"
-  villager-items-031: "&7按配置时间后把僵尸村民 &f治愈为普通村民&7 (保留职业),"
-  villager-items-032: "&7每次消耗一个普通金苹果; 结果落入输出槽。"
-  villager-items-033: "&d遗忘药剂"
-  villager-items-034: "&7右键一只活体村民: 使其 &f忘却职业&7,"
-  villager-items-035: "&7变回无职业普通村民 (可重新就业)。"
-  villager-items-036: "&7每次消耗一瓶。"
+  auto-breaker:
+    name: "&e自动破坏机"
+    lore: |-
 
+      &7在相邻放置 &f普通活塞&7, 机器会自动破坏
+      &7活塞推杆朝向的方块并收入本箱子。
+
+      &7在活塞上放置带拉杆的展示框,
+      &7可通过旋转拉杆调节破坏频率。
+
+      &7将工具放入箱内 &f任意位置 &7即用该工具
+      &7挖掘 (享受时运/精准采集), 耐久耗尽后
+      &7自动改用其余工具或恢复默认挖掘。
+  auto-placer:
+    name: "&a自动放置机"
+    lore: |-
+
+      &7在相邻放置 &f粘性活塞&7, 机器会把箱内
+      &7方块自动放置到活塞推杆朝向的空位。
+
+      &7在活塞上放置带拉杆的展示框,
+      &7可通过旋转拉杆调节放置频率。
+
+      &7从箱内 &f第一个可放置方块 &7开始取用,
+      &7目标非空位或无方块时自动跳过。
+  creeper-ward:
+    name: "&a苦力怕驱逐方块"
+    lore: |-
+
+      &7放置后, 其所在区块及周围一圈
+      &7共 &f3x3 个区块 &7内不再自然生成苦力怕,
+      &7已进入范围的苦力怕会被持续推出,
+      &7且在范围内 &c无法爆炸&7。
+
+      &7保护随方块存在而持续, 破坏后失效。
+  survey-ruler:
+    name: "&b矿物勘察尺"
+    lore: |-
+
+      &7右键地面, 按 &f工业矿机 &7的采掘范围
+      &7(&f7×7&7) 向下勘探, 列出可开采的
+      &7矿石种类与数量。
+
+      &7潜行 + 左键: 切换展示形式 (&f聊天栏 &7/ &f箱子界面&7)
+
+      &7冷却: &f5 秒
+  advanced-survey-ruler:
+    name: "&b进阶矿物勘察尺"
+    lore: |-
+
+      &7右键地面, 按 &f当前勘察范围 &7向下勘探,
+      &7列出可开采的矿石种类与数量。
+
+      &7潜行 + 右键空气: 在 &f进阶工业矿机 &7(&f11×11&7)
+      &7与 &f工业矿机 &7(&f7×7&7) 两种范围间切换。
+
+      &7潜行 + 左键: 切换展示形式 (&f聊天栏 &7/ &f箱子界面&7)
+
+      &7冷却: &f5 秒
+  butcher:
+    name: "&c屠夫机器"
+    lore: |-
+
+      &7自动攻击 &f脸朝向前方 3×3 &7区域内的
+      &7非玩家生物 (范围横扫)。
+
+      &7右键打开界面:
+      &7· &f7 把武器&7: 第一把优先, 耐久耗尽自动切下一把
+      &7· &f附魔书&7: 抢夺 / 锋利 / 火焰附加等生效
+      &7· &f食物&7: 折算为攻击次数 (每 1 饱食 15 次, 内部缓存上限 100 饱食)
+      &7· &f升级槽&7: 范围 / 伤害组件 (数量即级数, 最多 5)
+
+      &7所有物品可用 &f物流网络 &7或 &f漏斗 &7自动输入
+      &7(漏斗任意面对准机器即可)。
+      &7击杀正常掉落物品与经验; 在他人领地内失效。
+  butcher-range-upgrade:
+    name: "&d屠夫 · 范围升级"
+    lore: |-
+
+      &7放入屠夫机器的范围升级槽。
+      &7每一个: 攻击截面 &f+2 格&7、纵深 &f+1 格&7。
+      &7(3×3 → 5×5 → 7×7 …, 按数量叠加)
+  butcher-damage-upgrade:
+    name: "&c屠夫 · 伤害升级"
+    lore: |-
+
+      &7放入屠夫机器的伤害升级槽。
+      &7每一个: 攻击伤害 &f+50% 基础值&7。
+      &7(×1.5 → ×2.0 → ×2.5 …, 按数量叠加)
+  auto-clicker:
+    name: "&6自动点击器"
+    lore: |-
+
+      &7以假玩家身份, 不断 &f左键 / 右键 &7脸朝向正前方的方块。
+
+      &c需红石激活&7: 通电时工作, 断电即停。
+      &7右键打开界面放入 &f一格物品&7: 点击时假玩家
+      &7手持该物品交互 (如骨粉施肥 / 桶取放液体), 消耗后回写。
+      &7物品可用 &f相邻漏斗 &7(输出对准本机) 或物流网络补充;
+      &7界面内可装 &f抽取升级&7: 改为从相邻箱子 / 容器补料并支持黑 / 白名单。
+
+      &7支持点击 &fSlimefun (粘液) 方块&7, 且 &f绕过其研究解锁限制&7。
+      &8约每秒点击一次。
+  growth-inhibitor:
+    name: "&a生长抑制器"
+    lore: |-
+
+      &7右键一只 &f幼年生物&7: 锁定其年龄,
+      &7使其 &f永远保持幼小&7、不再长大。
+
+      &7再次右键 &f已锁定 &7的生物: 解除锁定, 恢复生长。
+      &8(仅对动物 / 村民等可繁殖生物有效)
+  combat-harness:
+    tier-1:
+      name: "&b战斗挽具 I"
+      lore: |-
+
+        &7给 &f快乐恶魂 (乐魂) &7右键佩戴。
+        &7佩戴后乐魂以 &b守护者激光 &7主动攻击
+        &7周围 &f视线内 &7的敌对生物 (&c不穿透方块&7)。
+
+        &7每次激光造成 &c{damage} 点 &7伤害 (&d药水/魔法伤害, 无视护甲&7)。
+    tier-2:
+      name: "&a战斗挽具 II"
+      lore: |-
+
+        &7给 &f快乐恶魂 (乐魂) &7右键佩戴。
+        &7佩戴后乐魂以 &b守护者激光 &7主动攻击
+        &7周围 &f视线内 &7的敌对生物 (&c不穿透方块&7)。
+
+        &7每次激光造成 &c{damage} 点 &7伤害 (&d药水/魔法伤害, 无视护甲&7)。
+    tier-3:
+      name: "&6战斗挽具 III"
+      lore: |-
+
+        &7给 &f快乐恶魂 (乐魂) &7右键佩戴。
+        &7佩戴后乐魂以 &b守护者激光 &7主动攻击
+        &7周围 &f视线内 &7的敌对生物 (&c不穿透方块&7)。
+
+        &7每次激光造成 &c{damage} 点 &7伤害 (&d药水/魔法伤害, 无视护甲&7)。
+    tier-4:
+      name: "&c战斗挽具 IV"
+      lore: |-
+
+        &7给 &f快乐恶魂 (乐魂) &7右键佩戴。
+        &7佩戴后乐魂以 &b守护者激光 &7主动攻击
+        &7周围 &f视线内 &7的敌对生物 (&c不穿透方块&7)。
+
+        &7每次激光造成 &c{damage} 点 &7伤害 (&d药水/魔法伤害, 无视护甲&7)。
+  quarry:
+    name: "&b采石场"
+    lore: |-
+
+      &7观察者方块。&f脸朝向 &7的圆石若同时相邻
+      &c岩浆 &7与 &9水 &7(不必是源头), 便持续产出圆石
+      &7(不破坏该圆石)。
+
+      &7本身 &f无容积&7, 产物直接输出到周围的
+      &f容器 / 抽屉 / 翻页箱&7。
+
+      &7右键打开界面放入 &f效率升级 I~V &7提速:
+      &7空槽使用基础速率; I~V 逐档提速,
+      &7实际间隔与产量以服务器配置为准。
+      &7另可安装 &c地狱岩升级 &7或 &e末地石升级 &7改变产物。
+  quarry-efficiency:
+    tier-1:
+      name: "&f采石场效率升级 I"
+      lore: |-
+
+        &7放入采石场的 &f效率升级槽&7。
+        &7生产速率由档位与服务器配置决定。
+        &8(仅认物品身份, 堆叠数量无关)
+    tier-2:
+      name: "&a采石场效率升级 II"
+      lore: |-
+
+        &7放入采石场的 &f效率升级槽&7。
+        &7生产速率由档位与服务器配置决定。
+        &8(仅认物品身份, 堆叠数量无关)
+    tier-3:
+      name: "&e采石场效率升级 III"
+      lore: |-
+
+        &7放入采石场的 &f效率升级槽&7。
+        &7生产速率由档位与服务器配置决定。
+        &8(仅认物品身份, 堆叠数量无关)
+    tier-4:
+      name: "&b采石场效率升级 IV"
+      lore: |-
+
+        &7放入采石场的 &f效率升级槽&7。
+        &7生产速率由档位与服务器配置决定。
+        &8(仅认物品身份, 堆叠数量无关)
+    tier-5:
+      name: "&6采石场效率升级 V"
+      lore: |-
+
+        &7放入采石场的 &f效率升级槽&7。
+        &7生产速率由档位与服务器配置决定。
+        &8(仅认物品身份, 堆叠数量无关)
+  quarry-output:
+    netherrack:
+      name: "&c采石场地狱岩升级"
+      lore: |-
+
+        &7放入采石场的 &f产物升级槽&7。
+        &7使采石场把产物从圆石改为 &c地狱岩&7。
+        &8圆石、岩浆与水的生产结构保持不变。
+    end-stone:
+      name: "&e采石场末地石升级"
+      lore: |-
+
+        &7放入采石场的 &f产物升级槽&7。
+        &7使采石场把产物从圆石改为 &e末地石&7。
+        &8圆石、岩浆与水的生产结构保持不变。
+  storage:
+    drawer:
+      name: "&e海量抽屉"
+      lore: |-
+
+        &7存储 &f单一种类 &7物品, 数量远超原版堆叠。
+        &7放置后朝向你的一面会显示物品; &f准星对准 &7查看数量。
+
+        &7展示框右键: 存入手中该组; &f双击 &7存入背包全部同类;
+        &7展示框左键: 取出一个; &fShift+左键 &7取出一组;
+        &f右键木桶本体 &7打开操作界面 (含升级入口)。
+
+        &7可接入原版货运网络。
+    paged-box:
+      name: "&6翻页存储箱"
+      lore: |-
+
+        &7存储 &f多种 &7物品 (每种一格, 每页容量由配置决定),
+        &7每格数量远超原版堆叠。
+
+        &7右键打开分页界面: 点击箱内物品取出,
+        &7点击背包物品存入; 界面内可打开升级 GUI。
+
+        &7可接入原版货运网络。
+    network:
+      controller:
+        name: "&b网络控制器"
+        lore: |-
+
+          &7存储网络的大脑与访问入口。
+          &7右键打开 &f聚合终端&7: 一处存取全网所有
+          &7抽屉 / 存储箱的库存。
+
+          &7每 tick 驱动网络内的输入 / 输出端口路由,
+          &7桥接原版货运。覆盖半径由服务器配置决定。
+      connector:
+        name: "&7网络连接器"
+        lore: |-
+
+          &7网络导线: 连接控制器与各存储方块 / 端口。
+          &7相邻放置即导通, 无需朝向。
+      input-port:
+        name: "&a网络输入端口"
+        lore: |-
+
+          &7货运塞入的物品会被 &f分发进网络&7,
+          &7按优先级填入各成员容器。
+
+          &7需连入含控制器的网络方可工作。
+      output-port:
+        name: "&c网络输出端口"
+        lore: |-
+
+          &7从网络取出物品供货运抽走。
+
+          &7需连入含控制器的网络方可工作。
+    remote-terminal:
+      name: "&d远程终端"
+      lore: |-
+
+        &7手持右键 &f网络控制器 &7追加绑定;
+        &7手持右键可远程打开当前网络终端,
+        &7点击 &f下一页左侧按钮 &7切换其它终端,
+        &7Shift + 右键 &f管理所有绑定。
+        &7随时随地存取全网库存。
+
+        &7绑定信息存于物品自身。
+    upgrades:
+      stack-1:
+        name: "&f堆叠升级 I"
+        lore: |-
+
+          &7单格容量 &f×4
+
+          &8[存储升级组件]
+      stack-2:
+        name: "&e堆叠升级 II"
+        lore: |-
+
+          &7单格容量 &f×16
+
+          &8[存储升级组件]
+      stack-3:
+        name: "&6堆叠升级 III"
+        lore: |-
+
+          &7单格容量 &f×64
+
+          &8[存储升级组件]
+      experience:
+        name: "&a经验存储升级"
+        lore: |-
+
+          &7装入抽屉后改为 &f存储经验&7 (拒绝物品货运)。
+
+          &8[存储升级组件]
+      magnet:
+        name: "&b磁铁升级"
+        lore: |-
+
+          &7每 tick 吸附配置半径内的掉落物 / 经验球。
+
+          &8[存储升级组件]
+      void:
+        name: "&8虚空升级"
+        lore: |-
+
+          &7命中销毁列表的物品在容器内 &f封顶到保留数量&7,
+          &7超出部分入库前 &c湮灭&7 (保留 0 即全毁);
+          &7在升级 GUI 中配置列表与保留数量。
+
+          &8[存储升级组件]
+      page:
+        name: "&d翻页扩容"
+        lore: |-
+
+          &7为&f翻页存储箱&7增加 &f1 页 &7容量;
+          &7可叠装, 最大页数由服务器配置决定。
+          &8(对抽屉无效)
+
+          &8[存储升级组件]
+      wise:
+        name: "&a智者升级"
+        lore: |-
+
+          &7经验容器 &f吸入经验 &7时,
+          &7有 &f20% &7几率使该次经验翻倍。
+          &8(需与经验+磁铁升级同装)
+
+          &8[存储升级组件]
+      ender-wise:
+        name: "&5末影智者升级"
+        lore: |-
+
+          &7经验容器 &f吸入经验 &7时,
+          &7有 &f50% &7几率使该次经验翻倍。
+          &7可与智者升级叠加 (独立触发)。
+          &8(需与经验+磁铁升级同装)
+
+          &8[存储升级组件]
+      extract:
+        name: "&e抽取升级"
+        lore: |-
+
+          &7装入容器 / 自动点击器后, 每 tick 从相邻六向的
+          &7漏斗 / 箱子 / 本插件存储容器主动提取物品。
+          &7可在升级 GUI 内配置黑 / 白名单与 &f生效面&7, 精确控制抽取。
+          &8(经验模式下不生效)
+
+          &8[存储升级组件]
+      remote:
+        name: "&d远程升级"
+        lore: |-
+
+          &7手持右键网络控制器 &f选定目标&7,
+          &7再把本升级装入抽屉 / 箱子升级槽,
+          &7使其 &f远程接入 &7该控制器网络
+          &7(无视物理相邻范围)。
+
+          &8[存储升级组件]
+      output:
+        name: "&e物品输出升级"
+        lore: |-
+
+          &7装入容器后, 每 tick 把库存物品主动推送到相邻
+          &7六向的容器 (箱子 / 漏斗 / 输出箱 / 本插件存储容器)。
+          &7可在升级 GUI 内配置黑 / 白名单与 &f生效面&7, 精确控制输出。
+          &8(经验模式下不生效)
+
+          &8[存储升级组件]
+  villager:
+    zombie-signal:
+      name: "&2僵尸信号"
+      lore: |-
+
+        &7以腐肉与铁锭合成的僵尸气息信号。
+        &7胶囊刷铁机的必备催化剂 (装入即可, 不消耗)。
+    catcher:
+      name: "&a村民捕捉器"
+      lore: |-
+
+        &7右键活体村民: &f收入此瓶 &7(保留其全部属性)。
+        &7潜行 + 右键: &f放出 &7瓶中村民。
+
+        &7空瓶亦可作交易器 / 刷铁机的合成材料。
+    trader:
+      name: "&b村民交易器"
+      lore: |-
+
+        &7透明容器, 内嵌一只小村民展示。
+
+        &7空块右键: 放入 &f村民 (满捕捉器) &7或 &f工作站方块&7;
+        &7已装村民时右键: &f直接打开交易界面&7;
+        &7潜行 + 右键: &f取出 &7村民或工作站方块。
+
+        &7装配的村民与工作站方块匹配时, 按配置间隔 &f自动补货&7,
+        &7补货不受时间 / 范围等外部因素影响。
+        &7玩家与其交易, 而无需操心保护村民。
+    iron-farm:
+      name: "&f胶囊刷铁机"
+      lore: |-
+
+        &7透明容器, 内嵌村民与僵尸展示; 产铁瞬间闪现铁傀儡。
+
+        &7右键打开界面, 放入:
+        &7· &f村民 (满捕捉器)&7 · &f僵尸信号&7 · &f食物&7 · &f速度升级&7;
+        &7三者齐全 (村民 + 僵尸信号 + 食物) 时按周期产出铁锭,
+        &7每周期消耗少量食物; 速度升级可缩短周期。
+    iron-farm-speed-upgrade:
+      name: "&e刷铁机 · 速度升级"
+      lore: |-
+
+        &7放入胶囊刷铁机的速度升级槽。
+        &7堆叠数量 = 级数; 级数越高产铁周期越短。
+    school:
+      name: "&6村民小学"
+      lore: |-
+
+        &7右键打开界面, 放入 &f傻子村民 (满捕捉器)&7,
+        &7按配置时间后自动转化为 &f无职业普通村民&7 (可再就业),
+        &7转化结果落入输出槽。
+    healer:
+      name: "&6村民治愈机"
+      lore: |-
+
+        &7右键打开界面, 放入 &f僵尸村民 (满捕捉器)&7 与 &f普通金苹果&7,
+        &7按配置时间后把僵尸村民 &f治愈为普通村民&7 (保留职业),
+        &7每次消耗一个普通金苹果; 结果落入输出槽。
+    forgetting-potion:
+      name: "&d遗忘药剂"
+      lore: |-
+
+        &7右键一只活体村民: 使其 &f忘却职业&7,
+        &7变回无职业普通村民 (可重新就业)。
+        &7每次消耗一瓶。
+    filled-catcher:
+      name: "村民捕捉器 · {villager}"
+      profession-lore: "&7职业: &f{profession}"
+      trade-lore: "&7等级: &f{level}  &7交易: &f{trades} 项"
+      release-lore: "&7潜行 + 右键放出该村民"
 groups:
-  groups-001: "&b实用机械"
-  groups-002: "&7各类自动化实用装置"
-  groups-003: "&b实用工具"
-  groups-004: "&7各类手持辅助工具"
-  groups-005: "&b存储系统"
-  groups-006: "&7海量存储抽屉、翻页箱与存储网络"
-  groups-007: "&b简易村民"
-  groups-008: "&7与村民打交道而无需操心保护村民"
+  utility-machines:
+    name: "&b实用机械"
+    lore: |-
 
+      &7各类自动化实用装置
+  utility-tools:
+    name: "&b实用工具"
+    lore: |-
+
+      &7各类手持辅助工具
+  storage:
+    name: "&b存储系统"
+    lore: |-
+
+      &7海量存储抽屉、翻页箱与存储网络
+  villager:
+    name: "&b简易村民"
+    lore: |-
+
+      &7与村民打交道而无需操心保护村民
 menus:
-  survey-gui-001: "&7数量: &a{value0}"
-  survey-gui-002: "&8未探测到可开采矿石"
-  butcher-menu-preset-001: "&e武器区 (下方一行)"
-  butcher-menu-preset-002: "&7放入至多 7 把武器"
-  butcher-menu-preset-003: "&7第一把优先, 耐久耗尽自动切下一把"
-  butcher-menu-preset-004: "&d附魔书 →"
-  butcher-menu-preset-005: "&7放入附魔书"
-  butcher-menu-preset-006: "&7抢夺 / 锋利 / 火焰附加生效"
-  butcher-menu-preset-007: "&6食物 →"
-  butcher-menu-preset-008: "&7放入食物"
-  butcher-menu-preset-009: "&7每 1 饱食度 = 15 次攻击"
-  butcher-menu-preset-010: "&7内部缓存上限 100 饱食度"
-  butcher-menu-preset-011: "&b范围升级 →"
-  butcher-menu-preset-012: "&7堆叠数量 = 级数 (最多 5)"
-  butcher-menu-preset-013: "&7每级攻击截面 +2、纵深 +1"
-  butcher-menu-preset-014: "&c伤害升级 →"
-  butcher-menu-preset-015: "&7堆叠数量 = 级数 (最多 5)"
-  butcher-menu-preset-016: "&7每级伤害 +50% 基础值"
-  butcher-menu-preset-017: "&c屠夫机器"
-  butcher-menu-preset-018: "&7自动攻击脸朝向前方区域内的非玩家生物。"
-  butcher-menu-preset-019: "&7右键放入: 武器 / 附魔书 / 食物 / 升级组件。"
-  butcher-menu-preset-020: "&7食物也可用漏斗或物流网络自动输入。"
-  butcher-menu-preset-021: "无"
-  butcher-menu-preset-022: "&c屠夫机器"
-  butcher-menu-preset-023: "&7当前武器: &f{value0}"
-  butcher-menu-preset-024: "&7内部余量: &f{value0}&7/&f{value1} &7饱食度 (&f{value2} &7次)"
-  butcher-menu-preset-025: "&7攻击范围: &f{value0}×{value1} &7(范围升级 &f{value2}&7)"
-  butcher-menu-preset-026: "&7伤害倍率: &f×{value0} &7(伤害升级 &f{value1}&7)"
-  butcher-menu-preset-027: "&7武器区 (下方一行) 放至多 7 把武器"
-  butcher-menu-preset-028: "&7附魔书: 抢夺/锋利/火焰附加生效"
-  butcher-menu-preset-029: "&7食物: 每 1 饱食度 = 15 次攻击"
-  butcher-menu-preset-030: "&7升级槽: 范围 / 伤害组件 (最多 5 级)"
-  butcher-menu-preset-031: "&7所有物品均可用漏斗 (任意面对准) 或物流输入"
-  auto-clicker-menu-preset-001: "&b手持物品 ↓"
-  auto-clicker-menu-preset-002: "&7放入点击时假玩家手持的物品"
-  auto-clicker-menu-preset-003: "&7(如骨粉 / 桶 / 种子; 可漏斗补料)"
-  auto-clicker-menu-preset-004: "&9点击器升级"
-  auto-clicker-menu-preset-005: "左键"
-  auto-clicker-menu-preset-006: "右键"
-  auto-clicker-menu-preset-007: "&c− 减小间隔"
-  auto-clicker-menu-preset-008: "&7点击 −{value0} tick"
-  auto-clicker-menu-preset-009: "&7Shift 点击 −{value0} tick"
-  auto-clicker-menu-preset-010: "&e点击间隔: &f{value0} tick"
-  auto-clicker-menu-preset-011: "&7约 &f{value0} &7秒 / 次"
-  auto-clicker-menu-preset-012: "&7间隔 <1 tick 时单 tick 内连点多次"
-  auto-clicker-menu-preset-013: "&7范围 {value0}~{value1}"
-  auto-clicker-menu-preset-014: "&a+ 增大间隔"
-  auto-clicker-menu-preset-015: "&7点击 +{value0} tick"
-  auto-clicker-menu-preset-016: "&7Shift 点击 +{value0} tick"
-  auto-clicker-menu-preset-017: "&a{value0}: 开启"
-  auto-clicker-menu-preset-018: "&7点击关闭"
-  auto-clicker-menu-preset-019: "&7{value0}: 关闭"
-  auto-clicker-menu-preset-020: "&7点击开启"
-  quarry-menu-preset-001: "&e效率升级 →"
-  quarry-menu-preset-002: "&7放入 &f采石场效率升级 I~V&7:"
-  quarry-menu-preset-003: "&7各档实际产量以服务器配置为准,"
-  quarry-menu-preset-004: "&7当前速率显示于上方状态面板。"
-  quarry-menu-preset-005: "&6产物升级 →"
-  quarry-menu-preset-006: "&7放入 &c地狱岩升级 &7或 &e末地石升级&7。"
-  quarry-menu-preset-007: "&7空槽时默认产出 &f圆石&7。"
-  quarry-menu-preset-008: "&f{value0} &7个/0.5s (效率 &f{value1}&7)"
-  quarry-menu-preset-009: "&f{value0} &7个/{value1} tick (无升级)"
-  quarry-menu-preset-010: "&c未附着圆石"
-  quarry-menu-preset-011: "&c圆石未同时相邻岩浆与水"
-  quarry-menu-preset-012: "&a生产中"
-  quarry-menu-preset-013: "&b采石场"
-  quarry-menu-preset-014: "&7状态: {value0}"
-  quarry-menu-preset-015: "&7速率: {value0}"
-  quarry-menu-preset-016: "&7产物: &f{value0}"
-  quarry-menu-preset-017: "&7脸朝向的 &f圆石 &7需同时相邻 &c岩浆 &7与 &9水&7,"
-  quarry-menu-preset-018: "&7满足即持续产出圆石 (不破坏该圆石)。"
-  quarry-menu-preset-019: "&7产物输出到本机周围的 &f容器 / 抽屉 / 翻页箱&7。"
-  quarry-menu-preset-020: "&b采石场"
-  quarry-menu-preset-021: "&7脸朝向 &f圆石&7, 且该圆石同时相邻 &c岩浆 &7与 &9水 &7时产出圆石。"
-  quarry-menu-preset-022: "&7安装产物升级后可改为产出 &c地狱岩 &7或 &e末地石&7。"
-  quarry-menu-preset-023: "&7产物输出到周围的 &f容器 / 抽屉 / 翻页箱&7。"
-  paged-box-menu-001: "&9翻页存储箱"
-  paged-box-menu-002: "&e第 {value0}/{value1} 页"
-  paged-box-menu-003: "&9存储箱升级"
-  filter-menu-001: "&e标记物品"
-  filter-menu-002: "&7手持物品点击, 或直接点击背包内物品"
-  filter-menu-003: "&7加入 / 移出名单"
-  filter-menu-004: "&8点击移出名单"
-  filter-menu-005: "&a{value0} 面: 启用"
-  filter-menu-006: "&8点击禁用"
-  filter-menu-007: "&7{value0} 面: 禁用"
-  filter-menu-008: "&8点击启用"
-  filter-menu-009: "上"
-  filter-menu-010: "下"
-  filter-menu-011: "北"
-  filter-menu-012: "南"
-  filter-menu-013: "东"
-  filter-menu-014: "西"
-  filter-menu-015: "&c黑名单模式"
-  filter-menu-016: "&7名单内的物品 &c不处理&7, 其余放行"
-  filter-menu-017: "&8点击切换为白名单"
-  filter-menu-018: "&a白名单模式"
-  filter-menu-019: "&7仅处理名单内的物品, 其余拦截"
-  filter-menu-020: "&8点击切换为黑名单"
-  gui-items-001: "&a放入升级组件"
-  gui-items-002: "&7手持或点击背包内的升级组件安装"
-  gui-items-003: "&8虚空过滤配置"
-  gui-items-004: "&7点击管理销毁列表"
-  gui-items-005: "&e抽取过滤配置"
-  gui-items-006: "&7点击管理抽取黑 / 白名单"
-  gui-items-007: "&e输出过滤配置"
-  gui-items-008: "&7点击管理输出黑 / 白名单"
-  gui-items-009: "&e上一页"
-  gui-items-010: "&e下一页"
-  gui-items-011: "&b升级插件"
-  gui-items-012: "&7点击管理升级组件"
-  upgrade-menu-001: "&8抽取配置"
-  upgrade-menu-002: "&8输出配置"
-  upgrade-menu-003: "&c翻页扩容已达上限"
-  upgrade-menu-004: "&c该升级已安装, 不可重复"
-  upgrade-menu-005: "&c库存过多, 无法卸下该堆叠升级"
-  drawer-menu-001: "&9抽屉"
-  drawer-menu-002: "&7抽屉为空"
-  drawer-menu-003: "&7右键抽屉前的展示框放入物品"
-  drawer-menu-004: "&7数量: &e{value0} &7/ &f{value1}"
-  drawer-menu-005: "&7左键取一组 / 右键取一个"
-  drawer-menu-006: "&9抽屉升级"
-  exp-menu-001: "&9经验存储"
-  exp-menu-002: "&a已存经验"
-  exp-menu-003: "&7点数: &f{value0}"
-  exp-menu-004: "&7约合: &f{value0} &7级"
-  exp-menu-005: "&a存入全部经验"
-  exp-menu-006: "&7点击把你身上的全部经验存入"
-  exp-menu-007: "&9存储升级"
-  exp-menu-008: "&e取出 {value0} 级"
-  exp-menu-009: "&7按你当前等级换算所需点数取出"
-  exp-menu-010: "&7不足则取尽库存"
-  void-menu-001: "&8虚空销毁列表"
-  void-menu-002: "&c标记物品"
-  void-menu-003: "&7手持物品点击, 或直接点击背包内物品"
-  void-menu-004: "&7加入 / 移出销毁列表 (默认保留 &e0 &7全毁)"
-  void-menu-005: "&7保留: &e{value0} &7个 &8(超出湮灭)"
-  void-menu-006: "&8左键 +64 / 右键 -64"
-  void-menu-007: "&8潜行左键 +1 / 潜行右键 -1"
-  void-menu-008: "&8保留为 0 时潜行右键移除"
-  network-menu-001: "&9存储网络终端"
-  network-menu-002: "&e第 {value0}/{value1} 页"
-  network-menu-003: "&7成员: {value0}"
-  network-menu-004: "&d切换远程终端"
-  network-menu-005: "&7点击切换到下一个已绑定的控制器"
-  network-menu-006: "&b搜索物品"
-  network-menu-007: "&7左键点击, 在聊天栏输入关键词"
-  network-menu-008: "&b搜索: &f{value0}"
-  network-menu-009: "&7左键重新搜索"
-  network-menu-010: "&7右键清空搜索"
-  network-menu-011: "&b[网络终端] &7请在聊天栏输入搜索关键词 (输入 &fcancel &7取消):"
-  network-menu-012: "名称"
-  network-menu-013: "存量"
-  network-menu-014: "&b排序: &f{value0}"
-  network-menu-015: "&7点击切换 名称 / 存量"
-  network-menu-016: "倒序 ↓"
-  network-menu-017: "正序 ↑"
-  network-menu-018: "&b顺序: &f{value0}"
-  network-menu-019: "&7点击切换 正序 / 倒序"
-  healer-menu-preset-001: "&6输入 ↓"
-  healer-menu-preset-002: "&7放入僵尸村民 (满捕捉器)"
-  healer-menu-preset-003: "&e金苹果 ↓"
-  healer-menu-preset-004: "&7放入普通金苹果, 每次治愈消耗一个"
-  healer-menu-preset-005: "&a输出 ↓"
-  healer-menu-preset-006: "&7治愈后的普通村民"
-  healer-menu-preset-007: "&6村民治愈机"
-  healer-menu-preset-008: "&7放入僵尸村民 (满捕捉器) + 普通金苹果,"
-  healer-menu-preset-009: "&7到点后治愈为普通村民 (保留职业)。"
-  healer-menu-preset-010: "&6村民治愈机"
-  healer-menu-preset-011: "&7放入僵尸村民 (满捕捉器) 与普通金苹果开始治愈。"
-  iron-farm-menu-preset-001: "&a村民 ↓"
-  iron-farm-menu-preset-002: "&7放入装有村民的满捕捉器"
-  iron-farm-menu-preset-003: "&2僵尸信号 ↓"
-  iron-farm-menu-preset-004: "&7放入僵尸信号 (催化剂, 不消耗)"
-  iron-farm-menu-preset-005: "&6食物 ↓"
-  iron-farm-menu-preset-006: "&7放入食物, 每周期消耗少量"
-  iron-farm-menu-preset-007: "&e速度升级 ↓"
-  iron-farm-menu-preset-008: "&7堆叠数量 = 级数, 越高越快"
-  iron-farm-menu-preset-009: "&9产出 ↓"
-  iron-farm-menu-preset-010: "&7铁锭产出区; 可货运抽取"
-  iron-farm-menu-preset-011: "&f胶囊刷铁机"
-  iron-farm-menu-preset-012: "&a运转中"
-  iron-farm-menu-preset-013: "&c停止"
-  iron-farm-menu-preset-014: "&7状态: {value0}"
-  iron-farm-menu-preset-015: "&7需齐备: &f村民 + 僵尸信号 + 食物"
-  iron-farm-menu-preset-016: "&7速度升级: &f{value0} &7级"
-  iron-farm-menu-preset-017: "&f胶囊刷铁机"
-  iron-farm-menu-preset-018: "&7放入 村民 + 僵尸信号 + 食物 即可周期产铁。"
-  school-menu-preset-001: "&6输入 ↓"
-  school-menu-preset-002: "&7放入傻子村民 (满捕捉器)"
-  school-menu-preset-003: "&a输出 ↓"
-  school-menu-preset-004: "&7转化后的无职业村民"
-  school-menu-preset-005: "&6村民小学"
-  school-menu-preset-006: "&7放入傻子村民 (满捕捉器),"
-  school-menu-preset-007: "&7到点后转化为无职业普通村民。"
-  school-menu-preset-008: "&6村民小学"
-  school-menu-preset-009: "&7放入傻子村民 (满捕捉器) 开始转化。"
+  butcher:
+    labels:
+      weapon:
+        name: "&e武器区 (下方一行)"
+        lore: |-
+          &7放入至多 7 把武器
+          &7第一把优先, 耐久耗尽自动切下一把
+      enchantment-book:
+        name: "&d附魔书 →"
+        lore: |-
+          &7放入附魔书
+          &7抢夺 / 锋利 / 火焰附加生效
+      food:
+        name: "&6食物 →"
+        lore: |-
+          &7放入食物
+          &7每 1 饱食度 = 15 次攻击
+          &7内部缓存上限 100 饱食度
+      range-upgrade:
+        name: "&b范围升级 →"
+        lore: |-
+          &7堆叠数量 = 级数 (最多 5)
+          &7每级攻击截面 +2、纵深 +1
+      damage-upgrade:
+        name: "&c伤害升级 →"
+        lore: |-
+          &7堆叠数量 = 级数 (最多 5)
+          &7每级伤害 +50% 基础值
+    info-template:
+      name: "&c屠夫机器"
+      lore: |-
+        &7自动攻击脸朝向前方区域内的非玩家生物。
 
-messages:
-  s-e-command-001: "SlimeEasy 管理指令"
-  s-e-command-002: "&e用法: &f/se reload &7- 重新加载配置文件"
-  s-e-command-003: "&c你没有权限执行该指令。"
-  s-e-command-004: "&aSlimeEasy 配置与语言文件已重载。"
-  s-e-command-005: "&7运行时数值与后续读取的语言文本 &a已即时生效&7。"
-  s-e-command-006: "&7物品 / 分类 / 研究及已缓存界面文本与功能开关 &e需重启服务端&7方可生效。"
-  s-e-command-007: "&c配置重载失败: {value0}"
-  s-e-command-008: "配置重载失败: {value0}"
-  growth-inhibitor-001: "&a[生长抑制器] &7已解除锁定, 该生物恢复正常生长。"
-  growth-inhibitor-002: "&c[生长抑制器] &7仅对幼年生物有效。"
-  growth-inhibitor-003: "&a[生长抑制器] &7已抑制生长, 该幼年生物将永久保持幼小。"
-  survey-display-listener-001: "箱子界面"
-  survey-display-listener-002: "聊天栏"
-  survey-display-listener-003: "&6[勘察尺] &7已切换展示形式: &f{value0}"
-  survey-format-001: "&7共&a{value0}&7个 "
-  survey-format-002: "&8(&a{value0}&8)&7桶 "
-  survey-format-003: "&8(&a{value0}&8)&7原 "
-  survey-format-004: "&8(&a{value0}&8)&7燃"
-  survey-ruler-001: "&6[勘察尺] &7已切换勘察范围: &b{value0} &7({value1}×{value2})"
-  survey-ruler-002: "&6[勘察尺] &7坐标 &f{value0}, {value1}, {value2} &7下方矿脉预估:"
-  survey-ruler-003: "  &8未探测到可开采矿石"
-  fake-player-factory-001: "[SlimeEasy] 屠夫机器假玩家构造失败, 降级为普通伤害: {value0}"
-  fake-player-factory-002: "未找到 StoredUserList.map 字段"
-  fake-player-factory-003: "[SlimeEasy] 屠夫机器假玩家 OP 内存注入失败 (不影响击杀): {value0}"
-  auto-clicker-001: "&c自动点击器仅支持抽取升级"
-  block-interactor-001: "[SlimeEasy] 自动点击器 NMS 交互反射初始化失败, 点击降级为无效: {value0}"
-  paged-box-001: "&c请先取空箱内物品, 再安装经验升级"
-  paged-box-002: "&c请先取出全部经验, 再卸下经验升级"
-  paged-box-003: "&c物品过多, 无法卸下该翻页扩容"
-  storage-display-001: "&7总量: &e{value0}"
-  storage-display-002: "&7数量: &e{value0}"
-  storage-display-003: "&7总量: &e{value0}"
-  drawer-001: "&c翻页扩容仅适用于翻页存储箱"
-  drawer-002: "&c请先取空抽屉内的物品, 再安装经验升级"
-  drawer-003: "&c请先取出全部经验, 再卸下经验升级"
-  remote-terminal-001: "&c[远程终端] &7绑定数量已达到配置上限 &f{value0}"
-  remote-terminal-002: "已切换到"
-  remote-terminal-003: "已绑定"
-  remote-terminal-004: "&b[远程终端] &7{value0} 网络控制器 &f({value1}, {value2}, {value3}) &8[共 {value4} 个]"
-  remote-terminal-005: "&c[远程终端] &7尚未绑定, 请手持右键网络控制器进行绑定"
-  remote-terminal-006: "&c[远程终端] &7当前绑定的网络控制器已不存在, 请潜行右键打开管理界面"
-  remote-terminal-007: "&e[远程终端] &7没有其它已绑定的控制器"
-  remote-terminal-008: "&b[远程终端] &7已切换到 &f{value0}"
-  remote-terminal-009: "&c[远程终端] &7没有其它可用且有权限访问的控制器"
-  remote-terminal-010: "&5远程终端管理"
-  remote-terminal-011: "&c失效的控制器"
-  remote-terminal-012: "&8右键移除"
-  remote-terminal-013: "&a当前: {value0}"
-  remote-terminal-014: "&7左键保持选中"
-  remote-terminal-015: "&7右键移除绑定"
-  remote-terminal-016: "&7左键设为当前终端"
-  remote-terminal-017: "&7右键移除绑定"
-  remote-terminal-018: "&e第 {value0}/{value1} 页"
-  remote-terminal-019: "&7已绑定: {value0} 个"
-  remote-terminal-020: "&c[远程终端] &7该控制器已失效, 可右键将其移除"
-  remote-terminal-021: "&b[远程终端] &7当前终端已设为 &f{value0}"
-  remote-terminal-022: "&b[远程终端] &7已移除绑定 &8[剩余 {value0} 个]"
-  remote-upgrade-001: "&d[远程升级] &7已选定控制器 &f({value0}, {value1}, {value2})&7, 请将本升级装入抽屉/箱子升级槽"
-  remote-upgrade-002: "&c[远程升级] &7请先手持右键网络控制器选定目标, 再装入容器升级槽"
-  catcher-listener-001: "&c[捕捉器] &7该捕捉器已装有村民, 请先放出。"
-  catcher-listener-002: "&a[捕捉器] &7已收入 (&f{value0}&7)。"
-  catcher-listener-003: "&a[捕捉器] &7已放出村民 (&f{value0}&7)。"
-  villager-catcher-001: "村民捕捉器 · {value0}"
-  villager-catcher-002: "&7职业: &f{value0}"
-  villager-catcher-003: "&7等级: &f{value0}  &7交易: &f{value1} 项"
-  villager-catcher-004: "&7潜行 + 右键放出该村民"
-  villager-data-001: " · 僵尸"
-  villager-healer-001: "治愈中… 剩余 &f{value0}s"
-  villager-healer-002: "&a治愈完成, 已放入输出槽"
-  villager-healer-003: "&7待放入僵尸村民"
-  villager-healer-004: "&c仅接受僵尸村民"
-  villager-healer-005: "&c缺少普通金苹果"
-  villager-healer-006: "&c请先取走输出槽"
-  villager-healer-007: "&7待机"
-  iron-farm-001: "产铁中…"
-  iron-farm-002: "&c输出已满"
-  iron-farm-003: "已产出 &f{value0}&7 铁锭"
-  iron-farm-004: "&c缺少村民 (满捕捉器)"
-  iron-farm-005: "&c缺少僵尸信号"
-  iron-farm-006: "&c缺少食物"
-  forgetting-potion-listener-001: "&c[遗忘药剂] &7当前版本无法解析无职业类型, 操作取消。"
-  forgetting-potion-listener-002: "&a[遗忘药剂] &7该村民已忘却职业, 变回无职业普通村民。"
-  villager-school-001: "转化中… 剩余 &f{value0}s"
-  villager-school-002: "&a转化完成, 已放入输出槽"
-  villager-school-003: "&7待放入傻子村民"
-  villager-school-004: "&c仅接受傻子(呆滞)村民"
-  villager-school-005: "&c请先取走输出槽"
-  villager-school-006: "&7待机"
-  trader-listener-001: "&a[交易器] &7已取出村民 (&f{value0}&7)。"
-  trader-listener-002: "&a[交易器] &7已取出工作站方块 (&f{value0}&7)。"
-  trader-listener-003: "&7[交易器] 里面是空的。"
-  trader-listener-004: "&7[交易器] 右键放入 &f村民(满捕捉器) &7或 &f工作站方块&7。"
-  trader-listener-005: "&a[交易器] &7已放入村民 (&f{value0}&7)。"
-  trader-listener-006: "&a[交易器] &7已放入工作站方块 (&f{value0}&7); 与村民匹配即每 &f{value1}s &7补货。"
+        &7右键放入: 武器 / 附魔书 / 食物 / 升级组件。
+        &7食物也可用漏斗或物流网络自动输入。
+    info:
+      name: "&c屠夫机器"
+      lore: |-
+        &7当前武器: &f{weapon}
+        &7内部余量: &f{satiety}&7/&f{maxSatiety} &7饱食度 (&f{attacks} &7次)
+        &7攻击范围: &f{span}×{span} &7(范围升级 &f{rangeLevel}&7)
+        &7伤害倍率: &f×{damageMultiplier} &7(伤害升级 &f{damageLevel}&7)
 
+        &7武器区 (下方一行) 放至多 7 把武器
+        &7附魔书: 抢夺/锋利/火焰附加生效
+        &7食物: 每 1 饱食度 = 15 次攻击
+        &7升级槽: 范围 / 伤害组件 (最多 5 级)
+        &7所有物品均可用漏斗 (任意面对准) 或物流输入
+  auto-clicker:
+    held-item:
+      name: "&b手持物品 ↓"
+      lore: |-
+        &7放入点击时假玩家手持的物品
+        &7(如骨粉 / 桶 / 种子; 可漏斗补料)
+    upgrade-title: "&9点击器升级"
+    interval:
+      decrease:
+        name: "&c− 减小间隔"
+        lore: |-
+          &7点击 −{coarseStep} tick
+          &7Shift 点击 −{fineStep} tick
+      info:
+        name: "&e点击间隔: &f{interval} tick"
+        lore: |-
+          &7约 &f{seconds} &7秒 / 次
+          &7间隔 <1 tick 时单 tick 内连点多次
+          &7范围 {min}~{max}
+      increase:
+        name: "&a+ 增大间隔"
+        lore: |-
+          &7点击 +{coarseStep} tick
+          &7Shift 点击 +{fineStep} tick
+    toggle:
+      enabled:
+        name: "&a{mode}: 开启"
+        lore: |-
+          &7点击关闭
+      disabled:
+        name: "&7{mode}: 关闭"
+        lore: |-
+          &7点击开启
+  quarry:
+    labels:
+      efficiency-upgrade:
+        name: "&e效率升级 →"
+        lore: |-
+          &7放入 &f采石场效率升级 I~V&7:
+          &7各档实际产量以服务器配置为准,
+          &7当前速率显示于上方状态面板。
+      output-upgrade:
+        name: "&6产物升级 →"
+        lore: |-
+          &7放入 &c地狱岩升级 &7或 &e末地石升级&7。
+          &7空槽时默认产出 &f圆石&7。
+    rate:
+      upgraded: "&f{amount} &7个/0.5s (效率 &f{tier}&7)"
+      base: "&f{amount} &7个/{ticks} tick (无升级)"
+    status:
+      no-cobblestone: "&c未附着圆石"
+      missing-fluids: "&c圆石未同时相邻岩浆与水"
+      running: "&a生产中"
+    info:
+      name: "&b采石场"
+      lore: |-
+        &7状态: {status}
+        &7速率: {rate}
+        &7产物: &f{output}
+
+        &7脸朝向的 &f圆石 &7需同时相邻 &c岩浆 &7与 &9水&7,
+        &7满足即持续产出圆石 (不破坏该圆石)。
+        &7产物输出到本机周围的 &f容器 / 抽屉 / 翻页箱&7。
+    info-template:
+      name: "&b采石场"
+      lore: |-
+        &7脸朝向 &f圆石&7, 且该圆石同时相邻 &c岩浆 &7与 &9水 &7时产出圆石。
+        &7安装产物升级后可改为产出 &c地狱岩 &7或 &e末地石&7。
+        &7产物输出到周围的 &f容器 / 抽屉 / 翻页箱&7。
+  paged-box:
+    title: "&9翻页存储箱"
+    page:
+      name: "&e第 {page}/{pages} 页"
+      lore: []
+    upgrade-title: "&9存储箱升级"
+  filter:
+    marker:
+      name: "&e标记物品"
+      lore: |-
+        &7手持物品点击, 或直接点击背包内物品
+        &7加入 / 移出名单
+    listed-item-lore: |-
+      &8点击移出名单
+    face:
+      enabled:
+        name: "&a{face} 面: 启用"
+        lore: |-
+          &8点击禁用
+      disabled:
+        name: "&7{face} 面: 禁用"
+        lore: |-
+          &8点击启用
+    mode:
+      blacklist:
+        name: "&c黑名单模式"
+        lore: |-
+          &7名单内的物品 &c不处理&7, 其余放行
+          &8点击切换为白名单
+      whitelist:
+        name: "&a白名单模式"
+        lore: |-
+          &7仅处理名单内的物品, 其余拦截
+          &8点击切换为黑名单
+  common:
+    upgrade-placeholder:
+      name: "&a放入升级组件"
+      lore: |-
+        &7手持或点击背包内的升级组件安装
+    void-config:
+      name: "&8虚空过滤配置"
+      lore: |-
+        &7点击管理销毁列表
+    extract-config:
+      name: "&e抽取过滤配置"
+      lore: |-
+        &7点击管理抽取黑 / 白名单
+    output-config:
+      name: "&e输出过滤配置"
+      lore: |-
+        &7点击管理输出黑 / 白名单
+    previous-page:
+      name: "&e上一页"
+      lore: []
+    next-page:
+      name: "&e下一页"
+      lore: []
+    upgrade-entry:
+      name: "&b升级插件"
+      lore: |-
+        &7点击管理升级组件
+  upgrades:
+    extract-title: "&8抽取配置"
+    output-title: "&8输出配置"
+  drawer:
+    title: "&9抽屉"
+    empty:
+      name: "&7抽屉为空"
+      lore: |-
+        &7右键抽屉前的展示框放入物品
+    item:
+      lore: |-
+        &7数量: &e{count} &7/ &f{capacity}
+        &7左键取一组 / 右键取一个
+    upgrade-title: "&9抽屉升级"
+  experience:
+    title: "&9经验存储"
+    stored:
+      name: "&a已存经验"
+      lore: |-
+        &7点数: &f{points}
+        &7约合: &f{levels} &7级
+    deposit-all:
+      name: "&a存入全部经验"
+      lore: |-
+        &7点击把你身上的全部经验存入
+    upgrade-title: "&9存储升级"
+    withdraw:
+      name: "&e取出 {levels} 级"
+      lore: |-
+        &7按你当前等级换算所需点数取出
+        &7不足则取尽库存
+  void-filter:
+    title: "&8虚空销毁列表"
+    marker:
+      name: "&c标记物品"
+      lore: |-
+        &7手持物品点击, 或直接点击背包内物品
+        &7加入 / 移出销毁列表 (默认保留 &e0 &7全毁)
+    listed-item-lore: |-
+      &7保留: &e{keep} &7个 &8(超出湮灭)
+      &8左键 +64 / 右键 -64
+      &8潜行左键 +1 / 潜行右键 -1
+      &8保留为 0 时潜行右键移除
+  network:
+    title: "&9存储网络终端"
+    page-info:
+      name: "&e第 {page}/{pages} 页"
+      lore: |-
+        &7成员: {members}
+    switch-terminal:
+      name: "&d切换远程终端"
+      lore: |-
+        &7点击切换到下一个已绑定的控制器
+    search:
+      idle:
+        name: "&b搜索物品"
+        lore: |-
+          &7左键点击, 在聊天栏输入关键词
+      active:
+        name: "&b搜索: &f{query}"
+        lore: |-
+          &7左键重新搜索
+          &7右键清空搜索
+    sort-field:
+      name: "&b排序: &f{field}"
+      lore: |-
+        &7点击切换 名称 / 存量
+    sort-direction:
+      name: "&b顺序: &f{direction}"
+      lore: |-
+        &7点击切换 正序 / 倒序
+  remote-terminal:
+    invalid:
+      name: "&c失效的控制器"
+      lore: |-
+        &7{location}
+        &8右键移除
+    selected:
+      name: "&a当前: {controller}"
+      lore: |-
+        &7左键保持选中
+        &7右键移除绑定
+    binding:
+      name: "&d{controller}"
+      lore: |-
+        &7左键设为当前终端
+        &7右键移除绑定
+    title: "&5远程终端管理"
+    page-info:
+      name: "&e第 {page}/{pages} 页"
+      lore: |-
+        &7已绑定: {count} 个
+  villager-healer:
+    labels:
+      input:
+        name: "&6输入 ↓"
+        lore: |-
+          &7放入僵尸村民 (满捕捉器)
+      apple:
+        name: "&e金苹果 ↓"
+        lore: |-
+          &7放入普通金苹果, 每次治愈消耗一个
+      output:
+        name: "&a输出 ↓"
+        lore: |-
+          &7治愈后的普通村民
+    info-template:
+      name: "&6村民治愈机"
+      lore: |-
+        &7放入僵尸村民 (满捕捉器) 与普通金苹果开始治愈。
+    info:
+      name: "&6村民治愈机"
+      lore: |-
+        &7{status}
+
+        &7放入僵尸村民 (满捕捉器) + 普通金苹果,
+        &7到点后治愈为普通村民 (保留职业)。
+  iron-farm:
+    labels:
+      villager:
+        name: "&a村民 ↓"
+        lore: |-
+          &7放入装有村民的满捕捉器
+      signal:
+        name: "&2僵尸信号 ↓"
+        lore: |-
+          &7放入僵尸信号 (催化剂, 不消耗)
+      food:
+        name: "&6食物 ↓"
+        lore: |-
+          &7放入食物, 每周期消耗少量
+      speed:
+        name: "&e速度升级 ↓"
+        lore: |-
+          &7堆叠数量 = 级数, 越高越快
+      output:
+        name: "&9产出 ↓"
+        lore: |-
+          &7铁锭产出区; 可货运抽取
+    info-template:
+      name: "&f胶囊刷铁机"
+      lore: |-
+        &7放入 村民 + 僵尸信号 + 食物 即可周期产铁。
+    states:
+      running: "&a运转中"
+      stopped: "&c停止"
+    info:
+      name: "&f胶囊刷铁机"
+      lore: |-
+        &7状态: {state}
+        &7{reason}
+
+        &7需齐备: &f村民 + 僵尸信号 + 食物
+        &7速度升级: &f{speedLevel} &7级
+  villager-school:
+    labels:
+      input:
+        name: "&6输入 ↓"
+        lore: |-
+          &7放入傻子村民 (满捕捉器)
+      output:
+        name: "&a输出 ↓"
+        lore: |-
+          &7转化后的无职业村民
+    info-template:
+      name: "&6村民小学"
+      lore: |-
+        &7放入傻子村民 (满捕捉器) 开始转化。
+    info:
+      name: "&6村民小学"
+      lore: |-
+        &7{status}
+
+        &7放入傻子村民 (满捕捉器),
+        &7到点后转化为无职业普通村民。
+  survey:
+    result:
+      count: "&7数量: &a{count}"
+      empty: "&8未探测到可开采矿石"
 names:
-  ore-names-001: "煤矿石"
-  ore-names-002: "铁矿石"
-  ore-names-003: "铜矿石"
-  ore-names-004: "金矿石"
-  ore-names-005: "红石矿石"
-  ore-names-006: "绿宝石矿石"
-  ore-names-007: "青金石矿石"
-  ore-names-008: "钻石矿石"
-  ore-names-009: "深层煤矿石"
-  ore-names-010: "深层铁矿石"
-  ore-names-011: "深层铜矿石"
-  ore-names-012: "深层金矿石"
-  ore-names-013: "深层红石矿石"
-  ore-names-014: "深层绿宝石矿石"
-  ore-names-015: "深层青金石矿石"
-  ore-names-016: "深层钻石矿石"
-  ore-names-017: "下界石英矿石"
-  ore-names-018: "下界金矿石"
-  ore-names-019: "镶金黑石"
-  quarry-output-001: "圆石"
-  quarry-output-002: "地狱岩"
-  quarry-output-003: "末地石"
-
+  common:
+    none: "无"
+  click-mode:
+    left: "左键"
+    right: "右键"
+  faces:
+    up: "上"
+    down: "下"
+    north: "北"
+    south: "南"
+    east: "东"
+    west: "西"
+  sort-field:
+    name: "名称"
+    amount: "存量"
+  sort-direction:
+    descending: "倒序 ↓"
+    ascending: "正序 ↑"
+  survey-display:
+    gui: "箱子界面"
+    chat: "聊天栏"
+  villager:
+    zombie-suffix: " · 僵尸"
+  materials:
+    coal-ore: "煤矿石"
+    iron-ore: "铁矿石"
+    copper-ore: "铜矿石"
+    gold-ore: "金矿石"
+    redstone-ore: "红石矿石"
+    emerald-ore: "绿宝石矿石"
+    lapis-ore: "青金石矿石"
+    diamond-ore: "钻石矿石"
+    deepslate-coal-ore: "深层煤矿石"
+    deepslate-iron-ore: "深层铁矿石"
+    deepslate-copper-ore: "深层铜矿石"
+    deepslate-gold-ore: "深层金矿石"
+    deepslate-redstone-ore: "深层红石矿石"
+    deepslate-emerald-ore: "深层绿宝石矿石"
+    deepslate-lapis-ore: "深层青金石矿石"
+    deepslate-diamond-ore: "深层钻石矿石"
+    nether-quartz-ore: "下界石英矿石"
+    nether-gold-ore: "下界金矿石"
+    gilded-blackstone: "镶金黑石"
+  quarry-output:
+    cobblestone: "圆石"
+    netherrack: "地狱岩"
+    end-stone: "末地石"
+  survey-tier:
+    industrial-miner: "工业矿机"
+    advanced-industrial-miner: "进阶工业矿机"
+messages:
+  upgrades:
+    page-limit: "&c翻页扩容已达上限"
+    duplicate: "&c该升级已安装, 不可重复"
+    insufficient-capacity: "&c库存过多, 无法卸下该堆叠升级"
+  network:
+    search-prompt: "&b[网络终端] &7请在聊天栏输入搜索关键词 (输入 &fcancel &7取消):"
+  command:
+    description: "SlimeEasy 管理指令"
+    usage: "&e用法: &f/se reload &7- 重新加载配置文件"
+    no-permission: "&c你没有权限执行该指令。"
+    reload:
+      success: "&aSlimeEasy 配置与语言文件已重载。"
+      runtime-applied: "&7运行时数值与后续读取的语言文本 &a已即时生效&7。"
+      restart-required: "&7物品 / 分类 / 研究及已缓存界面文本与功能开关 &e需重启服务端&7方可生效。"
+      failed: "&c配置重载失败: {error}"
+  growth-inhibitor:
+    unlocked: "&a[生长抑制器] &7已解除锁定, 该生物恢复正常生长。"
+    adult-only: "&c[生长抑制器] &7仅对幼年生物有效。"
+    locked: "&a[生长抑制器] &7已抑制生长, 该幼年生物将永久保持幼小。"
+  survey:
+    display-changed: "&6[勘察尺] &7已切换展示形式: &f{display}"
+    range-changed: "&6[勘察尺] &7已切换勘察范围: &b{tier} &7({size}×{size})"
+    report-header: "&6[勘察尺] &7坐标 &f{x}, {y}, {z} &7下方矿脉预估:"
+    no-ores: "  &8未探测到可开采矿石"
+  auto-clicker:
+    unsupported-upgrade: "&c自动点击器仅支持抽取升级"
+  paged-box:
+    empty-items-before-experience: "&c请先取空箱内物品, 再安装经验升级"
+    empty-experience-before-remove: "&c请先取出全部经验, 再卸下经验升级"
+    page-upgrade-required: "&c物品过多, 无法卸下该翻页扩容"
+  drawer:
+    page-upgrade-unsupported: "&c翻页扩容仅适用于翻页存储箱"
+    empty-items-before-experience: "&c请先取空抽屉内的物品, 再安装经验升级"
+    empty-experience-before-remove: "&c请先取出全部经验, 再卸下经验升级"
+  remote-upgrade:
+    selected: "&d[远程升级] &7已选定控制器 &f({x}, {y}, {z})&7, 请将本升级装入抽屉/箱子升级槽"
+    not-selected: "&c[远程升级] &7请先手持右键网络控制器选定目标, 再装入容器升级槽"
+  catcher:
+    already-filled: "&c[捕捉器] &7该捕捉器已装有村民, 请先放出。"
+    captured: "&a[捕捉器] &7已收入 (&f{villager}&7)。"
+    released: "&a[捕捉器] &7已放出村民 (&f{villager}&7)。"
+  villager-healer:
+    progress: "治愈中… 剩余 &f{seconds}s"
+    completed: "&a治愈完成, 已放入输出槽"
+    waiting-input: "&7待放入僵尸村民"
+    invalid-input: "&c仅接受僵尸村民"
+    missing-apple: "&c缺少普通金苹果"
+    output-blocked: "&c请先取走输出槽"
+    idle: "&7待机"
+  iron-farm:
+    producing: "产铁中…"
+    output-full: "&c输出已满"
+    produced: "已产出 &f{amount}&7 铁锭"
+    missing-villager: "&c缺少村民 (满捕捉器)"
+    missing-signal: "&c缺少僵尸信号"
+    missing-food: "&c缺少食物"
+  forgetting-potion:
+    unsupported: "&c[遗忘药剂] &7当前版本无法解析无职业类型, 操作取消。"
+    completed: "&a[遗忘药剂] &7该村民已忘却职业, 变回无职业普通村民。"
+  villager-school:
+    progress: "转化中… 剩余 &f{seconds}s"
+    completed: "&a转化完成, 已放入输出槽"
+    waiting-input: "&7待放入傻子村民"
+    invalid-input: "&c仅接受傻子(呆滞)村民"
+    output-blocked: "&c请先取走输出槽"
+    idle: "&7待机"
+  trader:
+    removed-villager: "&a[交易器] &7已取出村民 (&f{villager}&7)。"
+    removed-workstation: "&a[交易器] &7已取出工作站方块 (&f{workstation}&7)。"
+    empty: "&7[交易器] 里面是空的。"
+    usage: "&7[交易器] 右键放入 &f村民(满捕捉器) &7或 &f工作站方块&7。"
+    inserted-villager: "&a[交易器] &7已放入村民 (&f{villager}&7)。"
+    inserted-workstation: "&a[交易器] &7已放入工作站方块 (&f{workstation}&7); 与村民匹配即每 &f{seconds}s &7补货。"
+  remote-terminal:
+    binding-limit: "&c[远程终端] &7绑定数量已达到配置上限 &f{max}"
+    actions:
+      switched: "已切换到"
+      bound: "已绑定"
+    bound: "&b[远程终端] &7{action} 网络控制器 &f({x}, {y}, {z}) &8[共 {count} 个]"
+    not-bound: "&c[远程终端] &7尚未绑定, 请手持右键网络控制器进行绑定"
+    missing-controller: "&c[远程终端] &7当前绑定的网络控制器已不存在, 请潜行右键打开管理界面"
+    no-other-binding: "&e[远程终端] &7没有其它已绑定的控制器"
+    switched: "&b[远程终端] &7已切换到 &f{controller}"
+    no-accessible-binding: "&c[远程终端] &7没有其它可用且有权限访问的控制器"
+    invalid-binding: "&c[远程终端] &7该控制器已失效, 可右键将其移除"
+    selected: "&b[远程终端] &7当前终端已设为 &f{controller}"
+    removed: "&b[远程终端] &7已移除绑定 &8[剩余 {count} 个]"
+logs:
+  command:
+    reload-failed: "配置重载失败: {error}"
+  butcher:
+    fake-player-failed: "[SlimeEasy] 屠夫机器假玩家构造失败, 降级为普通伤害: {error}"
+    user-list-field-missing: "未找到 StoredUserList.map 字段"
+    op-injection-failed: "[SlimeEasy] 屠夫机器假玩家 OP 内存注入失败 (不影响击杀): {error}"
+  auto-clicker:
+    nms-init-failed: "[SlimeEasy] 自动点击器 NMS 交互反射初始化失败, 点击降级为无效: {error}"
+formats:
+  storage:
+    total: "&7总量: &e{amount}"
+    amount: "&7数量: &e{amount}"
+    total-aggregated: "&7总量: &e{amount}"
+  survey:
+    fuel-summary: "&7共&a{total}&7个 &8(&a{buckets}&8)&7桶 &8(&a{rawFuel}&8)&7原 &8(&a{fuelBlocks}&8)&7燃"
 research:
-  registration-001: "自动破坏机"
-  registration-002: "自动放置机"
-  registration-003: "苦力怕驱逐方块"
-  registration-004: "屠夫机器"
-  registration-005: "自动点击器"
-  registration-006: "采石场"
-  registration-007: "工业矿机"
-  registration-008: "矿物勘察尺"
-  registration-009: "进阶工业矿机"
-  registration-010: "工业矿机"
-  registration-011: "进阶矿物勘察尺"
-  registration-012: "生长抑制器"
-  registration-013: "战斗挽具"
-  registration-014: "村民捕捉器"
-  registration-015: "僵尸信号"
-  registration-016: "村民交易器"
-  registration-017: "胶囊刷铁机"
-  registration-018: "村民小学"
-  registration-019: "遗忘药剂"
-  registration-020: "村民治愈机"
-  registration-021: "海量抽屉"
-  registration-022: "翻页存储箱"
-  registration-023: "存储升级组件"
-  registration-024: "存储网络"
+  auto-breaker: "自动破坏机"
+  auto-placer: "自动放置机"
+  creeper-ward: "苦力怕驱逐方块"
+  butcher: "屠夫机器"
+  auto-clicker: "自动点击器"
+  quarry: "采石场"
+  survey-ruler: "矿物勘察尺"
+  advanced-survey-ruler: "进阶矿物勘察尺"
+  growth-inhibitor: "生长抑制器"
+  combat-harness: "战斗挽具"
+  villager-catcher: "村民捕捉器"
+  zombie-signal: "僵尸信号"
+  villager-trader: "村民交易器"
+  iron-farm: "胶囊刷铁机"
+  villager-school: "村民小学"
+  forgetting-potion: "遗忘药剂"
+  villager-healer: "村民治愈机"
+  storage-drawer: "海量抽屉"
+  storage-box: "翻页存储箱"
+  storage-upgrades: "存储升级组件"
+  storage-network: "存储网络"
+system:
+  missing: "Missing translation: {key}"

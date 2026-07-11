@@ -16,27 +16,27 @@ object OreNames {
 
     private val NAME_KEYS: Map<Material, String> = buildMap {
         // 石头系
-        put(Material.COAL_ORE, "names.ore-names-001")
-        put(Material.IRON_ORE, "names.ore-names-002")
-        put(Material.COPPER_ORE, "names.ore-names-003")
-        put(Material.GOLD_ORE, "names.ore-names-004")
-        put(Material.REDSTONE_ORE, "names.ore-names-005")
-        put(Material.EMERALD_ORE, "names.ore-names-006")
-        put(Material.LAPIS_ORE, "names.ore-names-007")
-        put(Material.DIAMOND_ORE, "names.ore-names-008")
+        put(Material.COAL_ORE, "names.materials.coal-ore")
+        put(Material.IRON_ORE, "names.materials.iron-ore")
+        put(Material.COPPER_ORE, "names.materials.copper-ore")
+        put(Material.GOLD_ORE, "names.materials.gold-ore")
+        put(Material.REDSTONE_ORE, "names.materials.redstone-ore")
+        put(Material.EMERALD_ORE, "names.materials.emerald-ore")
+        put(Material.LAPIS_ORE, "names.materials.lapis-ore")
+        put(Material.DIAMOND_ORE, "names.materials.diamond-ore")
         // 深板岩系
-        put(Material.DEEPSLATE_COAL_ORE, "names.ore-names-009")
-        put(Material.DEEPSLATE_IRON_ORE, "names.ore-names-010")
-        put(Material.DEEPSLATE_COPPER_ORE, "names.ore-names-011")
-        put(Material.DEEPSLATE_GOLD_ORE, "names.ore-names-012")
-        put(Material.DEEPSLATE_REDSTONE_ORE, "names.ore-names-013")
-        put(Material.DEEPSLATE_EMERALD_ORE, "names.ore-names-014")
-        put(Material.DEEPSLATE_LAPIS_ORE, "names.ore-names-015")
-        put(Material.DEEPSLATE_DIAMOND_ORE, "names.ore-names-016")
+        put(Material.DEEPSLATE_COAL_ORE, "names.materials.deepslate-coal-ore")
+        put(Material.DEEPSLATE_IRON_ORE, "names.materials.deepslate-iron-ore")
+        put(Material.DEEPSLATE_COPPER_ORE, "names.materials.deepslate-copper-ore")
+        put(Material.DEEPSLATE_GOLD_ORE, "names.materials.deepslate-gold-ore")
+        put(Material.DEEPSLATE_REDSTONE_ORE, "names.materials.deepslate-redstone-ore")
+        put(Material.DEEPSLATE_EMERALD_ORE, "names.materials.deepslate-emerald-ore")
+        put(Material.DEEPSLATE_LAPIS_ORE, "names.materials.deepslate-lapis-ore")
+        put(Material.DEEPSLATE_DIAMOND_ORE, "names.materials.deepslate-diamond-ore")
         // 下界系
-        put(Material.NETHER_QUARTZ_ORE, "names.ore-names-017")
-        put(Material.NETHER_GOLD_ORE, "names.ore-names-018")
-        put(Material.GILDED_BLACKSTONE, "names.ore-names-019")
+        put(Material.NETHER_QUARTZ_ORE, "names.materials.nether-quartz-ore")
+        put(Material.NETHER_GOLD_ORE, "names.materials.nether-gold-ore")
+        put(Material.GILDED_BLACKSTONE, "names.materials.gilded-blackstone")
     }
 
     /** 返回矿石的中文名; 表外材质回退为枚举名可读化 (下划线转空格, 词首大写)。 */

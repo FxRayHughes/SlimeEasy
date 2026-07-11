@@ -69,7 +69,7 @@ object SurveyGui {
         val meta = icon.itemMeta
         if (meta != null) {
             meta.setDisplayName("§f${OreNames.of(material)}")
-            meta.lore = listOf(I18n.text("menus.survey-gui-001", "value0" to (count)))
+            meta.lore = listOf(I18n.text("menus.survey.result.count", "count" to count))
             icon.itemMeta = meta
         }
         return icon
@@ -80,7 +80,7 @@ object SurveyGui {
         val icon = ItemStack(Material.BARRIER)
         val meta = icon.itemMeta
         if (meta != null) {
-            meta.setDisplayName(I18n.text("menus.survey-gui-002"))
+            meta.setDisplayName(I18n.text("menus.survey.result.empty"))
             icon.itemMeta = meta
         }
         return icon

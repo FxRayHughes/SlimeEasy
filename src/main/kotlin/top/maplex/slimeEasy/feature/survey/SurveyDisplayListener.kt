@@ -29,7 +29,7 @@ class SurveyDisplayListener : Listener {
         // 取消原版左键 (破坏 / 攻击), 仅执行展示形式切换
         e.isCancelled = true
         val next = SurveyState.toggleDisplay(item)
-        val label = if (next == SurveyDisplay.GUI) I18n.text("messages.survey-display-listener-001") else I18n.text("messages.survey-display-listener-002")
-        e.player.sendMessage(I18n.text("messages.survey-display-listener-003", "value0" to (label)))
+        val label = if (next == SurveyDisplay.GUI) I18n.text("names.survey-display.gui") else I18n.text("names.survey-display.chat")
+        e.player.sendMessage(I18n.text("messages.survey.display-changed", "display" to label))
     }
 }

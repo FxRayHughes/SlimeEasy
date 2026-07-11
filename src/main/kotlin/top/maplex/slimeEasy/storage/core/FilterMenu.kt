@@ -2,7 +2,6 @@ package top.maplex.slimeEasy.storage.core
 
 import top.maplex.slimeEasy.config.I18n
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
-import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
@@ -61,8 +60,7 @@ object FilterMenu {
                 faceConfig.toggle(block.location, face); render(menu, block, filter, faceConfig); false
             }
         }
-        menu.addItem(MARK_SLOT, GuiItems.named(Material.NAME_TAG, I18n.text("menus.filter-menu-001"),
-            I18n.text("menus.filter-menu-002"), I18n.text("menus.filter-menu-003"))) { p, _, _, _ ->
+        menu.addItem(MARK_SLOT, GuiItems.localized(Material.NAME_TAG, "menus.filter.marker")) { p, _, _, _ ->
             val hand = p.inventory.itemInMainHand
             if (!hand.type.isAir) { filter.toggle(block.location, hand); render(menu, block, filter, faceConfig) }
             false
@@ -75,26 +73,24 @@ object FilterMenu {
 
     /** 名单项图标: 点击移出提示。 */
     private fun icon(key: ItemKey) = key.toDisplay(1).apply {
-        editMeta { it.lore(listOf(Component.text(I18n.text("menus.filter-menu-004")))) }
+        editMeta { it.lore(I18n.components("menus.filter.listed-item-lore")) }
     }
 
     /** 生效面开关图标。 */
     private fun faceIcon(face: BlockFace, enabled: Boolean) =
-        if (enabled) GuiItems.named(Material.LIME_STAINED_GLASS_PANE, I18n.text("menus.filter-menu-005", "value0" to (faceName(face))), I18n.text("menus.filter-menu-006"))
-        else GuiItems.named(Material.GRAY_STAINED_GLASS_PANE, I18n.text("menus.filter-menu-007", "value0" to (faceName(face))), I18n.text("menus.filter-menu-008"))
+        if (enabled) GuiItems.localized(Material.LIME_STAINED_GLASS_PANE, "menus.filter.face.enabled", "face" to faceName(face))
+        else GuiItems.localized(Material.GRAY_STAINED_GLASS_PANE, "menus.filter.face.disabled", "face" to faceName(face))
 
     private fun faceName(face: BlockFace) = when (face) {
-        BlockFace.UP -> I18n.text("menus.filter-menu-009"); BlockFace.DOWN -> I18n.text("menus.filter-menu-010")
-        BlockFace.NORTH -> I18n.text("menus.filter-menu-011"); BlockFace.SOUTH -> I18n.text("menus.filter-menu-012")
-        BlockFace.EAST -> I18n.text("menus.filter-menu-013"); BlockFace.WEST -> I18n.text("menus.filter-menu-014")
+        BlockFace.UP -> I18n.text("names.faces.up"); BlockFace.DOWN -> I18n.text("names.faces.down")
+        BlockFace.NORTH -> I18n.text("names.faces.north"); BlockFace.SOUTH -> I18n.text("names.faces.south")
+        BlockFace.EAST -> I18n.text("names.faces.east"); BlockFace.WEST -> I18n.text("names.faces.west")
         else -> face.name
     }
 
     /** 模式切换按钮图标。 */
     private fun modeIcon(mode: FilterMode) = when (mode) {
-        FilterMode.BLACKLIST -> GuiItems.named(Material.RED_CONCRETE, I18n.text("menus.filter-menu-015"),
-            I18n.text("menus.filter-menu-016"), I18n.text("menus.filter-menu-017"))
-        FilterMode.WHITELIST -> GuiItems.named(Material.LIME_CONCRETE, I18n.text("menus.filter-menu-018"),
-            I18n.text("menus.filter-menu-019"), I18n.text("menus.filter-menu-020"))
+        FilterMode.BLACKLIST -> GuiItems.localized(Material.RED_CONCRETE, "menus.filter.mode.blacklist")
+        FilterMode.WHITELIST -> GuiItems.localized(Material.LIME_CONCRETE, "menus.filter.mode.whitelist")
     }
 }

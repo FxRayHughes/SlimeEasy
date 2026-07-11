@@ -29,11 +29,11 @@ class IronFarmMenuPreset(id: String, title: String) : BlockMenuPreset(id, title)
     override fun init() {
         drawBackground(GuiItems.BACKGROUND, backgroundSlots())
         protectedItem(INFO_SLOT, infoTemplate())
-        protectedItem(LABEL_VILLAGER, label(Material.GREEN_STAINED_GLASS_PANE, I18n.text("menus.iron-farm-menu-preset-001"), I18n.text("menus.iron-farm-menu-preset-002")))
-        protectedItem(LABEL_SIGNAL, label(Material.LIME_STAINED_GLASS_PANE, I18n.text("menus.iron-farm-menu-preset-003"), I18n.text("menus.iron-farm-menu-preset-004")))
-        protectedItem(LABEL_FOOD, label(Material.ORANGE_STAINED_GLASS_PANE, I18n.text("menus.iron-farm-menu-preset-005"), I18n.text("menus.iron-farm-menu-preset-006")))
-        protectedItem(LABEL_SPEED, label(Material.YELLOW_STAINED_GLASS_PANE, I18n.text("menus.iron-farm-menu-preset-007"), I18n.text("menus.iron-farm-menu-preset-008")))
-        protectedItem(LABEL_OUTPUT, label(Material.BLUE_STAINED_GLASS_PANE, I18n.text("menus.iron-farm-menu-preset-009"), I18n.text("menus.iron-farm-menu-preset-010")))
+        protectedItem(LABEL_VILLAGER, label(Material.GREEN_STAINED_GLASS_PANE, "menus.iron-farm.labels.villager"))
+        protectedItem(LABEL_SIGNAL, label(Material.LIME_STAINED_GLASS_PANE, "menus.iron-farm.labels.signal"))
+        protectedItem(LABEL_FOOD, label(Material.ORANGE_STAINED_GLASS_PANE, "menus.iron-farm.labels.food"))
+        protectedItem(LABEL_SPEED, label(Material.YELLOW_STAINED_GLASS_PANE, "menus.iron-farm.labels.speed"))
+        protectedItem(LABEL_OUTPUT, label(Material.BLUE_STAINED_GLASS_PANE, "menus.iron-farm.labels.output"))
     }
 
     private fun protectedItem(slot: Int, item: ItemStack) = addItem(slot, item, ChestMenuUtils.getEmptyClickHandler())
@@ -108,23 +108,17 @@ class IronFarmMenuPreset(id: String, title: String) : BlockMenuPreset(id, title)
         fun updateInfo(menu: BlockMenu, running: Boolean, reason: String) {
             menu.toInventory().setItem(
                 INFO_SLOT,
-                GuiItems.named(
-                    Material.IRON_INGOT, I18n.text("menus.iron-farm-menu-preset-011"),
-                    I18n.text("menus.iron-farm-menu-preset-014", "value0" to (if (running) I18n.text("menus.iron-farm-menu-preset-012") else I18n.text("menus.iron-farm-menu-preset-013"))),
-                    "§7$reason",
-                    "",
-                    I18n.text("menus.iron-farm-menu-preset-015"),
-                    I18n.text("menus.iron-farm-menu-preset-016", "value0" to (speedLevel(menu)))
+                GuiItems.localized(
+                    Material.IRON_INGOT, "menus.iron-farm.info",
+                    "state" to if (running) I18n.text("menus.iron-farm.states.running") else I18n.text("menus.iron-farm.states.stopped"),
+                    "reason" to reason,
+                    "speedLevel" to speedLevel(menu)
                 )
             )
         }
 
-        private fun infoTemplate(): ItemStack = GuiItems.named(
-            Material.IRON_INGOT, I18n.text("menus.iron-farm-menu-preset-017"),
-            I18n.text("menus.iron-farm-menu-preset-018")
-        )
+        private fun infoTemplate(): ItemStack = GuiItems.localized(Material.IRON_INGOT, "menus.iron-farm.info-template")
 
-        private fun label(material: Material, name: String, vararg lore: String): ItemStack =
-            GuiItems.named(material, name, *lore)
+        private fun label(material: Material, key: String): ItemStack = GuiItems.localized(material, key)
     }
 }

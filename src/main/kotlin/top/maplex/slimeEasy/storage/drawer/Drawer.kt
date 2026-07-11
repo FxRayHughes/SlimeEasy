@@ -61,14 +61,14 @@ class Drawer(
     ): String? {
         // 翻页扩容仅对箱子有意义, 抽屉无分页概念, 直接拒绝安装
         if (install && type == top.maplex.slimeEasy.storage.upgrade.UpgradeType.PAGE_EXPANSION)
-            return I18n.text("messages.drawer-001")
+            return I18n.text("messages.drawer.page-upgrade-unsupported")
         if (type != top.maplex.slimeEasy.storage.upgrade.UpgradeType.EXP_STORAGE) return null
         // 装经验升级前要求物品库存为空 (两套库存不可共存, 避免残留物品与经验显示互相覆盖)
         if (install && !storageAt(block).isEmpty())
-            return I18n.text("messages.drawer-002")
+            return I18n.text("messages.drawer.empty-items-before-experience")
         // 存有经验时禁止卸下经验升级 (否则经验数据被孤立)
         if (!install && DrawerExp.get(block) > 0)
-            return I18n.text("messages.drawer-003")
+            return I18n.text("messages.drawer.empty-experience-before-remove")
         return null
     }
 

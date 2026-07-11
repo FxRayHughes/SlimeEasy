@@ -32,7 +32,7 @@ class ForgettingPotionListener : Listener {
 
         val profession = VillagerData.resolveProfession(VillagerData.NONE)
         if (profession == null) {
-            player.sendMessage(I18n.text("messages.forgetting-potion-listener-001"))
+            player.sendMessage(I18n.text("messages.forgetting-potion.unsupported"))
             return
         }
         villager.profession = profession
@@ -43,6 +43,6 @@ class ForgettingPotionListener : Listener {
 
         villager.world.spawnParticle(Particle.WITCH, villager.location.add(0.0, 1.0, 0.0), 20, 0.3, 0.5, 0.3, 0.0)
         player.playSound(villager.location, Sound.ENTITY_WITCH_DRINK, 1f, 1f)
-        player.sendMessage(I18n.text("messages.forgetting-potion-listener-002"))
+        player.sendMessage(I18n.text("messages.forgetting-potion.completed"))
     }
 }

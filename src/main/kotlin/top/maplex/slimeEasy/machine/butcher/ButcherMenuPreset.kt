@@ -41,11 +41,11 @@ class ButcherMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) 
         drawBackground(GuiItems.BACKGROUND, backgroundSlots())
         protectedItem(INFO_SLOT, infoTemplate())
         // 每个功能区以对应色的彩色玻璃标注, 便于一眼分辨槽位用途
-        protectedItem(LABEL_WEAPON, label(Material.YELLOW_STAINED_GLASS_PANE, I18n.text("menus.butcher-menu-preset-001"), I18n.text("menus.butcher-menu-preset-002"), I18n.text("menus.butcher-menu-preset-003")))
-        protectedItem(LABEL_BOOK, label(Material.MAGENTA_STAINED_GLASS_PANE, I18n.text("menus.butcher-menu-preset-004"), I18n.text("menus.butcher-menu-preset-005"), I18n.text("menus.butcher-menu-preset-006")))
-        protectedItem(LABEL_FOOD, label(Material.ORANGE_STAINED_GLASS_PANE, I18n.text("menus.butcher-menu-preset-007"), I18n.text("menus.butcher-menu-preset-008"), I18n.text("menus.butcher-menu-preset-009"), I18n.text("menus.butcher-menu-preset-010")))
-        protectedItem(LABEL_RANGE, label(Material.LIGHT_BLUE_STAINED_GLASS_PANE, I18n.text("menus.butcher-menu-preset-011"), I18n.text("menus.butcher-menu-preset-012"), I18n.text("menus.butcher-menu-preset-013")))
-        protectedItem(LABEL_DAMAGE, label(Material.RED_STAINED_GLASS_PANE, I18n.text("menus.butcher-menu-preset-014"), I18n.text("menus.butcher-menu-preset-015"), I18n.text("menus.butcher-menu-preset-016")))
+        protectedItem(LABEL_WEAPON, label(Material.YELLOW_STAINED_GLASS_PANE, "menus.butcher.labels.weapon"))
+        protectedItem(LABEL_BOOK, label(Material.MAGENTA_STAINED_GLASS_PANE, "menus.butcher.labels.enchantment-book"))
+        protectedItem(LABEL_FOOD, label(Material.ORANGE_STAINED_GLASS_PANE, "menus.butcher.labels.food"))
+        protectedItem(LABEL_RANGE, label(Material.LIGHT_BLUE_STAINED_GLASS_PANE, "menus.butcher.labels.range-upgrade"))
+        protectedItem(LABEL_DAMAGE, label(Material.RED_STAINED_GLASS_PANE, "menus.butcher.labels.damage-upgrade"))
     }
 
     /** 放置一个受保护 (不可被玩家拿走 / 放入) 的预设图标。 */
@@ -160,13 +160,8 @@ class ButcherMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) 
             menu.getItemInSlot(slot)?.takeIf { !it.type.isAir }?.amount ?: 0
 
         /** 信息面板静态模板 (无 block 上下文时的初始占位, 打开/tick 后由 [updateInfo] 刷新)。 */
-        private fun infoTemplate(): ItemStack = GuiItems.named(
-            Material.OBSERVER, I18n.text("menus.butcher-menu-preset-017"),
-            I18n.text("menus.butcher-menu-preset-018"),
-            "",
-            I18n.text("menus.butcher-menu-preset-019"),
-            I18n.text("menus.butcher-menu-preset-020")
-        )
+        private fun infoTemplate(): ItemStack =
+            GuiItems.localized(Material.OBSERVER, "menus.butcher.info-template")
 
         /**
          * 刷新信息面板为当前状态 (武器 / 余量 / 范围 / 伤害)。
@@ -176,31 +171,29 @@ class ButcherMenuPreset(id: String, title: String) : BlockMenuPreset(id, title) 
          * 由 [init] 重绘), 无需落盘。直更库存对正在查看的玩家实时可见, 且零 I/O。
          */
         fun updateInfo(menu: BlockMenu, fuel: Long) {
-            val weapon = firstWeapon(menu)?.second?.type?.name ?: I18n.text("menus.butcher-menu-preset-021")
+            val weapon = firstWeapon(menu)?.second?.type?.name ?: I18n.text("names.common.none")
             val satiety = fuel / ButcherLogic.ATTACKS_PER_NUTRITION
             val range = rangeLevel(menu)
             val dmg = damageLevel(menu)
             val span = 3 + 2 * range
             menu.toInventory().setItem(
                 INFO_SLOT,
-                GuiItems.named(
-                    Material.OBSERVER, I18n.text("menus.butcher-menu-preset-022"),
-                    I18n.text("menus.butcher-menu-preset-023", "value0" to (weapon)),
-                    I18n.text("menus.butcher-menu-preset-024", "value0" to (satiety), "value1" to (ButcherLogic.MAX_SATIETY), "value2" to (fuel)),
-                    I18n.text("menus.butcher-menu-preset-025", "value0" to (span), "value1" to (span), "value2" to (range)),
-                    I18n.text("menus.butcher-menu-preset-026", "value0" to ("%.1f".format(1.0 + 0.5 * dmg)), "value1" to (dmg)),
-                    "",
-                    I18n.text("menus.butcher-menu-preset-027"),
-                    I18n.text("menus.butcher-menu-preset-028"),
-                    I18n.text("menus.butcher-menu-preset-029"),
-                    I18n.text("menus.butcher-menu-preset-030"),
-                    I18n.text("menus.butcher-menu-preset-031")
+                GuiItems.localized(
+                    Material.OBSERVER,
+                    "menus.butcher.info",
+                    "weapon" to weapon,
+                    "satiety" to satiety,
+                    "maxSatiety" to ButcherLogic.MAX_SATIETY,
+                    "attacks" to fuel,
+                    "span" to span,
+                    "rangeLevel" to range,
+                    "damageMultiplier" to "%.1f".format(1.0 + 0.5 * dmg),
+                    "damageLevel" to dmg
                 )
             )
         }
 
         /** 构造带名称与 lore 的彩色玻璃标签图标 (颜色对应功能区)。 */
-        private fun label(material: Material, name: String, vararg lore: String): ItemStack =
-            GuiItems.named(material, name, *lore)
+        private fun label(material: Material, key: String): ItemStack = GuiItems.localized(material, key)
     }
 }

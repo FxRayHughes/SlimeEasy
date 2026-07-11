@@ -58,7 +58,7 @@ class AutoClicker(
 
     /** 自动点击器仅支持抽取升级 (扩展补料能力); 其余存储类升级对点击器无意义, 拒绝安装。 */
     override fun rejectUpgradeChange(block: Block, type: UpgradeType, install: Boolean): String? =
-        if (install && type != UpgradeType.EXTRACT) I18n.text("messages.auto-clicker-001") else null
+        if (install && type != UpgradeType.EXTRACT) I18n.text("messages.auto-clicker.unsupported-upgrade") else null
 
     override fun preRegister() {
         addItemHandler(object : BlockPlaceHandler(false) {

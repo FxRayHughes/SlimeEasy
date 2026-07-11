@@ -1,8 +1,7 @@
 package top.maplex.slimeEasy.storage.core
 
 import top.maplex.slimeEasy.config.I18n
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
@@ -13,40 +12,52 @@ import org.bukkit.inventory.ItemStack
  */
 object GuiItems {
 
+    private val legacySerializer = LegacyComponentSerializer.legacySection()
+
     /** 灰色玻璃板背景。 */
     val BACKGROUND: ItemStack = named(Material.GRAY_STAINED_GLASS_PANE, " ")
 
     /** 升级槽占位图标 (空槽提示)。 */
     val UPGRADE_PLACEHOLDER: ItemStack =
-        named(Material.LIME_STAINED_GLASS_PANE, I18n.text("menus.gui-items-001"), I18n.text("menus.gui-items-002"))
+        localized(Material.LIME_STAINED_GLASS_PANE, "menus.common.upgrade-placeholder")
 
     /** 虚空配置按钮。 */
     val VOID_CONFIG: ItemStack =
-        named(Material.BLACK_CONCRETE, I18n.text("menus.gui-items-003"), I18n.text("menus.gui-items-004"))
+        localized(Material.BLACK_CONCRETE, "menus.common.void-config")
 
     /** 抽取过滤配置按钮。 */
     val EXTRACT_CONFIG: ItemStack =
-        named(Material.HOPPER, I18n.text("menus.gui-items-005"), I18n.text("menus.gui-items-006"))
+        localized(Material.HOPPER, "menus.common.extract-config")
 
     /** 输出过滤配置按钮。 */
     val OUTPUT_CONFIG: ItemStack =
-        named(Material.DROPPER, I18n.text("menus.gui-items-007"), I18n.text("menus.gui-items-008"))
+        localized(Material.DROPPER, "menus.common.output-config")
 
     /** 上一页按钮。 */
-    val PREV_PAGE: ItemStack = named(Material.ARROW, I18n.text("menus.gui-items-009"))
+    val PREV_PAGE: ItemStack = localized(Material.ARROW, "menus.common.previous-page")
 
     /** 下一页按钮。 */
-    val NEXT_PAGE: ItemStack = named(Material.ARROW, I18n.text("menus.gui-items-010"))
+    val NEXT_PAGE: ItemStack = localized(Material.ARROW, "menus.common.next-page")
 
     /** 升级插件入口按钮。 */
-    val UPGRADE_ENTRY: ItemStack = named(Material.ANVIL, I18n.text("menus.gui-items-011"), I18n.text("menus.gui-items-012"))
+    val UPGRADE_ENTRY: ItemStack = localized(Material.ANVIL, "menus.common.upgrade-entry")
 
     /** 构造带名称与 lore 的图标。 */
     fun named(material: Material, name: String, vararg lore: String): ItemStack =
         ItemStack(material).apply {
             editMeta { meta ->
-                meta.displayName(Component.text(name).color(NamedTextColor.WHITE))
-                if (lore.isNotEmpty()) meta.lore(lore.map { Component.text(it) })
+                meta.displayName(legacySerializer.deserialize(name))
+                if (lore.isNotEmpty()) meta.lore(lore.map(legacySerializer::deserialize))
+            }
+        }
+
+    /** 以层级语言节点 `{key}.name/lore` 构造 UI 图标。 */
+    fun localized(material: Material, key: String, vararg placeholders: Pair<String, Any?>): ItemStack =
+        ItemStack(material).apply {
+            val display = I18n.componentDisplay(key, *placeholders)
+            editMeta { meta ->
+                meta.displayName(display.name)
+                if (display.lore.isNotEmpty()) meta.lore(display.lore)
             }
         }
 }
