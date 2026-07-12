@@ -1,0 +1,4 @@
+interface:
+  display_name: "SlimeEasy 护目镜扩展"
+  short_description: "指导附属插件安全接入工程师护目镜公开显示接口与事件扩展能力"
+  default_prompt: "使用 $slimeeasy-goggles-extension 为当前附属插件接入 SlimeEasy 工程师护目镜显示内容。"

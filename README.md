@@ -162,6 +162,21 @@ Slimefun 方块及注册多方块结构的名称。全息图由 DecentHolograms 
 持续夜视、机器诊断、私有全息图及完整筛选交互，并与基础型号共用工程师护目镜研究；重新登录后会由护目镜任务
 立即补齐夜视，不依赖 Slimefun 异步护甲档案的首次刷新时机。
 
+附属插件可依赖 SlimeEasy，通过公开 API 为自己的目标追加或修改护目镜内容，无需访问扫描缓存或 DecentHolograms：
+
+```kotlin
+EngineerGogglesApi.registerProvider(this) { context, content ->
+    if (context.slimefunItem.id.startsWith("SB_")) {
+        content.details += myLocalizedLine(context.block)
+    }
+}
+```
+
+- `EngineerGogglesContentProvider` 按注册顺序同步执行，适合 SlimeBotania 等依赖方的高频稳定扩展
+- `EngineerGogglesDisplayEvent` 在提供器之后触发，可修改标题和详情、设置 `content.visible` 或取消单次目标显示
+- 依赖插件关闭时提供器会自动注销；也可调用 `unregisterProvider` / `unregisterProviders` 主动清理
+- 当前 `EngineerGogglesApi.API_VERSION` 为 `1`；公开上下文只包含玩家、目标方块、Slimefun 物品和多方块标记
+
 ### 生长抑制器
 
 史莱姆球外观的手持工具。右键一只**幼年生物** → 锁定其年龄 (原版 `AgeLock`), 使其**永远保持幼小、不再长大**; 再次右键已锁定的生物则解除锁定, 恢复正常生长 (开关语义)。

@@ -31,9 +31,14 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
+import top.maplex.slimeEasy.api.goggles.DefaultEngineerGogglesDisplayContent
+import top.maplex.slimeEasy.api.goggles.DefaultEngineerGogglesDisplayContext
+import top.maplex.slimeEasy.api.goggles.EngineerGogglesApi
+import top.maplex.slimeEasy.api.goggles.EngineerGogglesDisplayEvent
 import top.maplex.slimeEasy.config.I18n
 import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.registry.Items
@@ -115,6 +120,7 @@ internal object EngineerGogglesDisplay : Listener {
         multiblockRegistrySize = -1
         wearerCursor = 0
         energy.retain(emptySet())
+        EngineerGogglesApi.shutdown()
         backend = null
     }
 
@@ -174,9 +180,9 @@ internal object EngineerGogglesDisplay : Listener {
             !filters.allows(entry.value, workState)
         }
 
+        val visibleTargets = HashSet<String>()
         for (target in targets.values) {
-            val lines = buildList {
-                add(target.item.itemName)
+            val details = buildList {
                 val workState = context.workStates.getOrPut(target.key) { EngineerGogglesWorkState.of(target) }
                 if (workState != EngineerGogglesWorkState.UNKNOWN) {
                     // UNKNOWN 仍用于筛选归类，但不向玩家重复展示没有诊断价值的“状态未知”行。
@@ -193,6 +199,24 @@ internal object EngineerGogglesDisplay : Listener {
                     }
                 )
             }
+            val displayContext = DefaultEngineerGogglesDisplayContext(
+                player,
+                target.blockLocation.block,
+                target.item,
+                target.blockData == null
+            )
+            val content = DefaultEngineerGogglesDisplayContent(target.item.itemName, details)
+            EngineerGogglesApi.applyProviders(displayContext, content)
+            val cancelled = if (EngineerGogglesDisplayEvent.hasListeners()) {
+                EngineerGogglesDisplayEvent(displayContext, content)
+                    .also(Bukkit.getPluginManager()::callEvent)
+                    .isCancelled()
+            } else {
+                false
+            }
+            if (cancelled || !content.visible) continue
+            val lines = content.toLines()
+            visibleTargets += target.key
             val existing = state.holograms[target.key]
             if (existing != null) {
                 if (state.lastLines[target.key] != lines) {
@@ -210,7 +234,7 @@ internal object EngineerGogglesDisplay : Listener {
             }
         }
 
-        val stale = state.holograms.keys - targets.keys
+        val stale = state.holograms.keys - visibleTargets
         stale.forEach { key ->
             state.holograms.remove(key)?.let(::destroy)
             state.lastLines.remove(key)
@@ -516,6 +540,12 @@ internal object EngineerGogglesDisplay : Listener {
         remove(event.player.uniqueId)
         // 可选依赖缺失时也不能永久保存离线玩家 UUID；重新登录视为新的穿戴会话。
         missingDependencyWarned.remove(event.player.uniqueId)
+    }
+
+    /** 依赖方关闭时立即释放其内容提供器，避免插件类加载器被长期引用。 */
+    @EventHandler
+    fun onPluginDisable(event: PluginDisableEvent) {
+        EngineerGogglesApi.unregisterProviders(event.plugin)
     }
 
     /** 死亡可能卸下或掉落头盔，先清理显示，复活后由共享任务重新识别。 */
