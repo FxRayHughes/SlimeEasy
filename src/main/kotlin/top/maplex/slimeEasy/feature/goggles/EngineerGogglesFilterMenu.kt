@@ -62,8 +62,8 @@ internal object EngineerGogglesFilterMenu {
                 return
             }
             val snapshot = EngineerGogglesFilter.read(goggles)
-            val groups = groups()
             val itemTypes = itemTypes()
+            val groups = groups(itemTypes)
             val addons = itemTypes.map { it.addon.name }.distinct().sorted()
             val entryCount = when (mode) {
                 Mode.GROUPS -> groups.size
@@ -259,13 +259,18 @@ internal object EngineerGogglesFilterMenu {
         private fun <T> List<T>.page(): List<T> = drop(page * PAGE_SIZE).take(PAGE_SIZE)
     }
 
-    /** 只列出实际包含物品的注册分类，并按稳定 NamespacedKey 排序以保证翻页位置不漂移。 */
-    private fun groups(): List<ItemGroup> =
-        Slimefun.getRegistry().allItemGroups
+    /**
+     * 从可展示目标反向取得实际分类，再映射回 ItemGroup 注册表并稳定排序。
+     * 不得调用 [ItemGroup.getItems]：FlexItemGroup 是指南导航节点，按 API 约定会主动抛出异常。
+     */
+    private fun groups(items: List<SlimefunItem>): List<ItemGroup> {
+        val usedKeys = items.mapTo(HashSet()) { it.itemGroup.key }
+        return Slimefun.getRegistry().allItemGroups
             .asSequence()
-            .filter { it.items.isNotEmpty() }
+            .filter { it.key in usedKeys }
             .sortedBy { it.key.toString() }
             .toList()
+    }
 
     /** 单项页排除不能作为世界目标的普通材料/工具，只保留方块物品和注册多方块。 */
     private fun itemTypes(): List<SlimefunItem> {
