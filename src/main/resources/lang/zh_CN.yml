@@ -1037,6 +1037,17 @@ menus:
       name: "&a存入全部经验"
       lore: |-
         &7点击把你身上的全部经验存入
+    withdraw-mode:
+      direct:
+        name: "&b取出方式: &a直接给予"
+        lore: |-
+          &7取出后直接增加到玩家经验栏
+          &e点击切换为掉落经验球
+      orbs:
+        name: "&b取出方式: &e经验球"
+        lore: |-
+          &7取出后在玩家身边生成经验球
+          &e点击切换为直接给予
     upgrade-title: "&9存储升级"
     withdraw:
       name: "&e取出 {levels} 级"

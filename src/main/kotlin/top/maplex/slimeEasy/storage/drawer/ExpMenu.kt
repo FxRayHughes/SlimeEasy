@@ -16,9 +16,10 @@ import top.maplex.slimeEasy.util.locationKey
 /**
  * 经验抽屉的操作 GUI (经验存储升级启用时替代物品交互)。
  *
- * 布局: 中央经验瓶显示当前存量 (点数 + 约合等级); 一行"存入全部"按钮; 一行
- * 按等级取出的按钮 (1/5/10/20/30/40/50)。取出按玩家**当前等级**换算所需点数,
- * 不足则取尽库存。经验模式下抽屉不接受 / 不输出物品, 故此界面不涉及物品格。
+ * 布局: 中央经验瓶显示当前存量 (点数 + 约合等级); 一行"存入全部"与取出方式按钮;
+ * 一行按等级取出的按钮 (1/5/10/20/30/40/50)。取出按玩家**当前等级**换算所需点数,
+ * 不足则取尽库存；取出方式可在直接给予与掉落经验球之间切换。经验模式下抽屉不接受 /
+ * 不输出物品, 故此界面不涉及物品格。
  *
  * 打开中的界面订阅 [StorageChangeBus] 实时刷新: 磁铁在后台吸入经验、或别处存取时,
  * 存量显示即时更新。
@@ -33,6 +34,7 @@ object ExpMenu {
 
     private const val INFO_SLOT = 4
     private const val DEPOSIT_SLOT = 13
+    private const val PAYOUT_MODE_SLOT = 17
     private const val UPGRADE_SLOT = 8
 
     /** 位置键 → 打开中的界面 (实时刷新用)。 */
@@ -74,6 +76,17 @@ object ExpMenu {
             )
             menu.addMenuClickHandler(DEPOSIT_SLOT) { p, _, _, _ ->
                 DrawerExp.deposit(block, p); render(); false
+            }
+
+            val payoutMode = DrawerExp.payoutMode(block)
+            menu.replaceExistingItem(
+                PAYOUT_MODE_SLOT,
+                GuiItems.localized(payoutMode.icon, payoutMode.menuKey)
+            )
+            menu.addMenuClickHandler(PAYOUT_MODE_SLOT) { _, _, _, _ ->
+                DrawerExp.togglePayoutMode(block)
+                render()
+                false
             }
 
             // 升级入口: 经验模式下右键只开本页, 需在此提供管理升级组件的入口
