@@ -70,7 +70,7 @@ class RemoteTerminal(
         ))
     }
 
-    /** 打开当前选中的网络; 未绑定、绑定失效或无权限时提示。 */
+    /** 打开当前选中的网络；未绑定、绑定失效、物品权限或控制器位置保护不通过时提示。 */
     private fun openBound(player: Player, item: ItemStack) {
         val bindings = readBindings(item)
         if (bindings.isEmpty()) {
@@ -89,7 +89,7 @@ class RemoteTerminal(
         NetworkMenu.open(NetworkRegistry.get(block), player, switcher)
     }
 
-    /** 切换到下一个仍然有效且玩家有 Slimefun 使用权限的控制器。 */
+    /** 切换到下一个仍然有效且玩家同时通过物品权限与控制器位置保护的控制器。 */
     private fun switchBound(player: Player, item: ItemStack) {
         val bindings = readBindings(item)
         if (bindings.size <= 1) {

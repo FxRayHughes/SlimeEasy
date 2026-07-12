@@ -22,12 +22,13 @@ import top.maplex.slimeEasy.villager.core.VillagerDisplay
  * - **释放** ([PlayerInteractEvent], 潜行 + 右键空气 / 方块): 满捕捉器在目标位置生成活体村民并还原全部属性,
  *   满捕捉器 -1、返还空捕捉器 +1 (容器可复用)。
  *
- * 捕捉器为普通 Slimefun 物品 (无 ItemUseHandler), 故所有交互由本 Bukkit 监听器独占处理, 避免事件竞争。
+ * 捕捉器为普通 Slimefun 物品 (无 ItemUseHandler), 故所有交互由本 Bukkit 监听器独占处理；监听器必须
+ * 忽略已取消事件，让领地与其它保护插件能在捕捉或释放产生世界副作用前直接阻断操作。
  */
 class CatcherListener : Listener {
 
     /** 捕捉: 空捕捉器右键活体村民 / 僵尸村民。 */
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun onCapture(e: PlayerInteractEntityEvent) {
         if (e.hand != EquipmentSlot.HAND) return
         val player = e.player
@@ -57,7 +58,7 @@ class CatcherListener : Listener {
     }
 
     /** 释放: 潜行 + 右键 (空气 / 方块), 满捕捉器放出村民。 */
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun onRelease(e: PlayerInteractEvent) {
         if (e.hand != EquipmentSlot.HAND) return
         if (e.action != Action.RIGHT_CLICK_AIR && e.action != Action.RIGHT_CLICK_BLOCK) return

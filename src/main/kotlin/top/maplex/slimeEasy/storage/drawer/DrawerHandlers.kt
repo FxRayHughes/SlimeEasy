@@ -11,6 +11,7 @@ import top.maplex.slimeEasy.storage.core.StorageDrops
 import top.maplex.slimeEasy.storage.network.NetworkRegistry
 import top.maplex.slimeEasy.storage.network.RemoteBind
 import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
+import top.maplex.slimeEasy.util.SlimefunBlockAccess
 
 /**
  * 抽屉的放置 / 破坏 / 右键处理器工厂。
@@ -18,7 +19,8 @@ import top.maplex.slimeEasy.storage.upgrade.UpgradeStore
  * 放置时面向玩家生成展示框。破坏时把库存内容与已装升级作为真实物品散落
  * ([StorageDrops.spill]), 方块本体由 Slimefun 掉落 —— handler **不再**手动加入
  * 方块物品 (Slimefun 会在 handler 之后追加 `getDrops()`, 否则掉两个), 内容与升级
- * 直接散落而非随抽屉物品搬走。右键木桶本体打开操作界面 (与点击展示框等效)。
+ * 直接散落而非随抽屉物品搬走。右键木桶本体打开操作界面 (与点击展示框等效)，两个入口都必须
+ * 以真实抽屉方块执行 Slimefun 物品权限与完整保护检查。
  */
 object DrawerHandlers {
 
@@ -59,6 +61,7 @@ object DrawerHandlers {
     fun use(drawer: Drawer): BlockUseHandler = BlockUseHandler { e: PlayerRightClickEvent ->
         val block = e.clickedBlock.orElse(null) ?: return@BlockUseHandler
         e.cancel() // 阻止原版木桶界面
+        if (!SlimefunBlockAccess.canUse(e.player, block, drawer)) return@BlockUseHandler
         if (UpgradeStore.resolve(block.location).hasExpStorage) {
             ExpMenu.open(block, e.player)
         } else {

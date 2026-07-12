@@ -9,6 +9,7 @@
 | 服务端 | Paper 26.2+ |
 | Java | 25 |
 | 前置插件 | Slimefun4 |
+| 可选插件 | DecentHolograms 2.10.1（工程师护目镜显示） |
 
 插件以 Paper 的 Mojang 映射 NMS/CraftBukkit 接口编译，不兼容 Spigot；升级服务端大版本时应使用对应 dev bundle 重新编译并核对内部签名。发布包不内嵌 Kotlin，首次启动由 Paper Loader 从默认 Maven 镜像下载对应 Kotlin 标准库，之后使用服务端缓存。
 
@@ -137,6 +138,18 @@ https://github.com/FxRayHughes/SlimeEasy/releases/download/latest/SlimeEasy-1.0-
 > 说明: 两型矿机可开采的矿石**种类相同** (进阶矿机仅继承普通矿机的矿石集合), 差异在于采掘范围与精准采集。因此切换的核心区别是范围大小。
 
 **合成** (增强工作台): 钻石锄 + 指南针 + 钻石块 (竖列)。
+
+### 工程师护目镜
+
+铁头盔外观的穿戴工具。戴入头盔栏后，每 10 tick 扫描同世界三维距离 16 格内的已加载区域，显示全部已放置
+Slimefun 方块及注册多方块结构的名称。全息图由 DecentHolograms 发包，只向佩戴者显示，不创建可点击命中箱。
+
+- 储能组件显示真实当前电量/容量，并按相邻采样显示净流入或净流出 (`J/s`)
+- 标准加工机器显示额定耗电，发电组件显示当前 API 发电量；第三方附属未公开的数据不会被伪造
+- 多方块在玩家移动或附近结构改变时重新匹配，普通机器直接读取已加载区块的 Slimefun 缓存
+- DecentHolograms 2.10.1 是可选依赖；缺失时 SlimeEasy 仍可启动，但护目镜只提示显示不可用
+
+研究解锁: **12 级经验**。**合成** (增强工作台): 玻璃板、红石、铁头盔与指南针。
 
 ### 生长抑制器
 
@@ -337,6 +350,7 @@ src/main/kotlin/top/maplex/slimeEasy/
 │   ├── MineableOres           可挖矿石判定 (同 IndustrialMiner.canMine 口径)
 │   └── OreNames               矿石中文名映射
 ├── feature/growth/           生长抑制器 (锁定幼年生物年龄)
+├── feature/goggles/          工程师护目镜 (机器扫描 + 私有 DH 全息图 + 能源采样)
 ├── feature/harness/          战斗挽具 (乐魂守护者激光作战)
 ├── storage/                  存储系统
 │   ├── core/                 库存核心 (VirtualStorage / ItemKey / 货运缓冲基类 / 容器进出 ContainerIO / 升级与过滤 GUI)

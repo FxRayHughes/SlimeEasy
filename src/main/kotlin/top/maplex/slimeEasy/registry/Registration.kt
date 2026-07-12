@@ -17,6 +17,7 @@ import top.maplex.slimeEasy.feature.survey.SurveyRuler
 import top.maplex.slimeEasy.feature.survey.SurveyTier
 import top.maplex.slimeEasy.feature.growth.GrowthInhibitor
 import top.maplex.slimeEasy.feature.harness.HarnessCombat
+import top.maplex.slimeEasy.feature.goggles.EngineerGogglesDisplay
 import top.maplex.slimeEasy.feature.ward.CreeperControlListener
 import top.maplex.slimeEasy.feature.ward.CreeperWard
 import top.maplex.slimeEasy.machine.breaker.AutoBreaker
@@ -67,6 +68,7 @@ object Registration {
     private val AUTO_CLICKER_RESEARCH_COST get() = SEConfig.autoClickerResearch
     private val QUARRY_RESEARCH_COST get() = SEConfig.quarryResearch
     private val GROWTH_INHIBITOR_RESEARCH_COST get() = SEConfig.growthInhibitorResearch
+    private val ENGINEER_GOGGLES_RESEARCH_COST get() = SEConfig.engineerGogglesResearch
     private val COMBAT_HARNESS_RESEARCH_COST get() = SEConfig.combatHarnessResearch
     private val SURVEY_RULER_RESEARCH_COST get() = SEConfig.surveyRulerResearch
     private val SIEVE_RESEARCH_COST get() = SEConfig.sieveResearch
@@ -333,6 +335,23 @@ object Registration {
             research("growth_inhibitor", 9019, I18n.text("research.growth-inhibitor"), GROWTH_INHIBITOR_RESEARCH_COST, growthInhibitor)
         }
 
+        // 工程师护目镜是可穿戴普通物品；扫描与 DH 可选依赖由全服共享显示服务统一管理。
+        if (SEConfig.engineerGogglesEnabled) {
+            val engineerGoggles = SlimefunItem(
+                Groups.UTILITY_TOOLS,
+                Items.ENGINEER_GOGGLES,
+                RecipeType.ENHANCED_CRAFTING_TABLE,
+                Items.ENGINEER_GOGGLES_RECIPE
+            ).also { it.register(addon) }
+            research(
+                "engineer_goggles",
+                9025,
+                I18n.text("research.engineer-goggles"),
+                ENGINEER_GOGGLES_RESEARCH_COST,
+                engineerGoggles
+            )
+        }
+
         // 11c. 注册战斗挽具 (4 档, 归实用工具) 并启动乐魂作战定时任务; 关闭时不注册也不启动任务
         if (SEConfig.combatHarnessEnabled) {
             fun harness(stack: SlimefunItemStack, recipe: Array<ItemStack?>): SlimefunItem =
@@ -353,6 +372,11 @@ object Registration {
 
         // 14. 注册简易领地及其统一保护模块
         registerTerritory(addon)
+
+        // 所有附属完成多方块登记后再启动扫描，确保首次刷新即可读取完整注册表。
+        if (SEConfig.engineerGogglesEnabled) {
+            EngineerGogglesDisplay.start(SlimeEasy.instance)
+        }
     }
 
     /** 注册领地物品、研究、菜单输入监听器，并延迟挂接 Slimefun ProtectionModule。 */

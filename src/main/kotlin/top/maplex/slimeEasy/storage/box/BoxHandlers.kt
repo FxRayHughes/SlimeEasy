@@ -9,6 +9,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.storage.core.StorageDrops
 import top.maplex.slimeEasy.storage.network.NetworkRegistry
+import top.maplex.slimeEasy.util.SlimefunBlockAccess
 
 /**
  * 翻页箱的放置 / 破坏 / 右键处理器工厂。
@@ -16,7 +17,8 @@ import top.maplex.slimeEasy.storage.network.NetworkRegistry
  * 放置 / 破坏时使网络缓存失效, 以便相邻控制器的网络即时纳入 / 移除本箱 (相邻免
  * 连接器自动组网)。破坏时把库存内容与已装升级作为真实物品散落 (由 [StorageDrops.spill]),
  * 方块本体由 Slimefun 掉落 —— handler **不再**手动加入方块物品 (Slimefun 破坏流程会在
- * handler 之后追加 `getDrops()`, 若这里再加会掉两个)。右键打开 [PagedBoxMenu]。
+ * handler 之后追加 `getDrops()`, 若这里再加会掉两个)。右键打开 [PagedBoxMenu] 前显式走
+ * Slimefun 物品权限与完整保护链，不能只依赖外层事件监听器的执行顺序。
  */
 object BoxHandlers {
 
@@ -37,6 +39,7 @@ object BoxHandlers {
     fun use(box: PagedBox): BlockUseHandler = BlockUseHandler { e: PlayerRightClickEvent ->
         val block = e.clickedBlock.orElse(null) ?: return@BlockUseHandler
         e.cancel() // 阻止原版容器界面 / 放置行为
+        if (!SlimefunBlockAccess.canUse(e.player, block, box)) return@BlockUseHandler
         // 装了经验升级: 打开经验操作页 (存入 / 按等级取出), 而非普通分页
         if (top.maplex.slimeEasy.storage.upgrade.UpgradeStore.resolve(block.location).hasExpStorage) {
             top.maplex.slimeEasy.storage.drawer.ExpMenu.open(block, e.player)

@@ -67,7 +67,10 @@ internal class TerritoryProtectionListener : Listener {
         deny(event.player, event.block, Interaction.PLACE_BLOCK) { event.isCancelled = true }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    /**
+     * 必须早于 Slimefun 默认 NORMAL 监听器执行；否则 BlockUseHandler 已打开菜单后再取消事件没有作用。
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     private fun onInteract(event: PlayerInteractEvent) {
         val block = event.clickedBlock ?: return
         val territory = TerritoryService.byBlock(block.location)
@@ -89,7 +92,11 @@ internal class TerritoryProtectionListener : Listener {
         deny(event.player, block, Interaction.INTERACT_BLOCK) { event.isCancelled = true }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    /**
+     * 实体交互同样必须在本插件的捕捉器、药剂与展示实体监听器之前拒绝；这些监听器统一忽略
+     * 已取消事件，确保领地权限是发生业务副作用前的第一道门禁。
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     private fun onEntityInteract(event: PlayerInteractEntityEvent) =
         deny(event.player, event.rightClicked.location, Interaction.INTERACT_ENTITY) { event.isCancelled = true }
 

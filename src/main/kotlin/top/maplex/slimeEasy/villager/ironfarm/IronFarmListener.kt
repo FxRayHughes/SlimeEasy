@@ -6,6 +6,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.inventory.EquipmentSlot
 import top.maplex.slimeEasy.registry.VillagerItems
+import top.maplex.slimeEasy.util.SlimefunBlockAccess
 import top.maplex.slimeEasy.villager.core.VillagerDisplay
 
 /**
@@ -16,7 +17,7 @@ import top.maplex.slimeEasy.villager.core.VillagerDisplay
  */
 class IronFarmListener : Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun onDisplayInteract(e: PlayerInteractEntityEvent) {
         if (e.hand != EquipmentSlot.HAND) return
         val entity = e.rightClicked
@@ -24,6 +25,8 @@ class IronFarmListener : Listener {
         val block = entity.location.block
         if (StorageCacheUtils.getBlock(block.location)?.sfId != VillagerItems.IRON_FARM_ID) return
         e.isCancelled = true
+        // 展示实体点击不会经过 Slimefun 方块监听，必须按刷铁机本体位置补做完整访问鉴权。
+        if (!SlimefunBlockAccess.canUse(e.player, block)) return
         StorageCacheUtils.getMenu(block.location)?.open(e.player)
     }
 }

@@ -3,6 +3,7 @@ package top.maplex.slimeEasy.registry
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.config.SEText
 
 /**
@@ -153,6 +154,28 @@ object Items {
         null, ItemStack(Material.COMPASS), null,
         null, ItemStack(Material.DIAMOND_HOE), null,
         null, ItemStack(Material.DIAMOND_BLOCK), null
+    )
+
+    /** 工程师护目镜的稳定 Slimefun ID；穿戴检测必须按此身份判断而非显示名。 */
+    const val ENGINEER_GOGGLES_ID = "SE_ENGINEER_GOGGLES"
+
+    /** 工程师护目镜使用铁头盔槽位，佩戴后启用仅自己可见的机器诊断全息图。 */
+    val ENGINEER_GOGGLES: SlimefunItemStack =
+        SEText.localized(
+            ENGINEER_GOGGLES_ID,
+            Material.IRON_HELMET,
+            "items.engineer-goggles",
+            "radius" to SEConfig.engineerGogglesRadius
+        )
+
+    /**
+     * 增强工作台配方：玻璃与红石构成观察组件，指南针负责定位附近机器。
+     * 中央必须是原版铁头盔，避免护目镜递归参与自身配方。
+     */
+    val ENGINEER_GOGGLES_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.GLASS_PANE), ItemStack(Material.REDSTONE), ItemStack(Material.GLASS_PANE),
+        ItemStack(Material.REDSTONE), ItemStack(Material.IRON_HELMET), ItemStack(Material.REDSTONE),
+        null, ItemStack(Material.COMPASS), null
     )
 
     /** 屠夫机器的全局唯一 ID。 */

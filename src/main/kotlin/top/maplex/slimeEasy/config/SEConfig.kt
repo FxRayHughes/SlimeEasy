@@ -186,6 +186,20 @@ object SEConfig {
     val surveyPerRaw: Int get() = int("survey-ruler.blocks-per-raw-fuel", 128, 1)
     val surveyPerFuel: Int get() = int("survey-ruler.blocks-per-fuel", 256, 1)
 
+    // ==================== 工程师护目镜 ====================
+
+    /** 是否注册工程师护目镜及其研究；注册期读取，修改后需重启。 */
+    val engineerGogglesEnabled: Boolean get() = bool("engineer-goggles.enabled", true)
+
+    /** 解锁工程师护目镜所需经验等级。 */
+    val engineerGogglesResearch: Int get() = int("engineer-goggles.research-level", 12, 0)
+
+    /** 护目镜扫描的三维直线半径；只检查已加载区块，不由显示功能加载新区块。 */
+    val engineerGogglesRadius: Int get() = int("engineer-goggles.radius", 16, 1)
+
+    /** 穿戴检测、机器数据和私有全息图刷新的共享周期。 */
+    val engineerGogglesRefreshTicks: Long get() = long("engineer-goggles.refresh-ticks", 10L, 1L)
+
     // ==================== 生长抑制器 ====================
 
     val growthInhibitorEnabled: Boolean get() = bool("growth-inhibitor.enabled", true)

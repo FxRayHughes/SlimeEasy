@@ -3,6 +3,7 @@ package top.maplex.slimeEasy
 import org.bukkit.plugin.java.JavaPlugin
 import top.maplex.slimeEasy.command.SECommand
 import top.maplex.slimeEasy.config.I18n
+import top.maplex.slimeEasy.feature.goggles.EngineerGogglesDisplay
 import top.maplex.slimeEasy.registry.Registration
 import top.maplex.slimeEasy.territory.TerritoryService
 
@@ -36,6 +37,8 @@ class SlimeEasy : JavaPlugin() {
     }
 
     override fun onDisable() {
+        // DH 临时全息图属于外部插件内存对象，必须在本插件失效前主动注销。
+        EngineerGogglesDisplay.stop()
         // 领地属于插件自有动态存档；卸载前执行最终原子保存。
         TerritoryService.shutdown()
         // Slimefun 会在正常关服时随后清理注册表；不支持 PlugMan 或 /reload 式热卸载。

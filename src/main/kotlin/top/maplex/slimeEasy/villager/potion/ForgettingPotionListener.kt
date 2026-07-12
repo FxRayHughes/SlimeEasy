@@ -15,11 +15,12 @@ import top.maplex.slimeEasy.villager.core.VillagerDisplay
  * 遗忘药剂的交互监听。
  *
  * 手持遗忘药剂右键一只活体村民 → 职业置为无职业 (none), 变回可再就业的普通村民, 消耗一瓶。
- * 展示实体 (带标记) 一律跳过, 避免改动交易器 / 刷铁机内的展示村民。
+ * 展示实体 (带标记) 一律跳过, 避免改动交易器 / 刷铁机内的展示村民；已被领地或其它保护插件
+ * 取消的事件不得继续消耗药剂或修改村民。
  */
 class ForgettingPotionListener : Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun onUse(e: PlayerInteractEntityEvent) {
         if (e.hand != EquipmentSlot.HAND) return
         val player = e.player

@@ -20,7 +20,8 @@ import top.maplex.slimeEasy.storage.core.StorageDisplay
  * - 点击物品: 左键取一组 / 右键取一个 (跨成员取出到背包, 溢出掉落);
  * - 点击自己背包物品: 按优先级分发存入网络。
  *
- * GUI 打开时对网络拓扑做一次快照 (来自 [NetworkRegistry] 缓存); 库存读写实时。
+ * GUI 打开时对网络拓扑做一次快照 (来自 [NetworkRegistry] 缓存); 库存读写实时。控制器访问权在
+ * 打开、重绘以及每次存取前重新校验，撤权后旧菜单不能继续操作。
  */
 object NetworkMenu {
 
@@ -42,7 +43,9 @@ object NetworkMenu {
         StorageChangeBus.subscribe { _ -> openViews.toList().forEach { it.render() } }
     }
 
+    /** 所有物理与远程入口都在创建视图前校验控制器，避免调用方遗漏目标位置权限。 */
     fun open(net: StorageNetwork, player: Player, switchTerminal: ((Player) -> Unit)? = null) {
+        if (!NetworkControllerAccess.canUse(player, net.controller)) return
         View(net, player, switchTerminal).menu.open(player)
     }
 
@@ -90,6 +93,8 @@ object NetworkMenu {
          *   其余物品位置稳定。
          */
         fun render(resort: Boolean = false) {
+            // 权限可能在菜单打开后被即时收回；任何重绘都顺便关闭已失效的远程视图。
+            if (!ensureAccess(message = false)) return
             // 聚合显示: 全网合并后**一种物品一个图标** (总量写入 lore), 不按堆叠拆格平铺;
             // 分组拆格的多格展示留给成员容器 (翻页箱) 自身界面。
             val agg = net.aggregate()
@@ -167,11 +172,13 @@ object NetworkMenu {
          * 玩家离线则丢弃。关闭期间本视图已从 [openViews] 移除, 不受库存变更重绘干扰。
          */
         private fun promptSearch() {
+            if (!ensureAccess(message = true)) return
             player.sendMessage(I18n.text("messages.network.search-prompt"))
             player.closeInventory()
             ChatInput.waitForPlayer(SlimeEasy.instance, player) { input ->
                 Bukkit.getScheduler().runTask(SlimeEasy.instance, Runnable {
                     if (!player.isOnline) return@Runnable
+                    if (!NetworkControllerAccess.canUse(player, net.controller)) return@Runnable
                     filter = if (input.equals("cancel", ignoreCase = true)) "" else input.trim().lowercase()
                     page = 0
                     openViews.add(this) // 关界面时 close handler 已移除本视图, 重开前重新登记以恢复实时重绘
@@ -216,6 +223,7 @@ object NetworkMenu {
         }
 
         private fun withdraw(player: Player, key: ItemKey, amount: Int) {
+            if (!ensureAccess(message = true)) return
             val got = net.extract(key, amount.toLong()).toInt()
             if (got <= 0) return
             player.inventory.addItem(key.toDisplay(got)).values
@@ -225,6 +233,7 @@ object NetworkMenu {
 
         /** 从玩家**点击的那一槽** [slot] 精确扣除实际入库数量 (点哪组扣哪组)。 */
         private fun deposit(player: Player, slot: Int, item: ItemStack?) {
+            if (!ensureAccess(message = true)) return
             if (item == null || item.type.isAir) return
             val key = ItemKey.of(item) ?: return
             val leftover = net.insert(key, item.amount.toLong())
@@ -233,6 +242,14 @@ object NetworkMenu {
                 top.maplex.slimeEasy.storage.core.InventoryOps.removeFromSlot(player, slot, key, stored)
                 render(resort = true) // 存入属主动操作, 按排序归位
             }
+        }
+
+        /** 拒绝后立即移除并关闭视图，防止撤权玩家继续读取或修改网络库存。 */
+        private fun ensureAccess(message: Boolean): Boolean {
+            if (NetworkControllerAccess.canUse(player, net.controller, message)) return true
+            openViews.remove(this)
+            player.closeInventory()
+            return false
         }
     }
 }

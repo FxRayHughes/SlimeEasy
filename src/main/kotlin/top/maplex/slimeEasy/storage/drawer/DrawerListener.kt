@@ -12,6 +12,7 @@ import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.EquipmentSlot
+import top.maplex.slimeEasy.util.SlimefunBlockAccess
 import java.util.UUID
 
 /**
@@ -22,31 +23,34 @@ import java.util.UUID
  *   存入背包全部同类; 空手 Shift+右键打开升级 GUI;
  * - 经验模式: 右键存入全部经验, 左键取出一级经验。
  *
- * 通过展示框 UUID 与抽屉 BlockData 记录比对来确认归属, 避免误伤普通展示框。
+ * 通过展示框 UUID 与抽屉 BlockData 记录比对来确认归属, 避免误伤普通展示框；解析成功后仍以
+ * 抽屉本体执行 Slimefun 物品权限和完整方块保护检查，展示实体不能成为容器权限旁路。
  */
 class DrawerListener : Listener {
 
     /** 玩家上次右键抽屉展示框的时间戳, 用于双击判定。 */
     private val lastRightClick = HashMap<UUID, Long>()
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun onLeftClick(e: EntityDamageByEntityEvent) {
         val frame = e.entity as? ItemFrame ?: return
         val player = e.damager as? Player ?: return
         val (drawer, block) = resolve(frame) ?: return
         e.isCancelled = true // 防止把展示框打掉
+        if (!SlimefunBlockAccess.canUse(player, block, drawer)) return
         if (isExp(block)) { ExpMenu.open(block, player); return }
         if (player.isSneaking) DrawerInteract.withdrawStack(drawer, block, player)
         else DrawerInteract.withdrawOne(drawer, block, player)
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun onRightClick(e: PlayerInteractEntityEvent) {
         if (e.hand != EquipmentSlot.HAND) return // 去重: 只处理主手
         val frame = e.rightClicked as? ItemFrame ?: return
         val (drawer, block) = resolve(frame) ?: return
         e.isCancelled = true
         val player = e.player
+        if (!SlimefunBlockAccess.canUse(player, block, drawer)) return
         // 空手 Shift+右键: 打开抽屉主界面 (当前物品 + 升级按钮)
         val hand = player.inventory.itemInMainHand
         if (hand.type.isAir && player.isSneaking) {

@@ -14,11 +14,12 @@ import org.bukkit.event.player.PlayerInteractEvent
  * (仅右键), 故以原版 [PlayerInteractEvent] 承接: 玩家潜行左键 (空气或方块) 手持勘察尺时,
  * 翻转其展示形式 (聊天栏 / 箱子界面) 并取消事件, 避免生存模式下顺带破坏方块。
  *
- * 该切换对普通版与进阶版一致适用 (与层级数无关)。
+ * 该切换对普通版与进阶版一致适用 (与层级数无关)。点击方块时必须尊重领地与其它保护插件
+ * 已取消的事件，不能借由本监听器继续修改手持物品状态。
  */
 class SurveyDisplayListener : Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun onInteract(e: PlayerInteractEvent) {
         if (!e.player.isSneaking) return
         if (e.action != Action.LEFT_CLICK_AIR && e.action != Action.LEFT_CLICK_BLOCK) return

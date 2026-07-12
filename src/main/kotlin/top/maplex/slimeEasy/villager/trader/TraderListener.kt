@@ -20,6 +20,7 @@ import top.maplex.slimeEasy.registry.VillagerItems
 import top.maplex.slimeEasy.villager.catcher.VillagerCatcher
 import top.maplex.slimeEasy.villager.core.VillagerConfig
 import top.maplex.slimeEasy.villager.core.VillagerDisplay
+import top.maplex.slimeEasy.util.SlimefunBlockAccess
 import top.maplex.slimeEasy.villager.core.WorkstationMap
 
 /**
@@ -34,7 +35,7 @@ import top.maplex.slimeEasy.villager.core.WorkstationMap
  */
 class TraderListener : Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun onInteract(e: PlayerInteractEvent) {
         if (e.hand != EquipmentSlot.HAND) return
         if (e.action != Action.RIGHT_CLICK_BLOCK) return
@@ -51,7 +52,7 @@ class TraderListener : Listener {
      * 展示村民站在方块中心, 玩家右键往往先命中实体而非方块 (触发 [PlayerInteractEntityEvent]),
      * 导致方块交互失效。此处把"点到本交易器展示村民"等同于"右键交易器方块"。
      */
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun onDisplayInteract(e: PlayerInteractEntityEvent) {
         if (e.hand != EquipmentSlot.HAND) return
         val villager = e.rightClicked as? Villager ?: return
@@ -62,8 +63,9 @@ class TraderListener : Listener {
         route(block, e.player)
     }
 
-    /** 交互路由: 潜行取出, 否则放入 / 交易。 */
+    /** 交互路由: 展示实体入口也必须先按真实机器方块鉴权，再执行潜行取出或放入 / 交易。 */
     private fun route(block: Block, player: Player) {
+        if (!SlimefunBlockAccess.canUse(player, block)) return
         if (player.isSneaking) extract(block, player) else insertOrTrade(block, player)
     }
 

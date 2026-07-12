@@ -2,11 +2,11 @@ package top.maplex.slimeEasy.storage.network
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
-import io.github.thebusybiscuit.slimefun4.implementation.Slimefun
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
+import top.maplex.slimeEasy.util.SlimefunBlockAccess
 
-/** 网络控制器目标识别与 Slimefun 使用权限的统一入口。 */
+/** 网络控制器目标识别、Slimefun 物品权限与目标位置保护的统一入口。 */
 object NetworkControllerAccess {
 
     fun controllerAt(block: Block): NetworkController? {
@@ -18,8 +18,6 @@ object NetworkControllerAccess {
 
     fun canUse(player: Player, block: Block, message: Boolean = true): Boolean {
         val controller = controllerAt(block) ?: return false
-        if (Slimefun.getPermissionsService().hasPermission(player, controller)) return true
-        if (message) Slimefun.getLocalization().sendMessage(player, "messages.no-permission", true)
-        return false
+        return SlimefunBlockAccess.canUse(player, block, controller, message)
     }
 }

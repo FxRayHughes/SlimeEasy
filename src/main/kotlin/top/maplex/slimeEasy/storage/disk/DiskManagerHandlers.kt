@@ -4,11 +4,11 @@ import io.github.thebusybiscuit.slimefun4.api.events.PlayerRightClickEvent
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockUseHandler
-import io.github.thebusybiscuit.slimefun4.implementation.Slimefun
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.storage.network.NetworkRegistry
+import top.maplex.slimeEasy.util.SlimefunBlockAccess
 
 /** 磁盘管理器的放置、破坏与访问处理器。 */
 object DiskManagerHandlers {
@@ -31,14 +31,11 @@ object DiskManagerHandlers {
         }
     }
 
-    /** 右键始终接管原版放书行为，所有安装和拆卸必须经过带校验的独立 UI。 */
+    /** 右键始终接管原版放书行为，且只有通过物品权限与目标位置保护后才能进入独立 UI。 */
     fun use(manager: DiskManager): BlockUseHandler = BlockUseHandler { e: PlayerRightClickEvent ->
         val block = e.clickedBlock.orElse(null) ?: return@BlockUseHandler
         e.cancel()
-        if (!Slimefun.getPermissionsService().hasPermission(e.player, manager)) {
-            Slimefun.getLocalization().sendMessage(e.player, "messages.no-permission", true)
-            return@BlockUseHandler
-        }
+        if (!SlimefunBlockAccess.canUse(e.player, block, manager)) return@BlockUseHandler
         DiskManagerMenu.open(manager, block, e.player)
     }
 }

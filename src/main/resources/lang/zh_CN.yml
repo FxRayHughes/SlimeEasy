@@ -89,6 +89,15 @@ items:
       &7潜行 + 左键: 切换展示形式 (&f聊天栏 &7/ &f箱子界面&7)
 
       &7冷却: &f5 秒
+  engineer-goggles:
+    name: "&b工程师护目镜"
+    lore: |-
+
+      &7戴在头盔栏后，显示附近 &fSlimefun 方块
+      &7与多方块结构的名称和可读取的能源数据。
+
+      &7显示半径: &f{radius} 格
+      &8全息图仅自己可见，且不会阻挡点击。
   butcher:
     name: "&c屠夫机器"
     lore: |-
@@ -1250,6 +1259,8 @@ names:
       flags: "旗帜样式管理"
       settings: "领地设置"
 messages:
+  engineer-goggles:
+    decent-holograms-missing: "&c未安装 DecentHolograms，工程师护目镜显示不可用。"
   territory:
     created: "&a领地已创建，核心周围的 3×3 区域已被认领。"
     chunk-added: "&a旗帜已放置，其 3×3 覆盖已并入领地。"
@@ -1410,6 +1421,16 @@ logs:
     fake-player-failed: "[SlimeEasy] 屠夫机器假玩家构造失败, 降级为普通伤害: {error}"
   auto-clicker:
     nms-interaction-failed: "[SlimeEasy] 自动点击器 NMS 交互失败, 本次点击已跳过: {error}"
+holograms:
+  engineer-goggles:
+    energy: "&7电量: &e{charge} &7/ &e{capacity} J"
+    energy-loading: "&8能源数据加载中"
+    consumption: "&7额定耗电: &c{amount} J/t"
+    generation: "&7当前发电: &a{amount} J/t"
+    flow-sampling: "&7净流量: &8采样中"
+    flow-in: "&7净流入: &a+{amount} J/s"
+    flow-out: "&7净流出: &c-{amount} J/s"
+    flow-idle: "&7净流量: &f0 J/s"
 formats:
   storage:
     total: "&7总量: &e{amount}"
@@ -1427,6 +1448,7 @@ research:
   quarry: "采石场"
   survey-ruler: "矿物勘察尺"
   advanced-survey-ruler: "进阶矿物勘察尺"
+  engineer-goggles: "工程师护目镜"
   growth-inhibitor: "生长抑制器"
   combat-harness: "战斗挽具"
   villager-catcher: "村民捕捉器"
