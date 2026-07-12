@@ -19,6 +19,16 @@ object NetworkRegistry {
     fun get(controller: Block): StorageNetwork =
         cache.getOrPut(locKey(controller)) { NetworkScan.build(controller) }
 
+    /**
+     * 在已构建网络中查找端口归属。
+     *
+     * 端口缓冲只有在控制器服务过该网络后才可能含有网络输出，因此模式切换与破坏结算
+     * 只需查询缓存即可；此方法不得把端口误当控制器触发反向 BFS。
+     */
+    fun findByPort(port: Block): StorageNetwork? = cache.values.firstOrNull { network ->
+        network.inputPorts.any { it == port } || network.outputPorts.any { it == port }
+    }
+
     /** 使全部缓存失效 (拓扑变更时)。 */
     fun invalidateAll() = cache.clear()
 

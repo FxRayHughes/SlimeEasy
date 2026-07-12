@@ -29,7 +29,20 @@ object FilterMenu {
     private const val MARK_SLOT = 33
     private const val MODE_SLOT = 34
 
-    fun open(block: Block, player: Player, filter: ItemFilter, faceConfig: FaceConfig, title: String) {
+    /**
+     * 打开过滤配置。
+     *
+     * [onFilterChanged] 仅在名单或黑白名单模式变化后调用，生效面变化不会调用；网络端口
+     * 借此立即清退已被新规则禁止的缓冲物品，而普通升级宿主可继续使用默认空回调。
+     */
+    fun open(
+        block: Block,
+        player: Player,
+        filter: ItemFilter,
+        faceConfig: FaceConfig,
+        title: String,
+        onFilterChanged: () -> Unit = {}
+    ) {
         val menu = ChestMenu(title)
         menu.setEmptySlotsClickable(false)
         // 点击背包内的物品也可加入 / 移出名单 (不必手持)
@@ -37,21 +50,31 @@ object FilterMenu {
             // Slimefun 点击玩家背包空槽时会传入 null，必须先判空再读取物品类型。
             if (item != null && !item.type.isAir) {
                 filter.toggle(block.location, item)
-                render(menu, block, filter, faceConfig)
+                onFilterChanged()
+                render(menu, block, filter, faceConfig, onFilterChanged)
             }
             false
         }
-        render(menu, block, filter, faceConfig)
+        render(menu, block, filter, faceConfig, onFilterChanged)
         menu.open(player)
     }
 
-    private fun render(menu: ChestMenu, block: Block, filter: ItemFilter, faceConfig: FaceConfig) {
+    private fun render(
+        menu: ChestMenu,
+        block: Block,
+        filter: ItemFilter,
+        faceConfig: FaceConfig,
+        onFilterChanged: () -> Unit
+    ) {
         val entries = filter.read(block.location).toList()
         for (slot in LIST_SLOTS) {
             val key = entries.getOrNull(slot)
             if (key != null) {
                 menu.addItem(slot, icon(key)) { _, _, _, _ ->
-                    filter.remove(block.location, key.template); render(menu, block, filter, faceConfig); false
+                    filter.remove(block.location, key.template)
+                    onFilterChanged()
+                    render(menu, block, filter, faceConfig, onFilterChanged)
+                    false
                 }
             } else {
                 menu.addItem(slot, GuiItems.BACKGROUND) { _, _, _, _ -> false }
@@ -61,17 +84,26 @@ object FilterMenu {
         for ((i, face) in FaceConfig.ALL.withIndex()) {
             val enabled = faceConfig.isEnabled(block.location, face)
             menu.addItem(FACE_SLOT_START + i, faceIcon(face, enabled)) { _, _, _, _ ->
-                faceConfig.toggle(block.location, face); render(menu, block, filter, faceConfig); false
+                faceConfig.toggle(block.location, face)
+                render(menu, block, filter, faceConfig, onFilterChanged)
+                false
             }
         }
         menu.addItem(MARK_SLOT, GuiItems.localized(Material.NAME_TAG, "menus.filter.marker")) { p, _, _, _ ->
             val hand = p.inventory.itemInMainHand
-            if (!hand.type.isAir) { filter.toggle(block.location, hand); render(menu, block, filter, faceConfig) }
+            if (!hand.type.isAir) {
+                filter.toggle(block.location, hand)
+                onFilterChanged()
+                render(menu, block, filter, faceConfig, onFilterChanged)
+            }
             false
         }
         menu.addItem(MODE_SLOT, modeIcon(filter.mode(block.location))) { _, _, _, _ ->
             val next = if (filter.mode(block.location) == FilterMode.BLACKLIST) FilterMode.WHITELIST else FilterMode.BLACKLIST
-            filter.setMode(block.location, next); render(menu, block, filter, faceConfig); false
+            filter.setMode(block.location, next)
+            onFilterChanged()
+            render(menu, block, filter, faceConfig, onFilterChanged)
+            false
         }
     }
 

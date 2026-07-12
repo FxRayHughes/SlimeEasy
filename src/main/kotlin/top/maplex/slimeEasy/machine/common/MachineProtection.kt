@@ -42,6 +42,15 @@ object MachineProtection {
         hasPermission(machine, target, Interaction.PLACE_BLOCK)
 
     /**
+     * 机器所有者是否有权与 [target] 容器交互。
+     *
+     * 主动输入/输出端口会在没有在线玩家上下文的 tick 中读写相邻库存，因此必须使用
+     * `INTERACT_BLOCK` 询问保护插件，不能把“只搬物品”当作无需领地权限的内部操作。
+     */
+    fun canInteract(machine: Block, target: Block): Boolean =
+        hasPermission(machine, target, Interaction.INTERACT_BLOCK)
+
+    /**
      * 机器所有者是否有权攻击位于 [target] 位置的实体。
      *
      * 供屠夫机等主动攻击装置调用: 以 owner 身份询问保护管理器, 避免机器在他人

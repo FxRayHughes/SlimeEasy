@@ -718,6 +718,24 @@ menus:
         &7字节占用: &f{used}&7/{capacity}
 
         &8空光标点击磁盘可拆卸
+  network-port:
+    input-title: "&9网络输入端口"
+    output-title: "&9网络输出端口"
+    status:
+      name: "&b端口状态"
+      lore: |-
+        &7角色: &f{role}
+        &7模式: &f{mode}
+        &7网络: {network}
+        &7Slimefun 货运: {cargo}
+        &7主动相邻 IO: {active}
+
+        &8缓冲槽始终可供玩家手动使用
+    mode:
+      name: "&e工作模式: &f{mode}"
+      lore: |-
+        &7点击循环切换工作模式
+        &8切换前会安全结算当前缓冲物品
   filter:
     marker:
       name: "&e标记物品"
@@ -978,6 +996,18 @@ menus:
 names:
   common:
     none: "无"
+    enabled: "&a启用"
+    disabled: "&7关闭"
+  network-port-role:
+    input: "输入网络"
+    output: "输出网络"
+  port-mode:
+    cargo: "货运模式"
+    active: "主动模式"
+    both: "同时模式"
+  network-status:
+    connected: "&a已连接"
+    disconnected: "&c未连接"
   click-mode:
     left: "左键"
     right: "右键"
@@ -1028,6 +1058,8 @@ names:
     industrial-miner: "工业矿机"
     advanced-industrial-miner: "进阶工业矿机"
 messages:
+  network-port:
+    buffer-dropped: "&e[网络端口] &7部分缓冲物品无法退回，已在端口位置弹出。"
   disk-manager:
     clear-cursor: "&c请先清空光标，再拆卸磁盘"
     disk-required: "&c请先用光标拿起一个物品存储磁盘"

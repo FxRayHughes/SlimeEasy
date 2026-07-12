@@ -252,10 +252,10 @@ object SEConfig {
     /** 新过滤器是否默认白名单; false 为默认黑名单。 */
     val storageFilterDefaultWhitelist: Boolean get() = bool("storage.upgrade.filter-default-whitelist", false)
 
-    /** 每个存储容器每 tick 主动抽取的最大物品数; 0 为不限。 */
+    /** 每个存储容器或主动输入端口每 tick 抽取的最大物品数; 0 为不限。 */
     val storageIoPullMaxItemsPerTick: Int get() = int("storage.io.pull-max-items-per-tick", 0, 0)
 
-    /** 每个存储容器每 tick 主动输出的最大物品数; 0 为不限。 */
+    /** 每个存储容器或主动输出端口每 tick 输出的最大物品数; 0 为不限。 */
     val storageIoPushMaxItemsPerTick: Int get() = int("storage.io.push-max-items-per-tick", 0, 0)
 
     val storageNetworkEnabled: Boolean get() = bool("storage.network.enabled", true)
