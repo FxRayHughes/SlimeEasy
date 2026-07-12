@@ -39,6 +39,33 @@ auto-placer:
 sieve:
   enabled: true
   research-level: 8
+  processing:
+    minimum-action-interval-ticks: -1
+    action-multiplier: 1.5
+    scaffolding-speed-multiplier: 1.5
+    max-linked-sieves: 100
+    required-actions:
+      dirt: 4
+      grass-block: 6
+      gravel: 8
+      dust: 8
+      crushed-netherrack: 12
+      soul-sand: 7
+      soul-soil: 11
+      sand: 6
+      crushed-end-stone: 20
+      crushed-blackstone: 16
+
+  # 筛面原料使用 BlockDisplay 展示。长宽从 0.8 缩至 0.64，高度从 0.8 压至 0。
+  # Display 的底面中心固定在活板门筛面中心，动画由客户端插值完成，不使用逐 tick 实体移动。
+  animation:
+    enabled: true
+    interpolation-ticks: 3
+    completion-ticks: 5
+    start-horizontal-scale: 0.8
+    end-horizontal-scale: 0.64
+    start-height-scale: 0.8
+
   # 每个条目独立判定，取值范围 0-100；修改后执行 /se reload 即时生效。
   chances:
     dirt:
@@ -64,6 +91,21 @@ sieve:
       spruce-sapling: 1
       # 白桦树苗
       birch-sapling: 1
+      # 绔瑰瓙
+      bamboo: 2
+    grass-block:
+      wheat-seeds: 14
+      short-grass: 14
+      melon-seeds: 6
+      pumpkin-seeds: 6
+      sugar-cane: 6
+      carrot: 4
+      potato: 4
+      oak-sapling: 4
+      acacia-sapling: 2
+      spruce-sapling: 2
+      birch-sapling: 2
+      bamboo: 4
     gravel:
       # 燧石
       flint: 25
@@ -114,6 +156,13 @@ sieve:
       # 铜原矿
       raw-copper: 10
     soul-sand:
+      # 地狱疣
+      nether-wart: 5
+      # 恶魂之泪
+      ghast-tear: 2
+      # 额外的下界石英（保底 1 个不受此项影响）
+      extra-quartz: 33
+    soul-soil:
       # 地狱疣
       nether-wart: 5
       # 恶魂之泪
