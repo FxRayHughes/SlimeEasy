@@ -333,7 +333,7 @@ object NetworkPortIO {
             val room = current.maxStackSize - current.amount
             val put = minOf(left, room)
             if (put > 0) {
-                inventory.setItem(slot, current.clone().apply { amount += put })
+                inventory.setItem(slot, current.clone().apply { this.amount += put })
                 left -= put
             }
         }
