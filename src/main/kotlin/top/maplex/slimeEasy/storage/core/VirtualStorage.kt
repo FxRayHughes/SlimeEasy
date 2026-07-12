@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack
  *   堆叠升级使倍率 >1 而放大单槽容量);
  * - 一种物品数量超过单槽容量时**溢出到新槽位** (与 UI 拆格展示一致);
  * - 全部物品占用的槽位总数不得超过 [maxSlots], 种类数不得超过 [maxTypes]。
+ * - 提供 [capacityPolicy] 时改由外部容量协议给出精确接收量，供磁盘等非槽位制后端复用。
  *
  * 抽屉与翻页箱共用本类, 差异仅在构造参数:
  * - 抽屉: [maxTypes] = 1, [maxSlots] = 抽屉内部槽数 (单一物品的大容量);
@@ -20,7 +21,8 @@ import org.bukkit.inventory.ItemStack
 class VirtualStorage(
     var maxTypes: Int,
     var maxSlots: Int,
-    var stackMultiplier: Double
+    var stackMultiplier: Double,
+    private val capacityPolicy: CapacityPolicy? = null
 ) {
 
     /** 有序物品表: 保留插入顺序以支撑箱子分页稳定展示 (仅含数量 > 0 的物品)。 */
@@ -94,6 +96,15 @@ class VirtualStorage(
         if (amount <= 0) return 0
         val key = ItemKey.of(item) ?: return amount
         val existing = contents[key] ?: 0L
+        if (capacityPolicy != null) {
+            // 磁盘等非槽位制后端必须由策略给出精确接收量，避免先套用原版堆叠容量造成误拒绝。
+            val accepted = capacityPolicy.acceptedAmount(this, item, amount).coerceIn(0L, amount)
+            if (!simulate && accepted > 0) {
+                contents[key] = existing + accepted
+                remember(key)
+            }
+            return amount - accepted
+        }
         if (existing == 0L && contents.size >= maxTypes) return amount // 种类已满且是新物品
         val cap = cellCapacity(key)
         // 其它物品已占的槽位; 本物品可用槽位 = 总预算 - 其它占用
@@ -161,4 +172,14 @@ class VirtualStorage(
         const val ENTRY_SEP = ";"
         const val FIELD_SEP = "|"
     }
+}
+
+/**
+ * 非槽位制虚拟库存的容量协议。
+ *
+ * 实现只计算本次请求最多可接受的数量，不得修改 [storage]；实际写入仍由
+ * [VirtualStorage.insert] 统一完成，确保模拟插入不会产生副作用。
+ */
+fun interface CapacityPolicy {
+    fun acceptedAmount(storage: VirtualStorage, item: ItemStack, requested: Long): Long
 }

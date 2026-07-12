@@ -32,6 +32,40 @@ object StorageItems {
         ItemStack(Material.IRON_INGOT), ItemStack(Material.HOPPER), ItemStack(Material.IRON_INGOT)
     )
 
+    /** 磁盘管理器方块 ID；雕纹书架材质提供六个可见且可持久化的书本安装位。 */
+    const val DISK_MANAGER_ID = "SE_DISK_MANAGER"
+    val DISK_MANAGER = SEText.localized(
+        DISK_MANAGER_ID, Material.CHISELED_BOOKSHELF, "items.storage.disk-manager"
+    )
+    val DISK_MANAGER_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.IRON_INGOT), ItemStack(Material.COMPARATOR), ItemStack(Material.IRON_INGOT),
+        ItemStack(Material.REDSTONE), ItemStack(Material.CHISELED_BOOKSHELF), ItemStack(Material.REDSTONE),
+        ItemStack(Material.IRON_INGOT), ItemStack(Material.HOPPER), ItemStack(Material.IRON_INGOT)
+    )
+
+    // 磁盘 ID 同时用于规格识别与 UniversalData sfId 校验，属于持久化协议的一部分。
+    const val DISK_1K_ID = "SE_ITEM_DISK_1K"
+    const val DISK_4K_ID = "SE_ITEM_DISK_4K"
+    const val DISK_16K_ID = "SE_ITEM_DISK_16K"
+    const val DISK_64K_ID = "SE_ITEM_DISK_64K"
+    const val DISK_128K_ID = "SE_ITEM_DISK_128K"
+    const val DISK_256K_ID = "SE_ITEM_DISK_256K"
+
+    val DISK_1K = SEText.localized(DISK_1K_ID, Material.BOOK, "items.storage.disks.1k")
+    val DISK_4K = SEText.localized(DISK_4K_ID, Material.BOOK, "items.storage.disks.4k")
+    val DISK_16K = SEText.localized(DISK_16K_ID, Material.BOOK, "items.storage.disks.16k")
+    val DISK_64K = SEText.localized(DISK_64K_ID, Material.BOOK, "items.storage.disks.64k")
+    val DISK_128K = SEText.localized(DISK_128K_ID, Material.BOOK, "items.storage.disks.128k")
+    val DISK_256K = SEText.localized(DISK_256K_ID, Material.BOOK, "items.storage.disks.256k")
+
+    // 容量逐级升级，确保合成时必须消耗上一档磁盘，而不是绕过成长链。
+    val DISK_1K_RECIPE = surround(Material.PAPER, Material.BOOK)
+    val DISK_4K_RECIPE = surround(Material.COPPER_INGOT, DISK_1K)
+    val DISK_16K_RECIPE = surround(Material.IRON_INGOT, DISK_4K)
+    val DISK_64K_RECIPE = surround(Material.GOLD_INGOT, DISK_16K)
+    val DISK_128K_RECIPE = surround(Material.DIAMOND, DISK_64K)
+    val DISK_256K_RECIPE = surround(Material.NETHERITE_SCRAP, DISK_128K)
+
     // ============================ 存储网络 ============================
 
     const val CONTROLLER_ID = "SE_NET_CONTROLLER"

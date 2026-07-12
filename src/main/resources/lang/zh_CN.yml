@@ -276,6 +276,52 @@ items:
         &7点击背包物品存入; 界面内可打开升级 GUI。
 
         &7可接入原版货运网络。
+    disk-manager:
+      name: "&d磁盘管理器"
+      lore: |-
+
+        &7利用雕纹书架的六个书槽安装物品存储磁盘，
+        &7磁盘会直接显示在方块外观上。
+
+        &7右键打开独立界面，查看状态并安装 / 拆卸磁盘。
+        &7相邻接入存储网络后，可从聚合终端存取磁盘内容。
+    disks:
+      1k:
+        name: "&f1K 物品存储磁盘"
+        lore: |-
+          &7容量: &f1,024 字节
+          &7物品种类上限: &f64
+      4k:
+        name: "&a4K 物品存储磁盘"
+        lore: |-
+          &7容量: &f4,096 字节
+          &7物品种类上限: &f64
+      16k:
+        name: "&b16K 物品存储磁盘"
+        lore: |-
+          &7容量: &f16,384 字节
+          &7物品种类上限: &f64
+      64k:
+        name: "&d64K 物品存储磁盘"
+        lore: |-
+          &7容量: &f65,536 字节
+          &7物品种类上限: &f64
+      128k:
+        name: "&6128K 物品存储磁盘"
+        lore: |-
+          &7容量: &f131,072 字节
+          &7物品种类上限: &f64
+      256k:
+        name: "&c256K 物品存储磁盘"
+        lore: |-
+          &7容量: &f262,144 字节
+          &7物品种类上限: &f64
+      status-lore: |-
+        &7物品种类: &f{types}&7/{maxTypes}
+        &7物品总数: &f{items}
+        &7字节占用: &f{used}&7/{capacity}
+
+        &8非空磁盘不能存入其它磁盘
     network:
       controller:
         name: "&b网络控制器"
@@ -527,7 +573,7 @@ groups:
     name: "&b存储系统"
     lore: |-
 
-      &7海量存储抽屉、翻页箱与存储网络
+      &7海量存储抽屉、翻页箱、磁盘与存储网络
   villager:
     name: "&b简易村民"
     lore: |-
@@ -657,6 +703,21 @@ menus:
       name: "&e第 {page}/{pages} 页"
       lore: []
     upgrade-title: "&9存储箱升级"
+  disk-manager:
+    title: "&5磁盘管理器"
+    empty-slot:
+      name: "&7磁盘槽 #{slot}"
+      lore: |-
+        &7光标拿起磁盘后点击安装
+    status:
+      name: "&d磁盘阵列状态"
+      lore: |-
+        &7已安装: &f{disks}&7/{maxDisks}
+        &7物品种类: &f{types}
+        &7物品总数: &f{items}
+        &7字节占用: &f{used}&7/{capacity}
+
+        &8空光标点击磁盘可拆卸
   filter:
     marker:
       name: "&e标记物品"
@@ -967,6 +1028,9 @@ names:
     industrial-miner: "工业矿机"
     advanced-industrial-miner: "进阶工业矿机"
 messages:
+  disk-manager:
+    clear-cursor: "&c请先清空光标，再拆卸磁盘"
+    disk-required: "&c请先用光标拿起一个物品存储磁盘"
   upgrades:
     page-limit: "&c翻页扩容已达上限"
     duplicate: "&c该升级已安装, 不可重复"
@@ -1095,5 +1159,6 @@ research:
   storage-box: "翻页存储箱"
   storage-upgrades: "存储升级组件"
   storage-network: "存储网络"
+  storage-disks: "物品存储磁盘"
 system:
   missing: "Missing translation: {key}"

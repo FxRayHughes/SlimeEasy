@@ -231,6 +231,12 @@ object SEConfig {
     /** 翻页箱磁吸半径 (格)。 */
     val storageBoxMagnetRadius: Double get() = double("storage.box.magnet-radius", 6.0, 0.0)
 
+    /** 磁盘管理器及六档磁盘的总开关。 */
+    val storageDiskEnabled: Boolean get() = bool("storage.disk.enabled", true)
+
+    /** 磁盘存储研究所需经验等级。 */
+    val storageDiskResearch: Int get() = int("storage.disk.research-level", 25, 0)
+
     val storageUpgradeEnabled: Boolean get() = bool("storage.upgrade.enabled", true)
     val storageUpgradeResearch: Int get() = int("storage.upgrade.research-level", 20, 0)
 

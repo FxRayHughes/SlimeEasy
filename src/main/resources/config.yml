@@ -296,6 +296,10 @@ storage:
     page-types: 45
     # 磁吸半径 (格)。
     magnet-radius: 6.0
+  # 磁盘管理器与物品存储磁盘
+  disk:
+    enabled: true
+    research-level: 25
   # 存储升级组件
   upgrade:
     enabled: true

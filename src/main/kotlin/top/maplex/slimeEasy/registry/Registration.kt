@@ -27,6 +27,7 @@ import top.maplex.slimeEasy.machine.placer.AutoPlacer
 import top.maplex.slimeEasy.machine.quarry.Quarry
 import top.maplex.slimeEasy.machine.sieve.Sieve
 import top.maplex.slimeEasy.storage.box.PagedBox
+import top.maplex.slimeEasy.storage.disk.DiskManager
 import top.maplex.slimeEasy.storage.drawer.Drawer
 import top.maplex.slimeEasy.storage.drawer.DrawerListener
 import top.maplex.slimeEasy.storage.network.NetworkConnector
@@ -65,6 +66,7 @@ object Registration {
 
     private val DRAWER_RESEARCH_COST get() = SEConfig.storageDrawerResearch
     private val BOX_RESEARCH_COST get() = SEConfig.storageBoxResearch
+    private val DISK_RESEARCH_COST get() = SEConfig.storageDiskResearch
     private val STORAGE_UPGRADE_RESEARCH_COST get() = SEConfig.storageUpgradeResearch
     private val NETWORK_RESEARCH_COST get() = SEConfig.storageNetworkResearch
 
@@ -402,7 +404,7 @@ object Registration {
     /**
      * 注册存储系统: 分类、存储方块、网络方块、升级组件、研究解锁与相关监听器。
      *
-     * 四大板块 (抽屉 / 翻页箱 / 升级组件 / 网络) 各自独立受 [SEConfig] 开关控制。
+     * 五大板块 (抽屉 / 翻页箱 / 磁盘 / 升级组件 / 网络) 各自独立受 [SEConfig] 开关控制。
      * 共享监听器 (区块卸载清理、经验球拦截) 只要任一存储板块开启即注册。
      */
     private fun registerStorage(addon: SlimefunAddon) {
@@ -416,6 +418,7 @@ object Registration {
 
         val drawerOn = SEConfig.storageDrawerEnabled
         val boxOn = SEConfig.storageBoxEnabled
+        val diskOn = SEConfig.storageDiskEnabled
         val upgradeOn = SEConfig.storageUpgradeEnabled
         val networkOn = SEConfig.storageNetworkEnabled
 
@@ -428,6 +431,21 @@ object Registration {
         if (boxOn) {
             val box = PagedBox(Groups.STORAGE, StorageItems.BOX, et, StorageItems.BOX_RECIPE).also { it.register(addon) }
             research("storage_box", 9007, I18n.text("research.storage-box"), BOX_RESEARCH_COST, box)
+        }
+        if (diskOn) {
+            val manager = DiskManager(
+                Groups.STORAGE, StorageItems.DISK_MANAGER, et, StorageItems.DISK_MANAGER_RECIPE
+            ).also { it.register(addon) }
+            val disk1k = plain(StorageItems.DISK_1K, StorageItems.DISK_1K_RECIPE)
+            val disk4k = plain(StorageItems.DISK_4K, StorageItems.DISK_4K_RECIPE)
+            val disk16k = plain(StorageItems.DISK_16K, StorageItems.DISK_16K_RECIPE)
+            val disk64k = plain(StorageItems.DISK_64K, StorageItems.DISK_64K_RECIPE)
+            val disk128k = plain(StorageItems.DISK_128K, StorageItems.DISK_128K_RECIPE)
+            val disk256k = plain(StorageItems.DISK_256K, StorageItems.DISK_256K_RECIPE)
+            research(
+                "storage_disks", 9023, I18n.text("research.storage-disks"), DISK_RESEARCH_COST,
+                manager, disk1k, disk4k, disk16k, disk64k, disk128k, disk256k
+            )
         }
         if (upgradeOn) {
             val stackI = plain(StorageItems.STACK_I, StorageItems.STACK_I_RECIPE)
@@ -463,7 +481,7 @@ object Registration {
         }
 
         // 共享监听器: 存储缓存区块卸载清理 + 经验球拦截 (任一存储板块开启即需要)
-        if (drawerOn || boxOn || upgradeOn || networkOn) {
+        if (drawerOn || boxOn || diskOn || upgradeOn || networkOn) {
             pm.registerEvents(
                 top.maplex.slimeEasy.storage.core.StorageChunkListener(), SlimeEasy.instance
             )

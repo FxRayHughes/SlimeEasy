@@ -36,9 +36,10 @@ import java.util.concurrent.ConcurrentHashMap
  * 玩家面向的交互 UI (展示框 / 分页 GUI) 由子类自行实现, 与本缓冲菜单解耦。
  * 每个方块位置的库存实例按需从 BlockData 载入并缓存于 [storageCache]。
  *
- * 实现 [NotHopperable]: 外观是原版木桶, 若不拦截原版漏斗会把物品塞进木桶自带的
- * 27 格原版库存 —— 该库存本插件从不读写, 物品即被"吞掉"永久不可见。故拒绝原版漏斗
- * 塞入; 漏斗喂料统一走 [top.maplex.slimeEasy.storage.core.HopperExtract] 抽取升级。
+ * 实现 [NotHopperable]: 抽屉 / 翻页箱具有原版容器外观，若不拦截原版漏斗会把物品塞进
+ * 本插件不读取的原版库存。故统一拒绝原版漏斗塞入；磁盘管理器则把原生书槽专用于磁盘，
+ * 同样不能让漏斗绕过安装协议。漏斗喂料统一走
+ * [top.maplex.slimeEasy.storage.core.HopperExtract] 抽取升级或存储网络端口。
  * (SlimeFun 货运网络经其自有传输而非 InventoryMoveItemEvent, 不受影响。)
  *
  * 所有存储读写约定在主线程进行 (ticker [BlockTicker.isSynchronized] = true)。
@@ -101,14 +102,14 @@ abstract class CargoBufferBlock(
 
     /** 获取 (或懒加载) 指定方块的虚拟库存。 */
     fun storageAt(block: Block): VirtualStorage = storageCache.getOrPut(block.locationKey()) {
-        freshStorage(block).apply { load(StorageCacheUtils.getData(block.location, storageDataKey)) }
+        freshStorage(block).apply { loadStorageData(block, this) }
     }
 
-    /** 持久化指定方块的库存内容到 BlockData, 并通知子类刷新其展示。 */
+    /** 持久化指定方块的库存内容到子类选定的数据层，并通知子类刷新其展示。 */
     fun saveStorage(block: Block, storage: VirtualStorage) {
         val previousData = StorageCacheUtils.getData(block.location, storageDataKey)
         beforeStorageSave(block, storage, previousData)
-        StorageCacheUtils.setData(block.location, storageDataKey, storage.serialize())
+        persistStorageData(block, storage)
         onStorageChanged(block, storage)
         StorageChangeBus.fire(block) // 广播变更, 供打开中的 GUI 实时重绘
     }
@@ -122,6 +123,22 @@ abstract class CargoBufferBlock(
 
     /** 落盘前变换钩子；翻页箱的压制升级据此只处理相对上次落盘新增的物品。 */
     protected open fun beforeStorageSave(block: Block, storage: VirtualStorage, previousData: String?) {}
+
+    /**
+     * 从持久化层载入库存。默认沿用 Slimefun 方块数据；可移动磁盘覆盖为按 UUID 查询
+     * UniversalData，避免把大内容写进物品 PDC 或绑定到管理器坐标。
+     */
+    protected open fun loadStorageData(block: Block, storage: VirtualStorage) {
+        storage.load(StorageCacheUtils.getData(block.location, storageDataKey))
+    }
+
+    /**
+     * 把库存写回持久化层。默认写入 Slimefun 方块数据，最终由 Slimefun SQL 后端保存；
+     * 使用其它 Slimefun 数据作用域的子类必须覆盖本钩子。
+     */
+    protected open fun persistStorageData(block: Block, storage: VirtualStorage) {
+        StorageCacheUtils.setData(block.location, storageDataKey, storage.serialize())
+    }
 
     /** 从缓存移除某位置库存 (方块破坏后调用, 防止内存泄漏)。 */
     protected fun evictCache(block: Block) {

@@ -14,7 +14,7 @@ import kotlin.math.abs
  * 自控制器出发, 沿"控制器 / 连接器"构成的导通图做 6 邻广度优先洪泛 (BFS),
  * 在切比雪夫半径 [RADIUS] 内收集节点: 成员容器 ([CargoBufferBlock]) 与
  * 输入 / 输出端口 ([NetworkPort])。**连接器与成员容器**都导通并继续扩散 —— 故相邻
- * 的箱子 / 抽屉免连接器即自动组网; 端口为叶子不扩散; 遇到另一控制器视为边界不并网。
+ * 的箱子 / 抽屉 / 磁盘管理器免连接器即自动组网; 端口为叶子不扩散; 遇到另一控制器视为边界不并网。
  *
  * 注意: "组网"仅让成员在终端**合并显示、可被路由存取**, 各成员物品始终留在各自
  * 容器的独立存储中, 控制器只读写、不吞并、不搬运。
@@ -50,7 +50,7 @@ object NetworkScan {
                 val sf = SlimefunItem.getById(StorageCacheUtils.getBlock(nb.location)?.sfId ?: continue)
                 when (sf) {
                     is NetworkConnector -> queue.add(nb)                     // 导线: 导通继续扩散
-                    is CargoBufferBlock -> { members.add(nb to sf); queue.add(nb) } // 成员: 入网并继续扩散 (相邻箱子/抽屉免连接器自动组网; 各自独立存储, 仅显示合并, 不吞并)
+                    is CargoBufferBlock -> { members.add(nb to sf); queue.add(nb) } // 成员: 入网并继续扩散 (相邻容器免连接器自动组网; 各自独立存储, 仅显示合并, 不吞并)
                     is NetworkPort -> if (sf.isInput) inputs.add(nb) else outputs.add(nb) // 端口: 叶子, 不扩散
                     // 其它 (含另一控制器) 视为边界, 不扩散
                 }

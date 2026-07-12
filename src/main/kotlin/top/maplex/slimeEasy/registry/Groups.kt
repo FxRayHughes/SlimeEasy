@@ -45,7 +45,7 @@ object Groups {
     /**
      * "存储系统" 分类。
      *
-     * 图标使用木桶, 涵盖抽屉 / 翻页箱 / 存储网络 (控制器·连接器·端口) 与各类升级组件。
+     * 图标使用木桶, 涵盖抽屉 / 翻页箱 / 磁盘管理器 / 存储网络与各类升级组件。
      */
     val STORAGE: ItemGroup = ItemGroup(
         NamespacedKey(SlimeEasy.instance, "storage"),
