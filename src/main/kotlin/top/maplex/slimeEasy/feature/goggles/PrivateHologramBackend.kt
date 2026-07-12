@@ -12,12 +12,12 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 internal interface PrivateHologramBackend {
 
-    /** 创建只向 [viewer] 发包、不会持久化且不带点击命中箱的全息图。 */
-    fun create(viewer: Player, location: Location, lines: List<String>): Handle
+    /** 创建只向 [viewer] 发包、不持久化且没有命中箱的全息图；[lastLineLocation] 是最终文本行的固定坐标。 */
+    fun create(viewer: Player, lastLineLocation: Location, lines: List<String>): Handle
 
     /** 单个临时全息图的更新与销毁句柄。 */
     interface Handle {
-        /** 原位替换全部文本行，保持既有单玩家可见范围。 */
+        /** 原位替换全部文本行，同时保持既有单玩家可见范围与最终行坐标。 */
         fun update(lines: List<String>)
 
         /** 隐藏并注销临时全息图；实现必须允许在清理阶段安全调用。 */

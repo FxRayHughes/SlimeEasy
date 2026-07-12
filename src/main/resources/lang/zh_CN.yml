@@ -101,6 +101,20 @@ items:
 
       &7主手持有时潜行 + 左键: &f打开显示筛选
       &7潜行 + 右键机器: &f切换该物品类型显示
+      &7筛选界面可切换: &f附近显示 / 瞄准显示
+  engineer-night-vision-goggles:
+    name: "&a工程师夜视护目镜"
+    lore: |-
+
+      &7结合 &f夜视眼镜 &7与 &f工程师护目镜，
+      &7佩戴后持续获得夜视并显示附近机器诊断信息。
+
+      &7显示半径: &f{radius} 格
+      &8私有全息图不会阻挡点击，也不会被其他玩家看到。
+
+      &7主手持有时潜行 + 左键: &f打开显示筛选
+      &7潜行 + 右键机器: &f切换该物品类型显示
+      &7筛选界面可切换: &f附近显示 / 瞄准显示
   butcher:
     name: "&c屠夫机器"
     lore: |-
@@ -1177,25 +1191,27 @@ menus:
     title: "&8工程师护目镜 · 显示筛选"
     tabs:
       groups:
-        name: "&bSlimefun 分类"
+        name: "&dSlimefun 分类"
         lore: |-
           &7按 ItemGroup 注册分类多选
       items:
-        name: "&b物品类型"
+        name: "&c物品类型"
         lore: |-
           &7管理潜行右键选中的单项类型
       addons:
-        name: "&b附属插件"
+        name: "&e附属插件"
         lore: |-
           &7按注册该物品的附属插件多选
       functions:
-        name: "&b机器种类"
+        name: "&6机器种类"
         lore: |-
           &7按机器公开能力多选
       states:
-        name: "&b工作状态"
+        name: "&a工作状态"
         lore: |-
           &7按可验证的实时状态多选
+    tab-lore: |-
+      &7页面状态: {state}
     entry-lore: |-
 
       &7当前: {state}
@@ -1246,16 +1262,32 @@ menus:
     reset:
       name: "&c重置筛选"
       lore: |-
-        &7恢复全部类型可见
-    summary:
-      name: "&f筛选汇总"
-      lore: |-
-        &7分类: &f{groups}/{groupTotal}
-        &7物品: &f{items}/{itemTotal}
-        &7附属: &f{addons}/{addonTotal}
-        &7种类: &f{functions}/{functionTotal}
-        &7状态: &f{states}/{stateTotal}
-        &8第 {page}/{pages} 页
+        &7恢复全部类型可见并切回附近显示
+    display-mode:
+      nearby:
+        name: "&b附近显示模式"
+        lore: |-
+          &7显示范围内所有通过筛选的目标
+          &e点击切换为瞄准显示
+
+          &7分类: &f{groups}/{groupTotal}
+          &7物品: &f{items}/{itemTotal}
+          &7附属: &f{addons}/{addonTotal}
+          &7种类: &f{functions}/{functionTotal}
+          &7状态: &f{states}/{stateTotal}
+          &8第 {page}/{pages} 页
+      aimed:
+        name: "&e瞄准显示模式"
+        lore: |-
+          &7只显示视线命中方块所属的机器或结构
+          &e点击切换为附近显示
+
+          &7分类: &f{groups}/{groupTotal}
+          &7物品: &f{items}/{itemTotal}
+          &7附属: &f{addons}/{addonTotal}
+          &7种类: &f{functions}/{functionTotal}
+          &7状态: &f{states}/{stateTotal}
+          &8第 {page}/{pages} 页
   survey:
     result:
       count: "&7数量: &a{count}"
@@ -1269,6 +1301,9 @@ names:
     filter:
       shown: "&a显示"
       hidden: "&c隐藏"
+    tab:
+      active: "&a当前页"
+      inactive: "&8点击切换"
     work-state:
       working: "&a工作中"
       idle: "&c空闲"

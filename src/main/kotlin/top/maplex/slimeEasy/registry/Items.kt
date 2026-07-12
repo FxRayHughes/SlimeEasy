@@ -1,6 +1,7 @@
 package top.maplex.slimeEasy.registry
 
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
+import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.config.SEConfig
@@ -177,6 +178,31 @@ object Items {
         ItemStack(Material.REDSTONE), ItemStack(Material.IRON_HELMET), ItemStack(Material.REDSTONE),
         null, ItemStack(Material.COMPASS), null
     )
+
+    /** 组合护目镜的稳定 ID；所有工程师扫描与筛选入口必须同时接受此身份。 */
+    const val ENGINEER_NIGHT_VISION_GOGGLES_ID = "SE_ENGINEER_NIGHT_VISION_GOGGLES"
+
+    /** 工程师夜视护目镜沿用铁头盔外观，同时由 SlimefunArmorPiece 提供原生夜视效果。 */
+    val ENGINEER_NIGHT_VISION_GOGGLES: SlimefunItemStack =
+        SEText.localized(
+            ENGINEER_NIGHT_VISION_GOGGLES_ID,
+            Material.IRON_HELMET,
+            "items.engineer-night-vision-goggles",
+            "radius" to SEConfig.engineerGogglesRadius
+        )
+
+    /**
+     * 增强工作台纵向合并配方；两个输入都使用 Slimefun 物品模板，普通皮革帽或铁头盔不能代替。
+     */
+    val ENGINEER_NIGHT_VISION_GOGGLES_RECIPE: Array<ItemStack?> = arrayOf(
+        null, SlimefunItems.NIGHT_VISION_GOGGLES, null,
+        null, ENGINEER_GOGGLES, null,
+        null, null, null
+    )
+
+    /** 判断某 Slimefun ID 是否具备完整工程师护目镜能力，避免各入口的组合型号名单漂移。 */
+    fun isEngineerGogglesId(id: String?): Boolean =
+        id == ENGINEER_GOGGLES_ID || id == ENGINEER_NIGHT_VISION_GOGGLES_ID
 
     /** 屠夫机器的全局唯一 ID。 */
     const val BUTCHER_ID = "SE_BUTCHER"

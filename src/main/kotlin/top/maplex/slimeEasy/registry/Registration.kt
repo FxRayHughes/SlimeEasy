@@ -7,9 +7,12 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType
 import io.github.thebusybiscuit.slimefun4.api.researches.Research
+import io.github.thebusybiscuit.slimefun4.implementation.items.armor.SlimefunArmorPiece
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import top.maplex.slimeEasy.SlimeEasy
 import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.feature.survey.SurveyDisplayListener
@@ -335,7 +338,7 @@ object Registration {
             research("growth_inhibitor", 9019, I18n.text("research.growth-inhibitor"), GROWTH_INHIBITOR_RESEARCH_COST, growthInhibitor)
         }
 
-        // 工程师护目镜是可穿戴普通物品；扫描与 DH 可选依赖由全服共享显示服务统一管理。
+        // 基础与夜视组合型号共用工程师研究；组合型号仍要求夜视眼镜作为真实配方输入。
         if (SEConfig.engineerGogglesEnabled) {
             val engineerGoggles = SlimefunItem(
                 Groups.UTILITY_TOOLS,
@@ -343,12 +346,20 @@ object Registration {
                 RecipeType.ENHANCED_CRAFTING_TABLE,
                 Items.ENGINEER_GOGGLES_RECIPE
             ).also { it.register(addon) }
+            val engineerNightVisionGoggles = SlimefunArmorPiece(
+                Groups.UTILITY_TOOLS,
+                Items.ENGINEER_NIGHT_VISION_GOGGLES,
+                RecipeType.ENHANCED_CRAFTING_TABLE,
+                Items.ENGINEER_NIGHT_VISION_GOGGLES_RECIPE,
+                arrayOf(PotionEffect(PotionEffectType.NIGHT_VISION, 600, 20))
+            ).also { it.register(addon) }
             research(
                 "engineer_goggles",
                 9025,
                 I18n.text("research.engineer-goggles"),
                 ENGINEER_GOGGLES_RESEARCH_COST,
-                engineerGoggles
+                engineerGoggles,
+                engineerNightVisionGoggles
             )
         }
 

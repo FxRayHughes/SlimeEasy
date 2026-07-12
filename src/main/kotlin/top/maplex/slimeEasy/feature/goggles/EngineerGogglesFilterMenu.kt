@@ -5,7 +5,9 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu
 import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.config.I18n
 import top.maplex.slimeEasy.registry.Items
@@ -16,20 +18,27 @@ internal object EngineerGogglesFilterMenu {
 
     /**
      * 54 格固定槽位协议：0..44 是当前分页内容，45/53 翻页，46/47/50/51/52 切换五类筛选，
-     * 48 重置，49 显示汇总。修改这些槽位时必须同步导航渲染，避免内容页覆盖控制按钮。
+     * 48 重置，49 切换显示模式并承载汇总。修改这些槽位时必须同步导航渲染，避免内容页覆盖控制按钮。
      */
     private const val PAGE_SIZE = 45
     private const val PREVIOUS_SLOT = 45
     private const val GROUP_TAB_SLOT = 46
     private const val ITEM_TAB_SLOT = 47
     private const val RESET_SLOT = 48
-    private const val SUMMARY_SLOT = 49
+    private const val DISPLAY_MODE_SLOT = 49
     private const val ADDON_TAB_SLOT = 50
     private const val STATE_TAB_SLOT = 51
     private const val FUNCTION_TAB_SLOT = 52
     private const val NEXT_SLOT = 53
 
-    private enum class Mode { GROUPS, ITEMS, ADDONS, FUNCTIONS, STATES }
+    /** 五类筛选使用不同材质与颜色建立视觉辨识，当前页再叠加附魔光效。 */
+    private enum class Mode(val icon: Material) {
+        GROUPS(Material.AMETHYST_SHARD),
+        ITEMS(Material.TARGET),
+        ADDONS(Material.NETHER_STAR),
+        FUNCTIONS(Material.COMPARATOR),
+        STATES(Material.LIME_DYE)
+    }
 
     /** 打开绑定于玩家主手护目镜的过滤界面；物品离开主手后界面拒绝继续写入。 */
     fun open(player: Player) {
@@ -194,10 +203,9 @@ internal object EngineerGogglesFilterMenu {
                 false
             }
             menu.addItem(
-                SUMMARY_SLOT,
-                GuiItems.localized(
-                    Material.PAPER,
-                    "menus.engineer-goggles.summary",
+                DISPLAY_MODE_SLOT,
+                displayModeIcon(
+                    snapshot.displayMode,
                     "groups" to (groupCount - snapshot.disabledGroups.size).coerceAtLeast(0),
                     "groupTotal" to groupCount,
                     "items" to (itemCount - snapshot.hiddenItems.size).coerceAtLeast(0),
@@ -211,17 +219,56 @@ internal object EngineerGogglesFilterMenu {
                     "page" to page + 1,
                     "pages" to pageCount
                 )
-            ) { _, _, _, _ -> false }
+            ) { clicked, _, _, _ ->
+                toggleHeld(clicked) {
+                    EngineerGogglesFilter.toggleDisplayMode(it)
+                    true
+                }
+                false
+            }
         }
 
         private fun tab(slot: Int, target: Mode, key: String) {
-            val icon = GuiItems.localized(tabMaterial(target), "menus.engineer-goggles.tabs.$key")
+            val icon = tabIcon(target, key)
             menu.addItem(slot, icon) { _, _, _, _ ->
                 mode = target
                 page = 0
                 render()
                 false
             }
+        }
+
+        private fun displayModeIcon(
+            displayMode: EngineerGogglesDisplayMode,
+            vararg placeholders: Pair<String, Any?>
+        ): ItemStack = GuiItems.localized(
+            displayMode.icon,
+            "menus.engineer-goggles.display-mode.${displayMode.filterKey}",
+            *placeholders
+        ).apply {
+            if (displayMode == EngineerGogglesDisplayMode.AIMED) addSelectionGlint()
+        }
+
+        private fun tabIcon(target: Mode, key: String): ItemStack =
+            GuiItems.localized(target.icon, "menus.engineer-goggles.tabs.$key").apply {
+                val selected = mode == target
+                if (selected) addSelectionGlint()
+                editMeta { meta ->
+                    val lore = meta.lore()?.toMutableList() ?: mutableListOf()
+                    lore += I18n.components(
+                        "menus.engineer-goggles.tab-lore",
+                        "state" to I18n.raw(
+                            "names.engineer-goggles.tab.${if (selected) "active" else "inactive"}"
+                        )
+                    )
+                    meta.lore(lore)
+                }
+            }
+
+        /** 附魔只承担当前选项高亮，隐藏附魔文字以免污染按钮说明。 */
+        private fun ItemStack.addSelectionGlint() {
+            addUnsafeEnchantment(Enchantment.UNBREAKING, 1)
+            editMeta { it.addItemFlags(ItemFlag.HIDE_ENCHANTS) }
         }
 
         /** 点击期间再次校验主手身份，防止数字键换物后把过滤数据写入其它物品。 */
@@ -243,9 +290,6 @@ internal object EngineerGogglesFilterMenu {
                 meta.lore(lore)
             }
         }
-
-        private fun tabMaterial(tab: Mode): Material =
-            if (mode == tab) Material.LIME_STAINED_GLASS_PANE else Material.GRAY_STAINED_GLASS_PANE
 
         private fun state(enabled: Boolean): String =
             I18n.raw("names.engineer-goggles.filter.${if (enabled) "shown" else "hidden"}")
@@ -285,6 +329,6 @@ internal object EngineerGogglesFilterMenu {
 
     private fun heldGoggles(player: Player): ItemStack? =
         player.inventory.itemInMainHand.takeIf {
-            SlimefunItem.getByItem(it)?.id == Items.ENGINEER_GOGGLES_ID
+            Items.isEngineerGogglesId(SlimefunItem.getByItem(it)?.id)
         }
 }

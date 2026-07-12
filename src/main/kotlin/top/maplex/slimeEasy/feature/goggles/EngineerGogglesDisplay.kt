@@ -7,6 +7,7 @@ import io.github.thebusybiscuit.slimefun4.core.multiblocks.MultiBlock
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
+import org.bukkit.FluidCollisionMode
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -162,6 +163,10 @@ internal object EngineerGogglesDisplay : Listener {
         discoverStoredBlocks(player, context.storedBlocksByChunk).forEach { targets[it.key] = it }
         discoverMultiblocks(player, context.scanBudget).forEach { targets.putIfAbsent(it.key, it) }
         val filters = player.inventory.helmet?.let(EngineerGogglesFilter::read) ?: return
+        if (filters.displayMode == EngineerGogglesDisplayMode.AIMED) {
+            val aimedBlock = player.getTargetBlockExact(SEConfig.engineerGogglesRadius, FluidCollisionMode.NEVER)
+            targets.entries.removeIf { aimedBlock == null || !it.value.contains(aimedBlock) }
+        }
         targets.entries.removeIf { entry ->
             val workState = context.workStates.getOrPut(entry.key) { EngineerGogglesWorkState.of(entry.value) }
             !filters.allows(entry.value, workState)
@@ -171,12 +176,15 @@ internal object EngineerGogglesDisplay : Listener {
             val lines = buildList {
                 add(target.item.itemName)
                 val workState = context.workStates.getOrPut(target.key) { EngineerGogglesWorkState.of(target) }
-                add(
-                    I18n.text(
-                        "holograms.engineer-goggles.work-state",
-                        "state" to I18n.raw("names.engineer-goggles.work-state.${workState.filterKey}")
+                if (workState != EngineerGogglesWorkState.UNKNOWN) {
+                    // UNKNOWN 仍用于筛选归类，但不向玩家重复展示没有诊断价值的“状态未知”行。
+                    add(
+                        I18n.text(
+                            "holograms.engineer-goggles.work-state",
+                            "state" to I18n.raw("names.engineer-goggles.work-state.${workState.filterKey}")
+                        )
                     )
-                )
+                }
                 addAll(
                     context.details.getOrPut(target.key) {
                         energy.lines(target, context.now, context.seenEnergy)
@@ -191,7 +199,7 @@ internal object EngineerGogglesDisplay : Listener {
                         .onFailure { logBackendFailure(it) }
                 }
             } else {
-                runCatching { activeBackend.create(player, target.displayLocation, lines) }
+                runCatching { activeBackend.create(player, target.lastLineLocation, lines) }
                     .onSuccess {
                         state.holograms[target.key] = it
                         state.lastLines[target.key] = lines
@@ -402,7 +410,7 @@ internal object EngineerGogglesDisplay : Listener {
     }
 
     private fun isWearing(player: Player): Boolean =
-        SlimefunItem.getByItem(player.inventory.helmet)?.id == Items.ENGINEER_GOGGLES_ID
+        Items.isEngineerGogglesId(SlimefunItem.getByItem(player.inventory.helmet)?.id)
 
     /**
      * 解析玩家点击的普通 Slimefun 方块或多方块触发块。
@@ -473,7 +481,7 @@ internal object EngineerGogglesDisplay : Listener {
         val player = event.player
         if (!player.isSneaking || event.hand != EquipmentSlot.HAND) return
         val goggles = player.inventory.itemInMainHand
-        if (SlimefunItem.getByItem(goggles)?.id != Items.ENGINEER_GOGGLES_ID) return
+        if (!Items.isEngineerGogglesId(SlimefunItem.getByItem(goggles)?.id)) return
 
         when (event.action) {
             Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> {
@@ -596,10 +604,12 @@ internal object EngineerGogglesDisplay : Listener {
 /** 单个可展示目标；多方块没有 [blockData]，因此只展示名称而不伪造能源数据。 */
 internal data class EngineerGogglesTarget(
     val key: String,
-    val displayLocation: Location,
+    val lastLineLocation: Location,
     val blockLocation: Location,
     val item: SlimefunItem,
-    val blockData: SlimefunBlockData?
+    val blockData: SlimefunBlockData?,
+    val multiblockDirection: BlockFace?,
+    val multiblockStructure: Array<out Material?>?
 ) {
     /** 以方块中心计算三维距离，普通机器与多方块查询共享同一精确半径口径。 */
     fun centerDistanceSquared(origin: Location): Double {
@@ -607,6 +617,39 @@ internal data class EngineerGogglesTarget(
         val deltaY = blockLocation.blockY + 0.5 - origin.y
         val deltaZ = blockLocation.blockZ + 0.5 - origin.z
         return deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ
+    }
+
+    /**
+     * 判断视线命中的方块是否属于本目标。普通机器只匹配自身；多方块按已确认朝向的九格结构成员匹配，
+     * 配方中的 null 是不参与结构的通配位置，不能仅因玩家看向该位置就显示信息。
+     */
+    fun contains(block: Block): Boolean {
+        if (block.world.uid != blockLocation.world?.uid) return false
+        if (blockData != null) {
+            return block.x == blockLocation.blockX &&
+                block.y == blockLocation.blockY &&
+                block.z == blockLocation.blockZ
+        }
+        val direction = multiblockDirection ?: return false
+        val structure = multiblockStructure ?: return false
+        for (index in structure.indices) {
+            if (structure[index] == null) continue
+            val horizontal = when (index % 3) {
+                0 -> direction
+                2 -> direction.oppositeFace
+                else -> null
+            }
+            val vertical = when (index / 3) {
+                0 -> 1
+                2 -> -1
+                else -> 0
+            }
+            if (block.x == blockLocation.blockX + (horizontal?.modX ?: 0) &&
+                block.y == blockLocation.blockY + vertical &&
+                block.z == blockLocation.blockZ + (horizontal?.modZ ?: 0)
+            ) return true
+        }
+        return false
     }
 
     companion object {
@@ -619,7 +662,9 @@ internal data class EngineerGogglesTarget(
                 location.clone().add(0.5, 1.65, 0.5),
                 location,
                 item,
-                data
+                data,
+                null,
+                null
             )
         }
 
@@ -637,7 +682,9 @@ internal data class EngineerGogglesTarget(
                 location.clone().add(0.5, highestOffset + 1.65, 0.5),
                 location,
                 multiblock.slimefunItem,
-                null
+                null,
+                direction,
+                multiblock.structure
             )
         }
 

@@ -76,10 +76,19 @@ internal enum class EngineerGogglesWorkState(val filterKey: String, val icon: Ma
     }
 }
 
+/** 护目镜的空间展示策略；模式持久化在物品上，基础与夜视组合型号遵循同一协议。 */
+internal enum class EngineerGogglesDisplayMode(val filterKey: String, val icon: Material) {
+    NEARBY("nearby", Material.ENDER_EYE),
+    AIMED("aimed", Material.SPYGLASS);
+
+    /** 两种模式循环切换，UI 无需依赖枚举声明顺序计算下一项。 */
+    fun next(): EngineerGogglesDisplayMode = if (this == NEARBY) AIMED else NEARBY
+}
+
 /**
  * 持久化在单个工程师护目镜上的过滤协议。
  *
- * 五个 PDC 字段都保存“禁用集合”而非“启用集合”，因此旧护目镜和未来新增的 Slimefun 分类/功能默认可见。
+ * 五个 PDC 字段保存“禁用集合”，另一个字段保存显示模式；旧护目镜缺少模式时默认使用附近显示。
  * 集合成员均为不含换行的稳定键，使用换行分隔可避免 NamespacedKey 中的冒号与物品 ID 冲突。
  */
 internal object EngineerGogglesFilter {
@@ -99,11 +108,15 @@ internal object EngineerGogglesFilter {
     /** [EngineerGogglesWorkState.filterKey] 的禁用集合持久化键。 */
     private const val DISABLED_STATES_KEY = "engineer_goggles_disabled_states"
 
+    /** [EngineerGogglesDisplayMode.filterKey] 的单值持久化键；未知值必须回退附近显示。 */
+    private const val DISPLAY_MODE_KEY = "engineer_goggles_display_mode"
+
     private val disabledGroupsKey by lazy { NamespacedKey(SlimeEasy.instance, DISABLED_GROUPS_KEY) }
     private val disabledFunctionsKey by lazy { NamespacedKey(SlimeEasy.instance, DISABLED_FUNCTIONS_KEY) }
     private val hiddenItemsKey by lazy { NamespacedKey(SlimeEasy.instance, HIDDEN_ITEMS_KEY) }
     private val disabledAddonsKey by lazy { NamespacedKey(SlimeEasy.instance, DISABLED_ADDONS_KEY) }
     private val disabledStatesKey by lazy { NamespacedKey(SlimeEasy.instance, DISABLED_STATES_KEY) }
+    private val displayModeKey by lazy { NamespacedKey(SlimeEasy.instance, DISPLAY_MODE_KEY) }
 
     /** 一次性读取的不可变过滤快照，供同一轮所有目标复用。 */
     data class Snapshot(
@@ -111,7 +124,8 @@ internal object EngineerGogglesFilter {
         val disabledFunctions: Set<String>,
         val hiddenItems: Set<String>,
         val disabledAddons: Set<String>,
-        val disabledStates: Set<String>
+        val disabledStates: Set<String>,
+        val displayMode: EngineerGogglesDisplayMode
     ) {
         /**
          * 分类、功能、附属、状态和单项隐藏五层均通过时才允许显示目标。
@@ -131,7 +145,8 @@ internal object EngineerGogglesFilter {
         readSet(item, disabledFunctionsKey),
         readSet(item, hiddenItemsKey),
         readSet(item, disabledAddonsKey),
-        readSet(item, disabledStatesKey)
+        readSet(item, disabledStatesKey),
+        readDisplayMode(item)
     )
 
     /** 切换某 Slimefun 分类并返回切换后是否显示。 */
@@ -151,7 +166,16 @@ internal object EngineerGogglesFilter {
     fun toggleState(item: ItemStack, state: EngineerGogglesWorkState): Boolean =
         toggle(item, disabledStatesKey, state.filterKey)
 
-    /** 清除所有过滤字段，恢复默认全部显示。 */
+    /** 切换空间显示策略并返回新模式。 */
+    fun toggleDisplayMode(item: ItemStack): EngineerGogglesDisplayMode {
+        val next = readDisplayMode(item).next()
+        val meta = item.itemMeta ?: return next
+        meta.persistentDataContainer.set(displayModeKey, PersistentDataType.STRING, next.filterKey)
+        item.itemMeta = meta
+        return next
+    }
+
+    /** 清除所有过滤字段和显示模式，恢复“全部类型可见 + 附近显示”的默认协议。 */
     fun reset(item: ItemStack) {
         val meta = item.itemMeta ?: return
         meta.persistentDataContainer.remove(disabledGroupsKey)
@@ -159,7 +183,14 @@ internal object EngineerGogglesFilter {
         meta.persistentDataContainer.remove(hiddenItemsKey)
         meta.persistentDataContainer.remove(disabledAddonsKey)
         meta.persistentDataContainer.remove(disabledStatesKey)
+        meta.persistentDataContainer.remove(displayModeKey)
         item.itemMeta = meta
+    }
+
+    private fun readDisplayMode(item: ItemStack): EngineerGogglesDisplayMode {
+        val stored = item.itemMeta?.persistentDataContainer?.get(displayModeKey, PersistentDataType.STRING)
+        return EngineerGogglesDisplayMode.entries.firstOrNull { it.filterKey == stored }
+            ?: EngineerGogglesDisplayMode.NEARBY
     }
 
     private fun toggle(item: ItemStack, key: NamespacedKey, value: String): Boolean {
