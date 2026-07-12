@@ -558,6 +558,21 @@ items:
       profession-lore: "&7职业: &f{profession}"
       trade-lore: "&7等级: &f{level}  &7交易: &f{trades} 项"
       release-lore: "&7潜行 + 右键放出该村民"
+  territory-core:
+    name: "&6领地核心"
+    lore: |-
+
+      &7放下后以所在区块为中心认领 3×3 区域
+      &7每名玩家只能拥有一个领地
+      &7右键打开领地管理界面
+  territory-flag:
+    name: "&f领地旗帜"
+    lore: |-
+
+      &7以旗帜所在区块为中心声明 3×3 区块
+      &7同一领地的旗帜覆盖可以重叠
+      &7手持时显示附近已声明区域边界
+      &7最多放置 35 面旗帜
 groups:
   utility-machines:
     name: "&b实用机械"
@@ -579,7 +594,164 @@ groups:
     lore: |-
 
       &7与村民打交道而无需操心保护村民
+  territory:
+    name: "&6简易的领地"
+    lore: |-
+
+      &7按区块认领、成员授权与 Slimefun 保护兼容
 menus:
+  territory:
+    title: "&6简易的领地"
+    member-title: "&6领地成员"
+    invite-list-title: "&6邀请在线玩家"
+    invite-confirm-title: "&6确认邀请 · &f{player}"
+    permission-title: "&6成员权限 · &f{player}"
+    remove-title: "&c确认移除 · &f{player}"
+    visitor-title: "&6陌生人权限"
+    default-title: "&6新成员默认权限"
+    settings-title: "&6领地设置"
+    chunk-title: "&6领地区块"
+    flag-editor-title: "&6旗帜编辑器"
+    disband-title: "&c确认解散领地"
+    overview:
+      name: "&6领地概况"
+      lore: |-
+        &7主人: &f{owner}
+        &7已声明区块: &f{chunks}
+        &7旗帜: &f{flags}/{maxFlags}
+    members:
+      name: "&e成员管理"
+      lore: |-
+        &7查看成员与逐人行为权限
+    my-permissions:
+      name: "&e我的领地权限"
+      lore: |-
+        &7查看自己当前的行为与管理权限
+    no-members:
+      name: "&7暂无成员"
+      lore: |-
+        &7邀请在线玩家加入此领地
+    visitors:
+      name: "&e陌生人权限"
+      lore: |-
+        &7设置非成员可执行的操作
+    default-permissions:
+      name: "&e新成员默认权限"
+      lore: |-
+        &7行为权限: &f{actions}/6
+        &7管理权限: &f{management}/{managementMax}
+        &8只影响之后加入的成员
+    settings:
+      name: "&e领地设置"
+      lore: |-
+        &7设置陌生人进入与已有飞行能力
+    chunks:
+      name: "&e区块管理"
+      lore: |-
+        &7当前区块数: &f{count}
+    flag-editor:
+      name: "&e旗帜编辑器"
+      lore: |-
+        &7当前图案层数: &f{patterns}
+        &7统一更新领地内全部旗帜
+    flag-preview:
+      name: "&f当前领地旗帜"
+      lore: |-
+        &7图案层数: &f{patterns}
+        &8预览包含底色与全部图案层
+        &a直接点击玩家背包里的旗帜即可导入
+        &8模板旗帜不会移动或消耗
+    flag-clear:
+      name: "&c清空旗帜图案"
+      lore: |-
+        &7恢复全部领地旗帜为空白白旗
+    transfer:
+      name: "&d转让领地"
+      lore: |-
+        &7将领地转让给一名在线成员
+        &c目标玩家不能已拥有领地
+    disband:
+      name: "&c解散领地"
+      lore: |-
+        &7释放全部认领区块
+        &c此操作不可撤销
+    add-member:
+      name: "&a邀请成员"
+      lore: |-
+        &7打开在线玩家列表
+        &7选择玩家后确认发送邀请
+    no-invite-candidates:
+      name: "&7暂无可邀请玩家"
+      lore: |-
+        &7在线玩家均已加入、不可见或不符合条件
+    invite-player:
+      name: "&f{player}"
+      lore: |-
+        &7点击选择该在线玩家
+    invite-selected:
+      name: "&f{player}"
+      lore: |-
+        &7已选择此玩家
+        &7请点击下方按钮确认邀请
+    invite-confirm:
+      name: "&a发送领地邀请"
+      lore: |-
+        &7目标玩家: &f{player}
+        &7对方将在 5 分钟内接受或拒绝
+        &e点击确认发送
+    back:
+      name: "&f返回"
+      lore: |-
+        &7返回上一级界面
+    member-summary: "&7行为权限: &f{actions}/6  &7管理权限: &f{management}/{managementMax}"
+    permission:
+      name: "&e{permission}"
+      lore: |-
+        &7当前状态: {state}
+        &7点击切换
+    permission-readonly:
+      name: "&e{permission}"
+      lore: |-
+        &7当前状态: {state}
+        &8仅可查看
+    management:
+      name: "&b{permission}"
+      lore: |-
+        &7当前状态: {state}
+        &7仅领地主人可以切换
+    management-readonly:
+      name: "&b{permission}"
+      lore: |-
+        &7当前状态: {state}
+        &8仅可查看
+    remove-member:
+      name: "&c移除成员"
+      lore: |-
+        &7打开确认界面后移除该成员
+    remove-confirm:
+      name: "&c确认移除 {player}"
+      lore: |-
+        &7立即撤销其全部领地权限
+        &c若领地禁止陌生人进入，该玩家会被移出
+    setting:
+      name: "&e{setting}"
+      lore: |-
+        &7当前状态: {state}
+        &7点击切换
+    chunk:
+      name: "&f区块 {x}, {z}"
+      lore: |-
+        &7核心与全部旗帜区块必须保持相连
+    expansion-mode:
+      name: "&a选择此领地进行扩区"
+      lore: |-
+        &760 秒内放置的下一面领地旗帜
+        &7将明确归属到当前领地
+    disband-confirm:
+      name: "&c确认永久解散"
+      lore: |-
+        &7释放全部区块并清除成员权限
+        &c点击后立即执行
   butcher:
     labels:
       weapon:
@@ -1057,7 +1229,86 @@ names:
   survey-tier:
     industrial-miner: "工业矿机"
     advanced-industrial-miner: "进阶工业矿机"
+  territory:
+    state:
+      enabled: "&a允许"
+      disabled: "&c禁止"
+    setting:
+      entry: "允许陌生人进入"
+      flight: "允许已有飞行能力"
+    action:
+      break-block: "破坏方块"
+      place-block: "放置方块"
+      interact-block: "方块与容器交互"
+      attack-player: "攻击玩家"
+      attack-entity: "攻击实体"
+      interact-entity: "实体交互"
+    management:
+      members: "成员管理"
+      permissions: "行为权限管理"
+      chunks: "区块管理"
+      flags: "旗帜样式管理"
+      settings: "领地设置"
 messages:
+  territory:
+    created: "&a领地已创建，核心周围的 3×3 区域已被认领。"
+    chunk-added: "&a旗帜已放置，其 3×3 覆盖已并入领地。"
+    chunk-removed: "&a旗帜已拆除，不再被其它锚点覆盖的区块已经释放。"
+    confirm-core-break: "&e再次破坏此核心以确认解散领地，该确认将在 10 秒后失效。"
+    disbanded: "&a领地已解散，全部区块已经释放。"
+    action-denied: "&c领地权限不允许你执行此操作。"
+    entry-denied: "&c该领地不允许陌生人进入。"
+    entered: "&a你已进入 &f{owner} &a的领地。"
+    left: "&7你已离开 &f{owner} &7的领地。"
+    switched: "&7已离开 &f{from} &7的领地，进入 &f{to} &7的领地。"
+    flight-denied: "&c该领地不允许使用已有飞行能力。"
+    expansion-selected: "&a已选择此领地，请在 60 秒内放置一面 3×3 覆盖与其相连的旗帜。"
+    flag-template-required: "&c请点击玩家背包中的旗帜物品。"
+    flags-updated: "&a旗帜样式已保存，成功同步 &f{updated}/{total} &a面已绑定旗帜。"
+    input-transfer: "&e请在 60 秒内输入要接收领地的在线成员名，输入 &fcancel &e或 &f取消 &e可退出。"
+    input-cancelled: "&7已取消本次输入。"
+    input-expired: "&7本次玩家名输入已超时，请重新从领地界面操作。"
+    player-not-online: "&c目标玩家当前不在线。"
+    invite-sent: "&a已向 {player} 发送领地邀请。"
+    invite: "&e{inviter} 邀请你加入 {owner} 的领地，邀请 5 分钟内有效。 "
+    transfer-invite: "&e{owner} 请求把领地转让给你，请在 5 分钟内确认。 "
+    accept-button: "&a[接受] "
+    deny-button: "&c[拒绝]"
+    accept-hover: "&a点击接受"
+    deny-hover: "&c点击拒绝"
+    invite-denied: "&7你已拒绝该领地邀请。"
+    invite-declined-owner: "&7{player} 拒绝了你的领地邀请。"
+    invite-accepted: "&a你已加入该领地。"
+    member-joined: "&a{player} 已接受邀请并加入领地。"
+    invite-not-found: "&c邀请不存在或已经过期。"
+    transfer-requested: "&a已向 {player} 发送领地转让确认。"
+    transfer-denied: "&7你已拒绝领地转让。"
+    transfer-declined-owner: "&7{player} 拒绝了领地转让。"
+    transfer-accepted: "&a你已成为该领地的新主人。"
+    transfer-complete: "&a领地已转让给 {player}。"
+    member-removed: "&a已将 {player} 移出领地。"
+    you-were-removed: "&c你已被移出 {owner} 的领地。"
+    not-found: "&c未找到对应领地。"
+    admin-info: "&e领地 {id} &7主人: &f{owner} &7区块: &f{chunks} &7锁定: &f{locked}"
+    admin-transfer-failed: "&c目标玩家不存在或已经拥有领地。"
+    command-usage: "&e用法: &f/se territory accept|deny|transfer-accept|transfer-deny <主人>"
+    result:
+      already-owns: "&c你已经拥有一个领地。"
+      chunk-occupied: "&c目标区块或旗帜的 3×3 覆盖已经属于其他领地。"
+      flag-center-occupied: "&c该区块已经存在一面领地旗帜，不能重复设置中心。"
+      not-adjacent: "&c旗帜的 3×3 覆盖必须与目标领地相连。"
+      ambiguous: "&c当前区块相邻多个可管理领地，请先在目标领地界面选择扩区模式。"
+      limit-reached: "&c该领地已达到 35 面旗帜上限。"
+      would-disconnect: "&c拆除该旗帜会使领地区块断开。"
+      no-permission: "&c你没有对应的领地权限。"
+      locked: "&c该领地数据已锁定，请联系管理员处理。"
+      not-member: "&c目标玩家不是该领地成员。"
+      already-member: "&c目标玩家已经属于该领地。"
+      target-already-owns: "&c目标玩家已经拥有一个领地。"
+      not-found: "&c该领地已经不存在，请重新打开界面。"
+      flag-pattern-limit: "&c旗帜图案层数过多，最多允许 20 层。"
+      persistence-failed: "&c领地变更已在内存生效，但暂时无法写入存档；服务器将在后续变更或关闭时重试。"
+      persistence-unavailable: "&c领地存档未能安全加载，当前功能已锁定以保护原始数据，请联系管理员。"
   network-port:
     buffer-dropped: "&e[网络端口] &7部分缓冲物品无法退回，已在端口位置弹出。"
   disk-manager:
@@ -1072,7 +1323,7 @@ messages:
     search-prompt: "&b[网络终端] &7请在聊天栏输入搜索关键词 (输入 &fcancel &7取消):"
   command:
     description: "SlimeEasy 管理指令"
-    usage: "&e用法: &f/se reload &7- 重新加载配置文件"
+    usage: "&e用法: &f/se reload &7或 &f/se territory ..."
     no-permission: "&c你没有权限执行该指令。"
     reload:
       success: "&aSlimeEasy 配置与语言文件已重载。"
@@ -1157,10 +1408,8 @@ logs:
     reload-failed: "配置重载失败: {error}"
   butcher:
     fake-player-failed: "[SlimeEasy] 屠夫机器假玩家构造失败, 降级为普通伤害: {error}"
-    user-list-field-missing: "未找到 StoredUserList.map 字段"
-    op-injection-failed: "[SlimeEasy] 屠夫机器假玩家 OP 内存注入失败 (不影响击杀): {error}"
   auto-clicker:
-    nms-init-failed: "[SlimeEasy] 自动点击器 NMS 交互反射初始化失败, 点击降级为无效: {error}"
+    nms-interaction-failed: "[SlimeEasy] 自动点击器 NMS 交互失败, 本次点击已跳过: {error}"
 formats:
   storage:
     total: "&7总量: &e{amount}"
@@ -1192,5 +1441,6 @@ research:
   storage-upgrades: "存储升级组件"
   storage-network: "存储网络"
   storage-disks: "物品存储磁盘"
+  territory: "简易的领地"
 system:
   missing: "Missing translation: {key}"

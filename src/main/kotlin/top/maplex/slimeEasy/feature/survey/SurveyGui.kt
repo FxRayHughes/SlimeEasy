@@ -68,8 +68,8 @@ object SurveyGui {
         val icon = ItemStack(material, count.coerceIn(1, 64))
         val meta = icon.itemMeta
         if (meta != null) {
-            meta.setDisplayName("§f${OreNames.of(material)}")
-            meta.lore = listOf(I18n.text("menus.survey.result.count", "count" to count))
+            meta.displayName(I18n.legacyComponent("§f${OreNames.of(material)}"))
+            meta.lore(listOf(I18n.component("menus.survey.result.count", "count" to count)))
             icon.itemMeta = meta
         }
         return icon
@@ -80,7 +80,7 @@ object SurveyGui {
         val icon = ItemStack(Material.BARRIER)
         val meta = icon.itemMeta
         if (meta != null) {
-            meta.setDisplayName(I18n.text("menus.survey.result.empty"))
+            meta.displayName(I18n.component("menus.survey.result.empty"))
             icon.itemMeta = meta
         }
         return icon

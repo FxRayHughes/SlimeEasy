@@ -69,4 +69,18 @@ object Groups {
             "groups.villager"
         )
     )
+
+    /**
+     * "简易的领地" 分类。
+     *
+     * 磁石图标对应领地核心；分类只承载核心与按区块扩展的旗帜，避免与机器分类混杂。
+     */
+    val TERRITORY: ItemGroup = ItemGroup(
+        NamespacedKey(SlimeEasy.instance, "territory"),
+        SEText.localized(
+            "SE_GROUP_TERRITORY",
+            Material.LODESTONE,
+            "groups.territory"
+        )
+    )
 }

@@ -35,6 +35,13 @@ import top.maplex.slimeEasy.storage.network.NetworkController
 import top.maplex.slimeEasy.storage.network.NetworkPort
 import top.maplex.slimeEasy.storage.network.RemoteTerminal
 import top.maplex.slimeEasy.storage.network.RemoteUpgrade
+import top.maplex.slimeEasy.territory.TerritoryCore
+import top.maplex.slimeEasy.territory.TerritoryBoundaryDisplay
+import top.maplex.slimeEasy.territory.TerritoryBlockTransactionListener
+import top.maplex.slimeEasy.territory.TerritoryFlag
+import top.maplex.slimeEasy.territory.TerritoryInputListener
+import top.maplex.slimeEasy.territory.TerritoryProtectionListener
+import top.maplex.slimeEasy.territory.TerritoryProtectionBridge
 import top.maplex.slimeEasy.villager.catcher.CatcherListener
 import top.maplex.slimeEasy.villager.ironfarm.IronFarm
 import top.maplex.slimeEasy.villager.ironfarm.IronFarmListener
@@ -69,6 +76,7 @@ object Registration {
     private val DISK_RESEARCH_COST get() = SEConfig.storageDiskResearch
     private val STORAGE_UPGRADE_RESEARCH_COST get() = SEConfig.storageUpgradeResearch
     private val NETWORK_RESEARCH_COST get() = SEConfig.storageNetworkResearch
+    private val TERRITORY_RESEARCH_COST get() = SEConfig.territoryResearch
 
     private val VILLAGER_CATCHER_RESEARCH_COST get() = SEConfig.villagerCatcherResearch
     private val ZOMBIE_SIGNAL_RESEARCH_COST get() = SEConfig.zombieSignalResearch
@@ -342,6 +350,30 @@ object Registration {
 
         // 13. 注册简易村民
         registerVillager(addon)
+
+        // 14. 注册简易领地及其统一保护模块
+        registerTerritory(addon)
+    }
+
+    /** 注册领地物品、研究、菜单输入监听器，并延迟挂接 Slimefun ProtectionModule。 */
+    private fun registerTerritory(addon: SlimefunAddon) {
+        if (!SEConfig.territoryEnabled) return
+        Groups.TERRITORY.register(addon)
+        val recipeType = RecipeType.ENHANCED_CRAFTING_TABLE
+        val core = TerritoryCore(
+            Groups.TERRITORY, Items.TERRITORY_CORE, recipeType, Items.TERRITORY_CORE_RECIPE
+        ).also { it.register(addon) }
+        val flag = TerritoryFlag(
+            Groups.TERRITORY, Items.TERRITORY_FLAG, recipeType, Items.TERRITORY_FLAG_RECIPE
+        ).also { it.register(addon) }
+        research("territory", 9024, I18n.text("research.territory"), TERRITORY_RESEARCH_COST, core, flag)
+
+        val pluginManager = Bukkit.getPluginManager()
+        pluginManager.registerEvents(TerritoryBlockTransactionListener(), SlimeEasy.instance)
+        pluginManager.registerEvents(TerritoryProtectionListener(), SlimeEasy.instance)
+        pluginManager.registerEvents(TerritoryInputListener(), SlimeEasy.instance)
+        TerritoryBoundaryDisplay.start(SlimeEasy.instance)
+        TerritoryProtectionBridge.initialize(SlimeEasy.instance)
     }
 
     /**

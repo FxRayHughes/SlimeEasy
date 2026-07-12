@@ -14,9 +14,10 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.machine.butcher.FakePlayerFactory
+import top.maplex.slimeEasy.machine.common.MachineProtection
 
 /**
- * 自动点击器的点击编排: 以屠夫机的 OP 假玩家手持 [handItem] 对正前方方块执行右键 / 左键。
+ * 自动点击器的点击编排：以不写入 `ops.json` 的专用假玩家手持 [handItem] 对正前方方块执行右键 / 左键。
  *
  * - **右键 Slimefun (粘液) 方块**: 直接调用其 [BlockUseHandler], 绕过 Slimefun 中央监听的研究解锁 gate;
  * - **右键原版方块**: 经 [BlockInteractor.useItemOn] 真正执行原版交互 (按钮 / 拉杆 / 骨粉等);
@@ -35,14 +36,18 @@ object AutoClickerLogic {
      */
     fun click(machine: Block, facing: BlockFace, handItem: ItemStack?, doLeft: Boolean, doRight: Boolean): ItemStack? {
         if (!doLeft && !doRight) return handItem
-        val fake = FakePlayerFactory.get(machine.world) ?: return handItem
         val front = machine.getRelative(facing)
+        // 左右键是独立权限：只执行真实放置者获准的部分，同时触发旧机器 owner 的惰性绑定。
+        val allowedRight = doRight && MachineProtection.canInteract(machine, front)
+        val allowedLeft = doLeft && MachineProtection.canBreak(machine, front)
+        if (!allowedRight && !allowedLeft) return handItem
+        val fake = FakePlayerFactory.get(machine.world) ?: return handItem
 
         FakePlayerFactory.positionAt(fake, machine.location.toCenterLocation())
         fake.inventory.setItemInMainHand(handItem)
         val face = facing.oppositeFace
-        if (doRight) runCatching { rightClick(fake, front, face) }
-        if (doLeft) runCatching { BlockInteractor.destroyBlock(fake, front) }
+        if (allowedRight) runCatching { rightClick(fake, front, face) }
+        if (allowedLeft) runCatching { BlockInteractor.destroyBlock(fake, front) }
         val after = fake.inventory.itemInMainHand.takeIf { !it.type.isAir }
         fake.inventory.setItemInMainHand(null) // 清空, 避免残留影响下次 / 屠夫机
         return after

@@ -1,11 +1,11 @@
 package top.maplex.slimeEasy.storage.drawer
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
-import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.ItemFrame
+import top.maplex.slimeEasy.config.I18n
 import top.maplex.slimeEasy.storage.core.ItemKey
 import top.maplex.slimeEasy.storage.core.QuantityFormat
 import java.util.UUID
@@ -89,7 +89,7 @@ object DrawerDisplay {
             return
         }
         val icon = key.toDisplay(1).apply {
-            editMeta { it.displayName(Component.text("§f${QuantityFormat.compact(count)}")) }
+            editMeta { it.displayName(I18n.legacyComponent("§f${QuantityFormat.compact(count)}")) }
         }
         frame.setItem(icon, false)
     }

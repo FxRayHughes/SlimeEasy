@@ -407,4 +407,32 @@ object Items {
         ItemStack(Material.BLACKSTONE), ItemStack(Material.DIAMOND_BLOCK), ItemStack(Material.BLACKSTONE),
         ItemStack(Material.OBSIDIAN), ItemStack(Material.BLACKSTONE), ItemStack(Material.OBSIDIAN)
     )
+
+    // ============================ 简易的领地 ============================
+
+    const val TERRITORY_CORE_ID = "SE_TERRITORY_CORE"
+    const val TERRITORY_FLAG_ID = "SE_TERRITORY_FLAG"
+
+    /** 放下后认领以核心所在区块为中心的3×3区域；一个玩家只能拥有一个核心。 */
+    val TERRITORY_CORE: SlimefunItemStack =
+        SEText.localized(TERRITORY_CORE_ID, Material.LODESTONE, "items.territory-core")
+
+    /**
+     * 前期配方刻意不要求下界材料；磁石仅作为自定义物品外观，不代表原版磁石配方成本。
+     */
+    val TERRITORY_CORE_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.COPPER_BLOCK), ItemStack(Material.COMPASS), ItemStack(Material.COPPER_BLOCK),
+        ItemStack(Material.IRON_BLOCK), ItemStack(Material.EMERALD), ItemStack(Material.IRON_BLOCK),
+        ItemStack(Material.STONE_BRICKS), ItemStack(Material.REDSTONE_BLOCK), ItemStack(Material.STONE_BRICKS)
+    )
+
+    /** 每面旗帜认领以所在区块为中心的3×3并集；同领地覆盖允许重叠。 */
+    val TERRITORY_FLAG: SlimefunItemStack =
+        SEText.localized(TERRITORY_FLAG_ID, Material.WHITE_BANNER, "items.territory-flag")
+
+    val TERRITORY_FLAG_RECIPE: Array<ItemStack?> = arrayOf(
+        ItemStack(Material.WHITE_WOOL), ItemStack(Material.WHITE_BANNER), ItemStack(Material.WHITE_WOOL),
+        ItemStack(Material.COPPER_INGOT), ItemStack(Material.COMPASS), ItemStack(Material.COPPER_INGOT),
+        ItemStack(Material.OAK_LOG), ItemStack(Material.EMERALD), ItemStack(Material.OAK_LOG)
+    )
 }

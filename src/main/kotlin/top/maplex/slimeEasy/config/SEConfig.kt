@@ -319,4 +319,12 @@ object SEConfig {
 
     /** 村民治愈机治愈耗时 (毫秒)。 */
     val healerConvertMillis: Long get() = seconds("villager.healer.convert-seconds", 30)
+
+    // ==================== 简易的领地 ====================
+
+    /** 是否注册领地分类、物品、保护模块及监听器；切换后需重启。 */
+    val territoryEnabled: Boolean get() = bool("territory.enabled", true)
+
+    /** 解锁领地核心与旗帜所需的经验等级。 */
+    val territoryResearch: Int get() = int("territory.research-level", 8, 0)
 }

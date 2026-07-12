@@ -1,6 +1,7 @@
 package top.maplex.slimeEasy.storage.core
 
 import top.maplex.slimeEasy.config.I18n
+import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -46,12 +47,14 @@ object GuiItems {
     /** 升级插件入口按钮。 */
     val UPGRADE_ENTRY: ItemStack = localized(Material.ANVIL, "menus.common.upgrade-entry")
 
-    /** 构造带名称与 lore 的图标。 */
+    /** 构造带名称与 lore 的图标，并关闭 ItemMeta 默认继承的斜体样式。 */
     fun named(material: Material, name: String, vararg lore: String): ItemStack =
         ItemStack(material).apply {
             editMeta { meta ->
-                meta.displayName(legacySerializer.deserialize(name))
-                if (lore.isNotEmpty()) meta.lore(lore.map(legacySerializer::deserialize))
+                meta.displayName(legacySerializer.deserialize(name).decoration(TextDecoration.ITALIC, false))
+                if (lore.isNotEmpty()) {
+                    meta.lore(lore.map { legacySerializer.deserialize(it).decoration(TextDecoration.ITALIC, false) })
+                }
             }
         }
 

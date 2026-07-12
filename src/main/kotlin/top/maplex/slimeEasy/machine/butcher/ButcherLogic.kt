@@ -37,7 +37,10 @@ object ButcherLogic {
     /** 内部余量缓存上限 (换算为攻击次数) = [MAX_SATIETY] × [ATTACKS_PER_NUTRITION]。 */
     val MAX_FUEL: Long get() = MAX_SATIETY.toLong() * ATTACKS_PER_NUTRITION
 
-    /** 命中怪物时写入的所有者标记键 (供死亡监听器识别本机击杀)。 */
+    /**
+     * 命中怪物时写入的机器击杀标记键；值通常为 owner UUID，兼容未绑定旧机器时允许为空。
+     * 死亡监听以键存在为准，领地身份还原仅在值能解析为 UUID 时生效。
+     */
     val KEY_KILLER = NamespacedKey(SlimeEasy.instance, "butcher_killer")
 
     /**

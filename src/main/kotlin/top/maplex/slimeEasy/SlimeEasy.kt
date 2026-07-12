@@ -4,6 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import top.maplex.slimeEasy.command.SECommand
 import top.maplex.slimeEasy.config.I18n
 import top.maplex.slimeEasy.registry.Registration
+import top.maplex.slimeEasy.territory.TerritoryService
 
 /**
  * SlimeEasy 主类 (Paper 插件入口)。
@@ -25,6 +26,8 @@ class SlimeEasy : JavaPlugin() {
         // 释放默认配置并加载独立语言文件，确保注册物品前文本已就绪
         saveDefaultConfig()
         I18n.load()
+        // 先恢复领地索引，随后注册的 Slimefun 保护模块才能从第一次查询起得到完整结果。
+        TerritoryService.initialize(this)
         // 注册全部内容；Slimefun 物品文本在注册阶段冻结
         Registration.registerAll(addon)
         // 注册 /se reload 管理指令
@@ -33,7 +36,9 @@ class SlimeEasy : JavaPlugin() {
     }
 
     override fun onDisable() {
-        // 无需手动注销: Slimefun 会在自身卸载时清理附属注册的内容
+        // 领地属于插件自有动态存档；卸载前执行最终原子保存。
+        TerritoryService.shutdown()
+        // Slimefun 会在正常关服时随后清理注册表；不支持 PlugMan 或 /reload 式热卸载。
     }
 
     companion object {

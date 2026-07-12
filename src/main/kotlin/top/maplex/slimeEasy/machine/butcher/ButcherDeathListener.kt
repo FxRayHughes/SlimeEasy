@@ -16,7 +16,8 @@ import java.util.concurrent.ThreadLocalRandom
 /**
  * 屠夫机器的掉落 / 经验兜底监听器。
  *
- * 机器攻击时会给目标写入 [ButcherLogic.KEY_KILLER] 标记 (owner UUID)。假玩家击杀时怪物的
+ * 机器攻击时会给目标写入 [ButcherLogic.KEY_KILLER] 标记；值通常是 owner UUID，未绑定旧机器
+ * 允许使用空值，是否属于机器击杀只由键存在决定。假玩家击杀时怪物的
  * [org.bukkit.entity.LivingEntity.getKiller] 为 null, 导致:
  * - 原版经验归零 → 本监听按 [EXP_TABLE] 补保底经验;
  * - Slimefun 自身的 [io.github.thebusybiscuit.slimefun4.implementation.listeners.entity.MobDropListener]
@@ -40,9 +41,7 @@ class ButcherDeathListener : Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onDeath(e: EntityDeathEvent) {
         val entity = e.entity
-        val marker = entity.persistentDataContainer
-            .get(ButcherLogic.KEY_KILLER, PersistentDataType.STRING) ?: return
-        if (marker.isEmpty()) return
+        if (!entity.persistentDataContainer.has(ButcherLogic.KEY_KILLER, PersistentDataType.STRING)) return
 
         // 补发 Slimefun 自定义怪物掉落 (如铁傀儡的电路板): 假玩家 killer 为 null 使原生监听跳过
         addSlimefunMobDrops(e)

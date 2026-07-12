@@ -1,6 +1,7 @@
 package top.maplex.slimeEasy.config
 
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.configuration.file.YamlConfiguration
 import top.maplex.slimeEasy.SlimeEasy
@@ -53,16 +54,16 @@ object I18n {
     fun text(key: String, vararg placeholders: Pair<String, Any?>): String =
         sectionSerializer.serialize(ampersandSerializer.deserialize(raw(key, *placeholders)))
 
-    /** 读取为 Adventure Component。 */
+    /** 读取为 Adventure Component，并显式关闭物品文本默认继承的斜体样式。 */
     fun component(key: String, vararg placeholders: Pair<String, Any?>): Component =
-        ampersandSerializer.deserialize(raw(key, *placeholders))
+        withoutItalics(ampersandSerializer.deserialize(raw(key, *placeholders)))
 
-    /** 把已有 `§` Legacy 字符串转换为 Adventure 组件。 */
-    fun legacyComponent(value: String): Component = sectionSerializer.deserialize(value)
+    /** 把已有 `§` Legacy 字符串转换为不带默认斜体的 Adventure 组件。 */
+    fun legacyComponent(value: String): Component = withoutItalics(sectionSerializer.deserialize(value))
 
-    /** 读取列表或 YAML 多行块为 Adventure 组件。 */
+    /** 读取列表或 YAML 多行块为不带默认斜体的 Adventure 组件。 */
     fun components(key: String, vararg placeholders: Pair<String, Any?>): List<Component> =
-        rawList(key, *placeholders).map(ampersandSerializer::deserialize)
+        rawList(key, *placeholders).map { withoutItalics(ampersandSerializer.deserialize(it)) }
 
     /** 读取 `{base}.name` 与多行 `{base}.lore`，供 Slimefun 物品使用。 */
     fun rawDisplay(base: String, vararg placeholders: Pair<String, Any?>): Display<String> =
@@ -96,6 +97,13 @@ object I18n {
         SlimeEasy.instance.logger.warning("Missing i18n key: $key")
         return key
     }
+
+    /**
+     * ItemMeta 会把未指定斜体状态的组件按原版规则显示为斜体；显式设为 false 后，
+     * 名称与每条 Lore 的子组件仍保留各自颜色和其它装饰，只取消继承斜体。
+     */
+    private fun withoutItalics(component: Component): Component =
+        component.decoration(TextDecoration.ITALIC, false)
 
     private const val DEFAULT_LANGUAGE = "zh_CN"
 }

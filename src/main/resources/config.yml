@@ -371,3 +371,9 @@ villager:
     research-level: 15
     # 僵尸村民治愈为普通村民所需秒数 (每次消耗一个普通金苹果)。
     convert-seconds: 30
+
+# ---------- 简易的领地 ----------
+territory:
+  # 功能开关与研究等级在 Slimefun 注册阶段冻结，修改后需重启。
+  enabled: true
+  research-level: 8

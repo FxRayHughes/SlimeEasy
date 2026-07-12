@@ -30,16 +30,28 @@ jobs:
       - name: 赋予 gradlew 执行权限
         run: chmod +x ./gradlew
 
-      - name: 构建 (shadowJar)
+      - name: 构建普通插件 Jar
         run: ./gradlew build --no-daemon --stacktrace
+
+      - name: 定位主插件 Jar
+        id: plugin_jar
+        shell: bash
+        run: |
+          set -euo pipefail
+          PLUGIN_VERSION="$(sed -n 's/^version=//p' gradle.properties | tr -d '\r')"
+          PLUGIN_JAR="build/libs/SlimeEasy-${PLUGIN_VERSION}.jar"
+          # 只发布无 classifier 的主产物，避免未来 sources/dev Jar 被误当作可安装插件。
+          test -n "${PLUGIN_VERSION}"
+          test -f "${PLUGIN_JAR}"
+          echo "path=${PLUGIN_JAR}" >> "${GITHUB_OUTPUT}"
 
       - name: 上传插件 Artifact
         uses: actions/upload-artifact@v4
         with:
           # 名称带 commit 短 SHA, 便于区分不同构建
           name: SlimeEasy-${{ github.sha }}
-          # 仅上传 shadow 打包的可用插件 (含 Kotlin 运行时), 排除瘦 jar
-          path: build/libs/*-all.jar
+          # Kotlin 由 Paper Loader 在运行时提供，发布产物无需内嵌依赖。
+          path: ${{ steps.plugin_jar.outputs.path }}
           if-no-files-found: error
           retention-days: 90
 
@@ -53,7 +65,7 @@ jobs:
           SHA_SHORT="${GITHUB_SHA::7}"
           # 删除旧的 latest 发布与标签 (若存在), 以当前提交重建, 保证标签指向最新构建
           gh release delete latest --yes --cleanup-tag 2>/dev/null || true
-          gh release create latest build/libs/*-all.jar \
+          gh release create latest "${{ steps.plugin_jar.outputs.path }}" \
             --title "开发版 (latest)" \
             --notes "由 commit \`${SHA_SHORT}\` 自动构建。这是随 main 分支滚动更新的最新开发版本。" \
             --prerelease \
