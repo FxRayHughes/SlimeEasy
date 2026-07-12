@@ -98,6 +98,9 @@ items:
 
       &7显示半径: &f{radius} 格
       &8全息图仅自己可见，且不会阻挡点击。
+
+      &7主手持有时潜行 + 左键: &f打开显示筛选
+      &7潜行 + 右键机器: &f切换该物品类型显示
   butcher:
     name: "&c屠夫机器"
     lore: |-
@@ -1170,6 +1173,89 @@ menus:
 
         &7放入傻子村民 (满捕捉器),
         &7到点后转化为无职业普通村民。
+  engineer-goggles:
+    title: "&8工程师护目镜 · 显示筛选"
+    tabs:
+      groups:
+        name: "&bSlimefun 分类"
+        lore: |-
+          &7按 ItemGroup 注册分类多选
+      items:
+        name: "&b物品类型"
+        lore: |-
+          &7管理潜行右键选中的单项类型
+      addons:
+        name: "&b附属插件"
+        lore: |-
+          &7按注册该物品的附属插件多选
+      functions:
+        name: "&b机器种类"
+        lore: |-
+          &7按机器公开能力多选
+      states:
+        name: "&b工作状态"
+        lore: |-
+          &7按可验证的实时状态多选
+    entry-lore: |-
+
+      &7当前: {state}
+      &e点击切换显示
+    addon:
+      name: "&d{addon}"
+      lore: |-
+        &7附属插件
+        &7当前: {state}
+        &e点击切换显示
+    functions:
+      multiblock:
+        name: "&e多方块结构"
+        lore: "&7当前: {state}"
+      generator:
+        name: "&e生成器"
+        lore: "&7当前: {state}"
+      template-machine:
+        name: "&e模板机器"
+        lore: "&7当前: {state}"
+      recipe-machine:
+        name: "&e配方机器"
+        lore: "&7当前: {state}"
+      consumer:
+        name: "&e耗电组件"
+        lore: "&7当前: {state}"
+      capacitor:
+        name: "&e电池与电容"
+        lore: "&7当前: {state}"
+      connector:
+        name: "&e能源连接器"
+        lore: "&7当前: {state}"
+      other:
+        name: "&e其它 Slimefun 方块"
+        lore: "&7当前: {state}"
+    states:
+      working:
+        name: "&a工作中"
+        lore: "&7当前: {state}"
+      idle:
+        name: "&c空闲"
+        lore: "&7当前: {state}"
+      unknown:
+        name: "&7状态未知"
+        lore: |-
+          &7未公开可靠运行状态的机器
+          &7当前: {state}
+    reset:
+      name: "&c重置筛选"
+      lore: |-
+        &7恢复全部类型可见
+    summary:
+      name: "&f筛选汇总"
+      lore: |-
+        &7分类: &f{groups}/{groupTotal}
+        &7物品: &f{items}/{itemTotal}
+        &7附属: &f{addons}/{addonTotal}
+        &7种类: &f{functions}/{functionTotal}
+        &7状态: &f{states}/{stateTotal}
+        &8第 {page}/{pages} 页
   survey:
     result:
       count: "&7数量: &a{count}"
@@ -1179,6 +1265,14 @@ names:
     none: "无"
     enabled: "&a启用"
     disabled: "&7关闭"
+  engineer-goggles:
+    filter:
+      shown: "&a显示"
+      hidden: "&c隐藏"
+    work-state:
+      working: "&a工作中"
+      idle: "&c空闲"
+      unknown: "&7状态未知"
   network-port-role:
     input: "输入网络"
     output: "输出网络"
@@ -1261,6 +1355,10 @@ names:
 messages:
   engineer-goggles:
     decent-holograms-missing: "&c未安装 DecentHolograms，工程师护目镜显示不可用。"
+    must-hold: "&c请把工程师护目镜拿在主手中。"
+    not-slimefun-target: "&c请潜行右键一个 Slimefun 方块或多方块触发块。"
+    item-shown: "&a已显示物品类型：&f{item}"
+    item-hidden: "&c已隐藏物品类型：&f{item}"
   territory:
     created: "&a领地已创建，核心周围的 3×3 区域已被认领。"
     chunk-added: "&a旗帜已放置，其 3×3 覆盖已并入领地。"
@@ -1423,6 +1521,7 @@ logs:
     nms-interaction-failed: "[SlimeEasy] 自动点击器 NMS 交互失败, 本次点击已跳过: {error}"
 holograms:
   engineer-goggles:
+    work-state: "&7状态: {state}"
     energy: "&7电量: &e{charge} &7/ &e{capacity} J"
     energy-loading: "&8能源数据加载中"
     consumption: "&7额定耗电: &c{amount} J/t"

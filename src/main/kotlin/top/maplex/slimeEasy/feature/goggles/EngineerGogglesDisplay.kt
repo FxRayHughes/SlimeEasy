@@ -1,26 +1,32 @@
 package top.maplex.slimeEasy.feature.goggles
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData
+import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem
 import io.github.thebusybiscuit.slimefun4.core.multiblocks.MultiBlock
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.block.BlockPistonExtendEvent
 import org.bukkit.event.block.BlockPistonRetractEvent
+import org.bukkit.event.block.Action
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
 import top.maplex.slimeEasy.config.I18n
@@ -129,10 +135,19 @@ internal object EngineerGogglesDisplay : Listener {
         val targets = LinkedHashMap<String, EngineerGogglesTarget>()
         discoverStoredBlocks(player).forEach { targets[it.key] = it }
         discoverMultiblocks(player, state).forEach { targets.putIfAbsent(it.key, it) }
+        val filters = player.inventory.helmet?.let(EngineerGogglesFilter::read) ?: return
+        targets.entries.removeIf { !filters.allows(it.value) }
 
         for (target in targets.values) {
             val lines = buildList {
                 add(target.item.itemName)
+                val workState = EngineerGogglesWorkState.of(target)
+                add(
+                    I18n.text(
+                        "holograms.engineer-goggles.work-state",
+                        "state" to I18n.raw("names.engineer-goggles.work-state.${workState.filterKey}")
+                    )
+                )
                 addAll(details.getOrPut(target.key) { energy.lines(target, now, seenEnergy) })
             }
             val existing = state.holograms[target.key]
@@ -253,6 +268,27 @@ internal object EngineerGogglesDisplay : Listener {
     private fun isWearing(player: Player): Boolean =
         SlimefunItem.getByItem(player.inventory.helmet)?.id == Items.ENGINEER_GOGGLES_ID
 
+    /**
+     * 解析玩家点击的普通 Slimefun 方块或多方块触发块。
+     *
+     * 多方块顺序与 Slimefun 交互监听器一致，重叠结构选择注册表中最后匹配的一项。
+     */
+    internal fun resolveItem(block: Block): SlimefunItem? {
+        StorageCacheUtils.getBlock(block.location)?.sfId
+            ?.let(SlimefunItem::getById)
+            ?.let { return it }
+
+        val matches = ArrayList<SlimefunItem>()
+        for (multiblock in Slimefun.getRegistry().multiBlocks) {
+            val center = block.getRelative(multiblock.triggerBlock)
+            val directions = if (multiblock.isSymmetric) SYMMETRIC_DIRECTIONS else ALL_DIRECTIONS
+            if (directions.any { matches(center, it, multiblock.structure) }) {
+                matches += multiblock.slimefunItem
+            }
+        }
+        return matches.lastOrNull()
+    }
+
     private fun remove(playerId: UUID) {
         states.remove(playerId)?.let(::destroy)
     }
@@ -272,6 +308,42 @@ internal object EngineerGogglesDisplay : Listener {
 
     private fun invalidate(world: UUID) {
         worldRevisions.compute(world) { _, old -> (old ?: 0L) + 1L }
+    }
+
+    /**
+     * 主手持护目镜时的快捷过滤协议：潜行左键打开多选界面，潜行右键目标切换该物品类型。
+     * LOWEST 阶段先取消事件，避免右键过滤同时打开或操作被点击的机器。
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    fun onGogglesInteract(event: PlayerInteractEvent) {
+        val player = event.player
+        if (!player.isSneaking || event.hand != EquipmentSlot.HAND) return
+        val goggles = player.inventory.itemInMainHand
+        if (SlimefunItem.getByItem(goggles)?.id != Items.ENGINEER_GOGGLES_ID) return
+
+        when (event.action) {
+            Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> {
+                event.isCancelled = true
+                EngineerGogglesFilterMenu.open(player)
+            }
+            Action.RIGHT_CLICK_BLOCK -> {
+                event.isCancelled = true
+                val target = event.clickedBlock?.let(::resolveItem)
+                if (target == null) {
+                    player.sendActionBar(I18n.component("messages.engineer-goggles.not-slimefun-target"))
+                    return
+                }
+                val shown = EngineerGogglesFilter.toggleItem(goggles, target.id)
+                player.inventory.setItemInMainHand(goggles)
+                player.sendActionBar(
+                    I18n.component(
+                        "messages.engineer-goggles.item-${if (shown) "shown" else "hidden"}",
+                        "item" to (ChatColor.stripColor(target.itemName) ?: target.id)
+                    )
+                )
+            }
+            else -> Unit
+        }
     }
 
     /** 玩家离线时立即释放 DH 对象，并清理可选依赖提示会话。 */
