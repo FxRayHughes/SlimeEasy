@@ -11,12 +11,17 @@ import top.maplex.slimeEasy.storage.core.StorageChangeBus
 /**
  * 抽屉的经验存储 (经验存储升级启用时)。
  *
- * 以 long 形式将经验**点数**保存在 BlockData (键 [DATA_KEY])。展示层复用
- * [DrawerDisplay], 以经验瓶为图标、存量文字显示点数。
+ * 以 long 形式将经验**点数**保存在 BlockData (键 [DATA_KEY])，取出交付方式保存在
+ * [PAYOUT_MODE_KEY]。展示层复用 [DrawerDisplay]，以经验瓶为图标、存量文字显示点数。
  */
 object DrawerExp {
 
     private const val DATA_KEY = "se_drawer_exp"
+
+    /**
+     * 取出交付方式的持久化键；缺失时必须视为直接给予，以兼容升级前创建的经验容器。
+     */
+    private const val PAYOUT_MODE_KEY = "se_exp_payout_mode"
 
     /** 经验展示图标身份 (经验瓶)。 */
     private val EXP_ICON: ItemKey = ItemKey.of(ItemStack(Material.EXPERIENCE_BOTTLE))!!
@@ -51,6 +56,19 @@ object DrawerExp {
         add(block, points.toLong())
     }
 
+    /** 读取该经验容器的取出交付方式；旧容器默认直接给予。 */
+    fun payoutMode(block: Block): ExperiencePayoutMode = ExperiencePayoutMode.fromStored(
+        StorageCacheUtils.getData(block.location, PAYOUT_MODE_KEY)
+    )
+
+    /** 切换并持久化该容器的取出交付方式，返回切换后的模式。 */
+    fun togglePayoutMode(block: Block): ExperiencePayoutMode {
+        val next = payoutMode(block).next()
+        StorageCacheUtils.setData(block.location, PAYOUT_MODE_KEY, next.storedValue)
+        StorageChangeBus.fire(block)
+        return next
+    }
+
     /**
      * 玩家取出经验。
      *
@@ -61,7 +79,7 @@ object DrawerExp {
         val stored = get(block)
         val give = minOf(stored, points.toLong()).toInt()
         if (give <= 0) return 0
-        ExpUtil.give(player, give)
+        ExperiencePayout.give(player, give, payoutMode(block))
         set(block, stored - give)
         return give
     }
