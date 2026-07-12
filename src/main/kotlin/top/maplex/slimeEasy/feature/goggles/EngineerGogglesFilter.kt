@@ -113,13 +113,16 @@ internal object EngineerGogglesFilter {
         val disabledAddons: Set<String>,
         val disabledStates: Set<String>
     ) {
-        /** 分类、功能、附属、状态和单项隐藏五层均通过时才允许显示目标。 */
-        fun allows(target: EngineerGogglesTarget): Boolean =
+        /**
+         * 分类、功能、附属、状态和单项隐藏五层均通过时才允许显示目标。
+         * 工作状态由刷新轮次共享层传入，避免多个佩戴者对同一机器重复查询处理器。
+         */
+        fun allows(target: EngineerGogglesTarget, workState: EngineerGogglesWorkState): Boolean =
             target.item.itemGroup.key.toString() !in disabledGroups &&
                 EngineerGogglesFunction.of(target).filterKey !in disabledFunctions &&
                 target.item.id !in hiddenItems &&
                 target.item.addon.name !in disabledAddons &&
-                EngineerGogglesWorkState.of(target).filterKey !in disabledStates
+                workState.filterKey !in disabledStates
     }
 
     /** 从物品 PDC 读取过滤快照；无数据的旧护目镜默认显示全部。 */

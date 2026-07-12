@@ -200,6 +200,10 @@ object SEConfig {
     /** 穿戴检测、机器数据和私有全息图刷新的共享周期。 */
     val engineerGogglesRefreshTicks: Long get() = long("engineer-goggles.refresh-ticks", 10L, 1L)
 
+    /** 每轮允许首次建立的多方块空间单元数量；限制主线程扫描尖峰而不限制最终显示数量。 */
+    val engineerGogglesMaxNewCellsPerRefresh: Int
+        get() = int("engineer-goggles.max-new-cells-per-refresh", 4, 1)
+
     // ==================== 生长抑制器 ====================
 
     val growthInhibitorEnabled: Boolean get() = bool("growth-inhibitor.enabled", true)

@@ -264,6 +264,8 @@ engineer-goggles:
   radius: 16
   # 穿戴检测、机器信息与全息图刷新周期 (tick)。
   refresh-ticks: 10
+  # 每轮最多首次扫描的 16×16×16 空间单元；调低可减轻尖峰，但新区域结构会更慢出现。
+  max-new-cells-per-refresh: 4
 
 # ---------- 生长抑制器 ----------
 growth-inhibitor:
