@@ -11,8 +11,6 @@ import io.github.thebusybiscuit.slimefun4.implementation.items.armor.SlimefunArm
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
 import top.maplex.slimeEasy.SlimeEasy
 import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.feature.survey.SurveyDisplayListener
@@ -21,6 +19,7 @@ import top.maplex.slimeEasy.feature.survey.SurveyTier
 import top.maplex.slimeEasy.feature.growth.GrowthInhibitor
 import top.maplex.slimeEasy.feature.harness.HarnessCombat
 import top.maplex.slimeEasy.feature.goggles.EngineerGogglesDisplay
+import top.maplex.slimeEasy.feature.goggles.EngineerGogglesNightVision
 import top.maplex.slimeEasy.feature.ward.CreeperControlListener
 import top.maplex.slimeEasy.feature.ward.CreeperWard
 import top.maplex.slimeEasy.machine.breaker.AutoBreaker
@@ -351,7 +350,7 @@ object Registration {
                 Items.ENGINEER_NIGHT_VISION_GOGGLES,
                 RecipeType.ENHANCED_CRAFTING_TABLE,
                 Items.ENGINEER_NIGHT_VISION_GOGGLES_RECIPE,
-                arrayOf(PotionEffect(PotionEffectType.NIGHT_VISION, 600, 20))
+                arrayOf(EngineerGogglesNightVision.effect())
             ).also { it.register(addon) }
             research(
                 "engineer_goggles",

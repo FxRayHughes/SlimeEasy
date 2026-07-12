@@ -138,6 +138,8 @@ internal object EngineerGogglesDisplay : Listener {
             }
 
             activePlayers += player.uniqueId
+            // 独立于 Slimefun 的异步护甲缓存补齐登录后夜视，同时复用现有 10 tick 主线程任务。
+            EngineerGogglesNightVision.refreshIfWearing(player)
             val activeBackend = backend
             if (activeBackend == null) {
                 if (missingDependencyWarned.add(player.uniqueId)) {
