@@ -79,6 +79,47 @@ object SEConfig {
     fun sieveChance(input: String, output: String, default: Int): Int =
         int("sieve.chances.$input.$output", default, 0).coerceAtMost(100)
 
+    /** 每份输入完成筛分所需的目标进度；运行时读取，至少为 1。 */
+    fun sieveRequiredProgress(input: String, default: Int): Int =
+        int("sieve.processing.required-actions.$input", default, 1)
+
+    val sieveActionMultiplier: Double
+        get() = double("sieve.processing.action-multiplier", 1.5, 0.01)
+
+    val sieveScaffoldingSpeedMultiplier: Double
+        get() = double("sieve.processing.scaffolding-speed-multiplier", 1.5, 0.01)
+
+    val sieveMaxLinkedSieves: Int
+        get() = int("sieve.processing.max-linked-sieves", 100, 1)
+
+    /** 同一台筛子两次有效推进之间的最小间隔（服务端 tick）。 */
+    val sieveMinimumActionIntervalTicks: Long
+        get() = long("sieve.processing.minimum-action-interval-ticks", -1L)
+
+    /** 是否显示筛面上的 BlockDisplay 加工动画。 */
+    val sieveAnimationEnabled: Boolean
+        get() = bool("sieve.animation.enabled", true)
+
+    /** 普通进度关键帧的客户端插值时长（tick）。 */
+    val sieveInterpolationTicks: Int
+        get() = int("sieve.animation.interpolation-ticks", 3, 0).coerceAtMost(59)
+
+    /** 完成时压扁到零高度的客户端插值时长（tick）。 */
+    val sieveCompletionAnimationTicks: Int
+        get() = int("sieve.animation.completion-ticks", 5, 0).coerceAtMost(59)
+
+    /** 原料展示初始长宽缩放。 */
+    val sieveStartHorizontalScale: Float
+        get() = double("sieve.animation.start-horizontal-scale", 0.8, 0.01).coerceAtMost(4.0).toFloat()
+
+    /** 原料展示完成时长宽缩放。 */
+    val sieveEndHorizontalScale: Float
+        get() = double("sieve.animation.end-horizontal-scale", 0.64, 0.01).coerceAtMost(4.0).toFloat()
+
+    /** 原料展示初始高度缩放。 */
+    val sieveStartHeightScale: Float
+        get() = double("sieve.animation.start-height-scale", 0.8, 0.01).coerceAtMost(4.0).toFloat()
+
     // ==================== 苦力怕驱逐方块 ====================
 
     val creeperWardEnabled: Boolean get() = bool("creeper-ward.enabled", true)
