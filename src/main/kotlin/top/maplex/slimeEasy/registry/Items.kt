@@ -18,10 +18,15 @@ object Items {
     // ============================ 筛子与筛分原料 ============================
 
     const val SIEVE_ID = "SE_SIEVE"
+    const val REINFORCED_SIEVE_ID = "SE_REINFORCED_SIEVE"
 
-    /** 筛子指南图标；实际结构为橡木活板门与其下方朝上的发射器。 */
+    /** 普通筛子指南图标；世界结构为木质活板门与其下方朝上的发射器。 */
     val SIEVE: SlimefunItemStack =
         SEText.localized(SIEVE_ID, Material.OAK_TRAPDOOR, "items.sieve")
+
+    /** 强化筛子指南图标；独立结构在木质活板门与发射器之间增加脚手架。 */
+    val REINFORCED_SIEVE: SlimefunItemStack =
+        SEText.localized(REINFORCED_SIEVE_ID, Material.SCAFFOLDING, "items.reinforced-sieve")
 
     /** 四种需要先通过磨石制得的筛分原料 ID。 */
     const val SIEVE_DUST_ID = "SE_SIEVE_DUST"

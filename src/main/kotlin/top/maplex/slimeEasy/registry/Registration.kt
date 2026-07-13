@@ -25,11 +25,13 @@ import top.maplex.slimeEasy.feature.ward.CreeperWard
 import top.maplex.slimeEasy.machine.breaker.AutoBreaker
 import top.maplex.slimeEasy.machine.butcher.Butcher
 import top.maplex.slimeEasy.machine.butcher.ButcherDeathListener
+import top.maplex.slimeEasy.machine.butcher.FakePlayerAdvancementListener
 import top.maplex.slimeEasy.machine.clicker.AutoClicker
 import top.maplex.slimeEasy.machine.placer.AutoPlacer
 import top.maplex.slimeEasy.machine.quarry.Quarry
 import top.maplex.slimeEasy.machine.sieve.Sieve
 import top.maplex.slimeEasy.machine.sieve.SieveCleanupListener
+import top.maplex.slimeEasy.machine.sieve.SieveTier
 import top.maplex.slimeEasy.storage.box.PagedBox
 import top.maplex.slimeEasy.storage.disk.DiskManager
 import top.maplex.slimeEasy.storage.drawer.Drawer
@@ -75,6 +77,7 @@ object Registration {
     private val COMBAT_HARNESS_RESEARCH_COST get() = SEConfig.combatHarnessResearch
     private val SURVEY_RULER_RESEARCH_COST get() = SEConfig.surveyRulerResearch
     private val SIEVE_RESEARCH_COST get() = SEConfig.sieveResearch
+    private val REINFORCED_SIEVE_RESEARCH_COST get() = SEConfig.reinforcedSieveResearch
 
     private val DRAWER_RESEARCH_COST get() = SEConfig.storageDrawerResearch
     private val BOX_RESEARCH_COST get() = SEConfig.storageBoxResearch
@@ -106,6 +109,11 @@ object Registration {
         // 1. 注册物品组
         Groups.UTILITY_MACHINES.register(addon)
         Groups.UTILITY_TOOLS.register(addon)
+
+        // 屠夫与自动点击器共用假玩家；只隐藏该内部身份产生的原版进度公告。
+        if (SEConfig.butcherEnabled || SEConfig.autoClickerEnabled) {
+            Bukkit.getPluginManager().registerEvents(FakePlayerAdvancementListener(), SlimeEasy.instance)
+        }
 
         // 2. 注册自动破坏机 (增强工作台配方)
         if (SEConfig.autoBreakerEnabled) {
@@ -151,7 +159,7 @@ object Registration {
             }
         }
 
-        // 筛分原料先挂到 Slimefun 磨石，再登记活板门多方块筛子，最后统一绑定研究。
+        // 筛分原料先挂到 Slimefun 磨石，再分别登记普通与强化多方块结构及其研究。
         if (SEConfig.sieveEnabled) {
             val sieveMaterials = listOf(
                 SlimefunItem(
@@ -179,13 +187,25 @@ object Registration {
                     Items.CRUSHED_BLACKSTONE_RECIPE
                 ).also { it.register(addon) }
             )
-            val sieve = Sieve(Groups.UTILITY_MACHINES, Items.SIEVE).also { it.register(addon) }
+            val sieve = Sieve(Groups.UTILITY_MACHINES, Items.SIEVE, SieveTier.BASIC).also { it.register(addon) }
+            val reinforcedSieve = Sieve(
+                Groups.UTILITY_MACHINES,
+                Items.REINFORCED_SIEVE,
+                SieveTier.REINFORCED
+            ).also { it.register(addon) }
             research(
                 "sieve",
                 9022,
                 I18n.text("research.sieve"),
                 SIEVE_RESEARCH_COST,
                 *(sieveMaterials + sieve).toTypedArray()
+            )
+            research(
+                "reinforced_sieve",
+                9026,
+                I18n.text("research.reinforced-sieve"),
+                REINFORCED_SIEVE_RESEARCH_COST,
+                reinforcedSieve
             )
             // 首击预扣的原料由运行态托管；结构破坏或区块卸载时必须由监听器立即返还。
             Bukkit.getPluginManager().registerEvents(SieveCleanupListener(), SlimeEasy.instance)

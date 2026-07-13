@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap
  * 同时避免生成网络连接和真实玩家存档。构造失败只记录一次并永久降级，调用方可继续使用普通伤害路径。
  *
  * 假玩家需要同时通过 Bukkit 与 NMS 两套权限判断，但公开 OP 名单 API 会立即写入 `ops.json`。
- * 因此使用专用 [FakeCraftPlayer] 固定 Bukkit OP 视图，并由 [FakeServerPlayer.permissions] 提供 NMS
+ * 因此 Bukkit 侧只附加 Slimefun 物品实际使用的权限节点，NMS 侧由 [FakeServerPlayer.permissions]
  * 所有者权限；两者都不修改服务器 OP 名单。屠夫伤害的领地与外部保护权限会在事件层还原为
  * 真实机器主人单独校验，不能让所有玩家借用这个内部 OP 身份绕过保护。
  * 所有入口只允许在服务端主线程调用。
@@ -72,7 +72,7 @@ object FakePlayerFactory {
      */
     fun isFake(player: Player): Boolean = cache.values.any { it === player }
 
-    /** 构造与目标世界绑定的 ServerPlayer，并完成无敌、NPC 标记和 Slimefun 研究初始化。 */
+    /** 构造与目标世界绑定的 ServerPlayer，并完成无敌、权限、NPC 标记和 Slimefun 研究初始化。 */
     private fun build(world: World): Player {
         val craftServer = Bukkit.getServer() as CraftServer
         val serverPlayer = FakeServerPlayer(
@@ -84,9 +84,25 @@ object FakePlayerFactory {
         )
         val bukkitPlayer = serverPlayer.bukkitEntity
         bukkitPlayer.isInvulnerable = true
+        grantSlimefunPermissions(bukkitPlayer)
         markAsNpc(bukkitPlayer)
         grantAllResearches(bukkitPlayer)
         return bukkitPlayer
+    }
+
+    /**
+     * 只授予 Slimefun 物品配置中真实存在的权限节点。
+     *
+     * 使用标准 [CraftPlayer] 可避免 Essentials 将自定义包装识别为非 Bukkit 玩家；逐项附加权限则
+     * 保留机器与 Slimefun 物品交互所需的权限，同时不把假玩家写进 `ops.json`，也不授予领地绕过权限。
+     */
+    private fun grantSlimefunPermissions(player: Player) {
+        val attachment = player.addAttachment(SlimeEasy.instance)
+        for (item in Slimefun.getRegistry().enabledSlimefunItems) {
+            Slimefun.getPermissionsService().getPermission(item).ifPresent { permission ->
+                attachment.setPermission(permission, true)
+            }
+        }
     }
 
     /**
@@ -124,7 +140,7 @@ object FakePlayerFactory {
     }
 
     /**
-     * 为假玩家固定 NMS 所有者权限，并确保所有 Bukkit 包装入口都返回不落盘的专用包装。
+     * 为假玩家固定 NMS 所有者权限，并确保所有 Bukkit 包装入口都返回同一个标准包装。
      * 该类与 CraftBukkit 二进制签名由 paperweight dev bundle 锁定，升级 Paper 时必须重新编译检查。
      */
     private class FakeServerPlayer(
@@ -134,7 +150,7 @@ object FakePlayerFactory {
         clientInformation: ClientInformation,
         craftServer: CraftServer
     ) : ServerPlayer(server, level, profile, clientInformation) {
-        private val fakeBukkitEntity = FakeCraftPlayer(craftServer, this)
+        private val fakeBukkitEntity = CraftPlayer(craftServer, this)
 
         override fun getBukkitEntity(): CraftPlayer = fakeBukkitEntity
 
@@ -143,14 +159,4 @@ object FakePlayerFactory {
         override fun permissions(): PermissionSet = LevelBasedPermissionSet.OWNER
     }
 
-    /**
-     * 只对这个内存假玩家报告 OP；[setOp] 故意不操作，防止任何插件把它写入 `ops.json`。
-     * Bukkit 的 PermissibleBase 会据此应用 `PermissionDefault.OP`；领地监听器会把机器伤害重新归属
-     * 给真实放置者，因此该内部身份不会授予普通机器主人额外领地权限。
-     */
-    private class FakeCraftPlayer(server: CraftServer, handle: ServerPlayer) : CraftPlayer(server, handle) {
-        override fun isOp(): Boolean = true
-
-        override fun setOp(value: Boolean) = Unit
-    }
 }

@@ -1,5 +1,6 @@
 package top.maplex.slimeEasy.storage.box
 
+import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils
 import top.maplex.slimeEasy.config.I18n
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
@@ -79,6 +80,10 @@ class PagedBox(
         // 页数可能缩减: 通知已打开的界面即时重绘 (页码会被夹取到新范围)
         PagedBoxMenu.refreshAll(block)
     }
+
+    /** 压制升级需要与上次持久化快照比较，因此仅翻页箱主动读取该 BlockData。 */
+    override fun previousStorageData(block: Block): String? =
+        StorageCacheUtils.getData(block.location, storageDataKey)
 
     override fun beforeStorageSave(block: Block, storage: VirtualStorage, previousData: String?) {
         val gridSize = UpgradeStore.resolve(block.location).compressionGridSize

@@ -15,7 +15,7 @@ dependencies {
     // dev bundle 同时提供 Paper API、CraftBukkit 与 Mojang 映射 NMS，不能再重复声明 paper-api。
     paperweight.paperDevBundle(libs.versions.paper.get())
     // Slimefun 由服务器提供，仅编译期引入；限定名称避免把服务端 bundler 误放进编译类路径。
-    compileOnly(fileTree("libs") { include("Slimefun-*.jar") })
+    compileOnly(fileTree("libs"))
     // 运行时由服务器可选提供；关闭传递依赖，避免 NBT-API 等实现细节进入本插件类路径。
     compileOnly("com.github.decentsoftware-eu:decentholograms:2.10.1")
     // 普通 Jar 不会内嵌 implementation 依赖；服务器运行时由 SlimeEasyLoader 下载同版本 stdlib。

@@ -68,16 +68,31 @@ object SEConfig {
     /** 是否注册筛子、筛分原料及其研究。 */
     val sieveEnabled: Boolean get() = bool("sieve.enabled", true)
 
-    /** 解锁筛子和四种筛分原料所需的经验等级。 */
+    /** 解锁普通筛子和四种筛分原料所需的经验等级。 */
     val sieveResearch: Int get() = int("sieve.research-level", 8, 0)
 
+    /** 解锁强化筛子指南项所需的经验等级；物料递进仍由普通筛子产出的竹子保证。 */
+    val reinforcedSieveResearch: Int get() = int("sieve.reinforced-research-level", 16, 0)
+
     /**
-     * 读取某项筛分产物的独立百分比概率。
+     * 读取强化筛子的某项基准独立百分比概率。
      *
      * 配置值被限制在 0..100；每次筛选时即时读取，因此 `/se reload` 后立即生效。
      */
     fun sieveChance(input: String, output: String, default: Int): Int =
         int("sieve.chances.$input.$output", default, 0).coerceAtMost(100)
+
+    /** 普通筛子对共享概率条目的衰减倍率；上限 1 保证其收益不会反超强化筛子。 */
+    val sieveBasicChanceMultiplier: Double
+        get() = double("sieve.rewards.basic.chance-multiplier", 0.5, 0.0).coerceAtMost(1.0)
+
+    /** 普通筛子保底物品数量倍率；至少保留正倍率，具体数量由结算层向上取整。 */
+    val sieveBasicGuaranteedAmountMultiplier: Double
+        get() = double("sieve.rewards.basic.guaranteed-amount-multiplier", 0.5, 0.01).coerceAtMost(1.0)
+
+    /** 普通筛子专属进阶材料的最终概率，不再叠加普通概率倍率。 */
+    fun sieveBasicChanceOverride(input: String, output: String, default: Int): Int =
+        int("sieve.rewards.basic.chance-overrides.$input.$output", default, 0).coerceAtMost(100)
 
     /** 每份输入完成筛分所需的目标进度；运行时读取，至少为 1。 */
     fun sieveRequiredProgress(input: String, default: Int): Int =

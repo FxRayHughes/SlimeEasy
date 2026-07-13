@@ -54,12 +54,13 @@ internal sealed interface SieveAdvanceResult {
 /**
  * 筛子的短生命周期运行态与 BlockDisplay 表现层。
  *
- * 不持久化任何进度：每个流程在首次有效操作时接管一份已扣除原料，完成时消费；输入改变、
- * 机器被破坏、区块卸载或插件关闭时必须先返还该原料，再清除内存状态与临时展示。
+ * 不持久化任何进度：每个流程在首次有效操作时接管一份已扣除原料，完成时消费；输入或筛子层级
+ * 改变、机器被破坏、区块卸载或插件关闭时必须先返还该原料，再清除内存状态与临时展示。
  */
 internal object SieveRuntime {
 
     private data class Process(
+        val tier: SieveTier,
         val recipeKey: String,
         val inputSnapshot: ItemStack,
         var progress: Double,
@@ -82,18 +83,28 @@ internal object SieveRuntime {
      */
     private val finishingVisuals = HashMap<SieveKey, MutableSet<BlockDisplay>>()
 
-    /** 返回当前正在处理的配方键，供输入选择优先维持同一配方。 */
-    fun currentRecipeKey(block: Block): String? = processes[SieveKey.of(block)]?.recipeKey
+    /**
+     * 返回当前层级正在处理的配方键；结构层级被替换时先返还旧原料，禁止继承更低层级的进度。
+     */
+    fun currentRecipeKey(block: Block, tier: SieveTier): String? {
+        val key = SieveKey.of(block)
+        val process = processes[key] ?: return null
+        if (process.tier == tier) return process.recipeKey
+        cancelActive(key)
+        return null
+    }
 
     /**
      * 尝试推进一次筛分。
      *
      * [inputSnapshot] 只在创建流程时传入，表示调用方已扣除并交由本对象托管的一份原料。
+     * 层级或配方发生变化时先取消旧流程并返还旧原料，只有新的输入快照存在才建立替代流程。
      * 到达最后一步时只返回 [SieveAdvanceResult.ReadyToComplete]，不把展示高度先压到零；
      * 只有调用方确认全部合成事件通过并投递产物后才调用 [complete] 消费托管原料。
      */
     fun advance(
         block: Block,
+        tier: SieveTier,
         recipeKey: String,
         requiredProgress: Double,
         progressPerAction: Double,
@@ -107,11 +118,12 @@ internal object SieveRuntime {
         val now = block.world.gameTime
 
         var process = processes[key]
-        if (process == null || process.recipeKey != recipeKey) {
+        if (process == null || process.tier != tier || process.recipeKey != recipeKey) {
             cancelActive(key)
             val consumedInput = inputSnapshot?.clone()?.apply { amount = 1 }
                 ?: return SieveAdvanceResult.Throttled
             process = Process(
+                tier = tier,
                 recipeKey = recipeKey,
                 inputSnapshot = consumedInput,
                 progress = 0.0,
@@ -149,10 +161,12 @@ internal object SieveRuntime {
     }
 
     /**
-     * 最后一步未能提交（例如合成事件被取消）时回退到“差一步完成”的稳定状态。
+     * 最后一步未能提交（例如合成事件被取消）时回退到“差一步完成”的稳定状态；
+     * 层级或配方已不一致时取消流程并返还原料，不能把旧输入挂到新的收益规则下。
      */
     fun deferCompletion(
         block: Block,
+        tier: SieveTier,
         recipeKey: String,
         requiredProgress: Double,
         progressPerAction: Double,
@@ -164,29 +178,28 @@ internal object SieveRuntime {
         val progress = (required - progressPerAction.coerceAtLeast(0.01)).coerceAtLeast(0.0)
         val process = processes[key]
 
-        if (process == null || process.recipeKey != recipeKey) {
-            val input = process?.inputSnapshot ?: return
-            processes[key] = Process(
-                recipeKey = recipeKey,
-                inputSnapshot = input.clone(),
-                progress = progress,
-                lastActionTick = block.world.gameTime,
-                completing = false
-            )
-        } else {
-            process.progress = progress
-            process.completing = false
+        if (process == null) return
+        if (process.tier != tier || process.recipeKey != recipeKey) {
+            cancelActive(key)
+            return
         }
+        process.progress = progress
+        process.completing = false
 
         ensureVisual(block, key, visualData)
         updateVisual(block, key, visualData, (progress / required).coerceIn(0.0, 1.0).toFloat())
     }
 
     /**
-     * 提交完成：清除进度，播放最终压扁、破碎粒子和破坏音效，并在动画结束后删除实体。
+     * 提交完成：仅消费同层级流程，随后播放最终压扁、破碎粒子和破坏音效，并在动画结束后删除实体。
      */
-    fun complete(block: Block, visualData: BlockData, reinforced: Boolean) {
+    fun complete(block: Block, tier: SieveTier, visualData: BlockData, reinforced: Boolean) {
         val key = SieveKey.of(block)
+        val process = processes[key]
+        if (process == null || process.tier != tier) {
+            cancelActive(key)
+            return
+        }
         processes.remove(key)
 
         if (!SEConfig.sieveAnimationEnabled) {

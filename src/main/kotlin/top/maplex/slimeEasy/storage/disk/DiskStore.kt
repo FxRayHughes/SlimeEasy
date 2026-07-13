@@ -80,13 +80,12 @@ object DiskStore {
     fun usedEighthBytes(tier: DiskTier, storage: VirtualStorage): Long =
         storage.typeCount * tier.bytesPerType * 8L + totalItems(storage)
 
-    /** 把 1/8 字节单位格式化为最多三位小数的精确字节数。 */
-    fun formatBytes(eighthBytes: Long): String {
-        val whole = eighthBytes / 8L
-        val remainder = (eighthBytes % 8L).toInt()
-        return if (remainder == 0) QuantityFormat.grouped(whole)
-        else "${QuantityFormat.grouped(whole)}.${remainder * 125}"
-    }
+    /**
+     * 把内部 1/8 字节单位按半入规则四舍五入为整数字节；容量判断仍保留精确单位，
+     * 这里只统一玩家看到的磁盘与管理器状态，避免小数字节造成误解。
+     */
+    fun formatBytes(eighthBytes: Long): String =
+        QuantityFormat.grouped((eighthBytes + 4L) / 8L)
 
     /** 当前磁盘还能接收多少个指定物品。 */
     fun roomFor(tier: DiskTier, storage: VirtualStorage, item: ItemStack): Long {

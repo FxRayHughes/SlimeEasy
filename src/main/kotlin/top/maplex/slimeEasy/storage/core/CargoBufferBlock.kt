@@ -107,7 +107,7 @@ abstract class CargoBufferBlock(
 
     /** 持久化指定方块的库存内容到子类选定的数据层，并通知子类刷新其展示。 */
     fun saveStorage(block: Block, storage: VirtualStorage) {
-        val previousData = StorageCacheUtils.getData(block.location, storageDataKey)
+        val previousData = previousStorageData(block)
         beforeStorageSave(block, storage, previousData)
         persistStorageData(block, storage)
         onStorageChanged(block, storage)
@@ -120,6 +120,12 @@ abstract class CargoBufferBlock(
      * 默认空实现。抽屉据此刷新面向玩家的展示框物品与数量文字。
      */
     protected open fun onStorageChanged(block: Block, storage: VirtualStorage) {}
+
+    /**
+     * 按需读取上次落盘内容；默认不访问 BlockData，避免使用 UniversalData 的磁盘管理器
+     * 因 Slimefun 方块数据尚未加载而中断正常存取。只有确实需要差量计算的子类才能覆盖。
+     */
+    protected open fun previousStorageData(block: Block): String? = null
 
     /** 落盘前变换钩子；翻页箱的压制升级据此只处理相对上次落盘新增的物品。 */
     protected open fun beforeStorageSave(block: Block, storage: VirtualStorage, previousData: String?) {}

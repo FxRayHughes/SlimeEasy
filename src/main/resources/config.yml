@@ -39,6 +39,7 @@ auto-placer:
 sieve:
   enabled: true
   research-level: 8
+  reinforced-research-level: 16
   processing:
     minimum-action-interval-ticks: -1
     action-multiplier: 1.5
@@ -56,6 +57,18 @@ sieve:
       crushed-end-stone: 20
       crushed-blackstone: 16
 
+  # 强化筛子使用下方 chances 的完整基准收益；普通筛子降低常规概率与部分保底数量。
+  rewards:
+    basic:
+      chance-multiplier: 0.5
+      guaranteed-amount-multiplier: 0.5
+      # 竹子是普通筛子的专属进阶材料：可直接种植，也可用于制作强化结构所需的脚手架。
+      chance-overrides:
+        dirt:
+          bamboo: 8
+        grass-block:
+          bamboo: 16
+
   # 筛面原料使用 BlockDisplay 展示。长宽从 0.8 缩至 0.64，高度从 0.8 压至 0。
   # Display 的底面中心固定在活板门筛面中心，动画由客户端插值完成，不使用逐 tick 实体移动。
   animation:
@@ -66,6 +79,7 @@ sieve:
     end-horizontal-scale: 0.64
     start-height-scale: 0.8
 
+  # 强化筛子的基准概率；普通筛子按 rewards.basic.chance-multiplier 衰减。
   # 每个条目独立判定，取值范围 0-100；修改后执行 /se reload 即时生效。
   chances:
     dirt:
@@ -91,7 +105,7 @@ sieve:
       spruce-sapling: 1
       # 白桦树苗
       birch-sapling: 1
-      # 绔瑰瓙
+      # 竹子；普通筛子使用 rewards.basic.chance-overrides 中的更高概率。
       bamboo: 2
     grass-block:
       wheat-seeds: 14

@@ -10,10 +10,12 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.protection.Interaction
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.Tag
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.Dispenser
 import org.bukkit.block.data.BlockData
+import org.bukkit.block.data.Directional
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
@@ -21,43 +23,75 @@ import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.registry.Items
 import top.maplex.slimeEasy.territory.TerritoryProtectionBridge
 import java.util.ArrayDeque
+import kotlin.math.ceil
 import kotlin.random.Random
+
+/**
+ * 筛子的稳定层级协议。
+ *
+ * 每个层级拥有独立的 Slimefun 多方块结构和触发偏移：玩家始终点击最上方木质活板门，强化结构
+ * 通过 [BlockFace.DOWN] 把脚手架作为 3×3 纵剖面的中心。结构数组同时用于世界匹配与指南展示，
+ * 因此槽位顺序不能脱离 Slimefun 的 top/center/bottom 语义单独修改。
+ */
+enum class SieveTier(
+    internal val structureRecipe: Array<ItemStack?>,
+    internal val trigger: BlockFace,
+    internal val reinforced: Boolean
+) {
+    /** 木质活板门直接放在朝上的发射器上。 */
+    BASIC(
+        structureRecipe = arrayOf(
+            null, null, null,
+            null, ItemStack(Material.OAK_TRAPDOOR), null,
+            null, ItemStack(Material.DISPENSER), null
+        ),
+        trigger = BlockFace.SELF,
+        reinforced = false
+    ),
+
+    /** 木质活板门、脚手架、朝上发射器自上而下组成三层结构。 */
+    REINFORCED(
+        structureRecipe = arrayOf(
+            null, ItemStack(Material.OAK_TRAPDOOR), null,
+            null, ItemStack(Material.SCAFFOLDING), null,
+            null, ItemStack(Material.DISPENSER), null
+        ),
+        trigger = BlockFace.DOWN,
+        reinforced = true
+    );
+
+    /** 强化筛子保留基准概率，普通筛子使用可热重载的衰减倍率。 */
+    internal val chanceMultiplier: Double
+        get() = if (this == BASIC) SEConfig.sieveBasicChanceMultiplier else 1.0
+
+    /** 保底物品数量同样按层级缩放，但至少保留一件，避免低倍率把保底语义变成无产出。 */
+    internal val guaranteedAmountMultiplier: Double
+        get() = if (this == BASIC) SEConfig.sieveBasicGuaranteedAmountMultiplier else 1.0
+
+    /** 强化结构通过脚手架倍率加快每次有效操作的进度。 */
+    internal val progressPerAction: Double
+        get() = if (reinforced) SEConfig.sieveScaffoldingSpeedMultiplier else 1.0
+}
 
 /**
  * 与 Slimefun 磨石操作方式一致的手动多方块筛子。
  *
- * 结构为“橡木活板门 + 下方朝上的发射器”。每份输入在首次有效筛动时扣除并交给 [SieveRuntime]
- * 托管，完成时转化为产物，流程被清理时则退回发射器或掉落。筛面上的
+ * 普通与强化层级分别注册为独立结构和指南项，但共享加工事务、联动和保护逻辑。每份输入在首次
+ * 有效筛动时扣除并交给 [SieveRuntime] 托管，完成时转化为产物，流程被清理时则退回发射器或掉落。筛面上的
  * [org.bukkit.entity.BlockDisplay] 使用客户端变换插值展示原料逐渐缩小、压扁的过程；
  * 每个 [ChanceDrop] 仍独立掷骰，一次完成可同时命中多项产物。
  */
 class Sieve(
     itemGroup: ItemGroup,
-    item: SlimefunItemStack
+    item: SlimefunItemStack,
+    private val tier: SieveTier = SieveTier.BASIC
 ) : MultiBlockMachine(
     itemGroup,
     item,
-    arrayOf<ItemStack?>(
-        null, null, null,
-        null, ItemStack(Material.OAK_TRAPDOOR), null,
-        null, null, null
-    ),
-    BlockFace.SELF
+    tier.structureRecipe,
+    guideRecipes(tier),
+    tier.trigger
 ) {
-
-    /**
-     * 向 Slimefun 指南登记所有“输入 → 可能产物”组合。
-     *
-     * 这些配对仅用于配方展示；实际产量、概率和所需操作次数统一由 [SieveRecipe] 决定。
-     */
-    override fun registerDefaultRecipes(recipes: MutableList<ItemStack>) {
-        for (recipe in SIEVE_RECIPES) {
-            for (output in recipe.displayOutputs) {
-                recipes.add(recipe.input.clone())
-                recipes.add(output.clone())
-            }
-        }
-    }
 
     /**
      * 推进或完成一次筛分。
@@ -71,7 +105,7 @@ class Sieve(
             SieveRuntime.clear(block)
             return
         }
-        val linked = findLinkedSieves(player, block, structure)
+        val linked = findLinkedSieves(player, block)
         // 起点活板门虽已由 Slimefun 校验，但其下方库存也可能处于另一保护区域。
         if (linked.isEmpty()) return
         val candidates = prepareLinkedCandidates(player, linked)
@@ -96,7 +130,7 @@ class Sieve(
 
         for (sieveBlock in linked) {
             val structure = findStructure(sieveBlock) ?: continue
-            val activeRecipeKey = SieveRuntime.currentRecipeKey(sieveBlock)
+            val activeRecipeKey = SieveRuntime.currentRecipeKey(sieveBlock, tier)
             if (activeRecipeKey != null) {
                 val recipe = SIEVE_RECIPES.firstOrNull { it.key == activeRecipeKey } ?: continue
                 active += WorkCandidate(sieveBlock, structure, recipe, null, InputSource.ACTIVE, null)
@@ -140,6 +174,7 @@ class Sieve(
 
         val result = SieveRuntime.advance(
             block = candidate.block,
+            tier = tier,
             recipeKey = candidate.recipe.key,
             requiredProgress = candidate.recipe.effectiveRequiredProgress(),
             progressPerAction = candidate.structure.progressPerAction,
@@ -175,7 +210,7 @@ class Sieve(
     ) {
         val acceptedOutputs = ArrayList<ItemStack>()
 
-        for (rolledOutput in recipe.roll()) {
+        for (rolledOutput in recipe.roll(tier)) {
             val event = MultiBlockCraftEvent(
                 player,
                 this,
@@ -192,6 +227,7 @@ class Sieve(
                 }
                 SieveRuntime.deferCompletion(
                     block = sieveBlock,
+                    tier = tier,
                     recipeKey = recipe.key,
                     requiredProgress = recipe.effectiveRequiredProgress(),
                     progressPerAction = currentStructure.progressPerAction,
@@ -207,7 +243,7 @@ class Sieve(
         // 事件处理完成后重新读取实时方块与库存，避免提交到已经被替换或破坏的机器。
         val liveStructure = findStructure(sieveBlock)
         val liveDispenser = liveStructure?.dispenser
-        if (liveDispenser == null || sieveBlock.type != Material.OAK_TRAPDOOR) {
+        if (liveDispenser == null || !Tag.WOODEN_TRAPDOORS.isTagged(sieveBlock.type)) {
             SieveRuntime.clear(sieveBlock)
             return
         }
@@ -217,7 +253,7 @@ class Sieve(
             handleCraftedItem(output, liveDispenser.block, inventory)
         }
 
-        SieveRuntime.complete(sieveBlock, recipe.visualBlockData, liveStructure.reinforced)
+        SieveRuntime.complete(sieveBlock, tier, recipe.visualBlockData, liveStructure.reinforced)
     }
 
     /** 优先继续当前配方；当前输入已经被取走时再选择库存中的首个其他合法输入。 */
@@ -291,31 +327,37 @@ class Sieve(
 
     private data class SieveStructure(
         val dispenser: Dispenser,
-        val progressPerAction: Double,
-        val reinforced: Boolean
+        val tier: SieveTier
     ) {
-        companion object {
-            fun basic(block: Block): SieveStructure {
-                val dispenser = block.getRelative(BlockFace.DOWN).state as Dispenser
-                return SieveStructure(dispenser, 1.0, false)
+        val progressPerAction: Double get() = tier.progressPerAction
+        val reinforced: Boolean get() = tier.reinforced
+    }
+
+    /** 只解析当前指南项对应的结构，避免普通与强化筛子在联动或结算阶段交叉。 */
+    private fun findStructure(block: Block): SieveStructure? {
+        if (!Tag.WOODEN_TRAPDOORS.isTagged(block.type)) return null
+
+        val below = block.getRelative(BlockFace.DOWN)
+        return when (tier) {
+            SieveTier.BASIC -> {
+                val dispenser = findUpwardDispenser(below) ?: return null
+                SieveStructure(dispenser, tier)
+            }
+            SieveTier.REINFORCED -> {
+                val twoBelow = block.getRelative(BlockFace.DOWN, 2)
+                if (below.type != Material.SCAFFOLDING) return null
+                val dispenser = findUpwardDispenser(twoBelow) ?: return null
+                SieveStructure(dispenser, tier)
             }
         }
     }
 
-    private fun findStructure(block: Block): SieveStructure? {
-        if (block.type != Material.OAK_TRAPDOOR) return null
-
-        val below = block.getRelative(BlockFace.DOWN)
-        if (below.type == Material.DISPENSER) {
-            return SieveStructure(below.state as Dispenser, 1.0, false)
-        }
-
-        val twoBelow = block.getRelative(BlockFace.DOWN, 2)
-        if (below.type == Material.SCAFFOLDING && twoBelow.type == Material.DISPENSER) {
-            return SieveStructure(twoBelow.state as Dispenser, SEConfig.sieveScaffoldingSpeedMultiplier, true)
-        }
-
-        return null
+    /** Slimefun 多方块只比较方块材质，发射器朝向必须在业务层补充校验。 */
+    private fun findUpwardDispenser(block: Block): Dispenser? {
+        if (block.type != Material.DISPENSER) return null
+        val directional = block.blockData as? Directional ?: return null
+        if (directional.facing != BlockFace.UP) return null
+        return block.state as? Dispenser
     }
 
     /**
@@ -327,8 +369,7 @@ class Sieve(
      */
     private fun findLinkedSieves(
         player: Player,
-        origin: Block,
-        originStructure: SieveStructure
+        origin: Block
     ): List<Block> {
         val maxLinked = SEConfig.sieveMaxLinkedSieves
         val result = ArrayList<Block>(maxLinked)
@@ -343,7 +384,7 @@ class Sieve(
         while (queue.isNotEmpty() && result.size < maxLinked) {
             val current = queue.removeFirst()
             val currentStructure = findStructure(current)
-            if (currentStructure == null || currentStructure.reinforced != originStructure.reinforced) continue
+            if (currentStructure == null) continue
             if (!canOperateLinkedSieve(player, current, currentStructure)) continue
 
             result += current
@@ -353,7 +394,7 @@ class Sieve(
                 if (next.y != origin.y) continue
                 val nextKey = key(next)
                 if (!visited.add(nextKey)) continue
-                if (findStructure(next)?.reinforced == originStructure.reinforced) {
+                if (findStructure(next) != null) {
                     queue.add(next)
                 }
             }
@@ -364,29 +405,44 @@ class Sieve(
 
     /**
      * 使用当前操作玩家询问完整 Slimefun 保护链；保护管理器未就绪时由桥接层失败关闭。
-     * 同时检查活板门与发射器，避免垂直分区或精细区域规则只保护实际库存时被绕过。
+     * 同时检查活板门、强化脚手架与发射器，避免垂直分区或精细区域规则只保护中间结构或实际库存时被绕过。
      */
     private fun canOperateLinkedSieve(
         player: Player,
         sieveBlock: Block,
         structure: SieveStructure
-    ): Boolean =
-        TerritoryProtectionBridge.hasPermission(player, sieveBlock.location, Interaction.INTERACT_BLOCK) &&
+    ): Boolean {
+        val protectedBlocks = buildList {
+            add(sieveBlock)
+            if (tier.reinforced) add(sieveBlock.getRelative(BlockFace.DOWN))
+            add(structure.dispenser.block)
+        }
+        return protectedBlocks.all { protectedBlock ->
             TerritoryProtectionBridge.hasPermission(
                 player,
-                structure.dispenser.block.location,
+                protectedBlock.location,
                 Interaction.INTERACT_BLOCK
             )
+        }
+    }
 
-    /** 一个独立的百分比掉落事件；概率从 `sieve.chances` 动态读取。 */
+    /** 一个独立的百分比掉落事件；普通覆盖概率可让竹子等进阶材料更容易从基础层级取得。 */
     private data class ChanceDrop(
         val inputKey: String,
         val outputKey: String,
         val defaultPercent: Int,
-        val output: ItemStack
+        val output: ItemStack,
+        val basicOverrideDefaultPercent: Int? = null
     ) {
         val percent: Int
             get() = SEConfig.sieveChance(inputKey, outputKey, defaultPercent)
+
+        /** 普通覆盖条目使用独立最终值，其余条目在强化基准概率上应用普通层级倍率。 */
+        fun effectivePercent(tier: SieveTier): Double = when {
+            tier == SieveTier.BASIC && basicOverrideDefaultPercent != null ->
+                SEConfig.sieveBasicChanceOverride(inputKey, outputKey, basicOverrideDefaultPercent).toDouble()
+            else -> percent * tier.chanceMultiplier
+        }
     }
 
     /** 单种筛分输入，以及其展示方块、所需操作数、保底产物和逐项独立概率产物。 */
@@ -407,20 +463,39 @@ class Sieve(
         val visualBlockData: BlockData
             get() = visualMaterial.createBlockData()
 
-        val displayOutputs: List<ItemStack>
-            get() = guaranteed + chanceDrops.map(ChanceDrop::output)
+        fun displayOutputs(tier: SieveTier): List<ItemStack> =
+            guaranteedOutputs(tier) + chanceDrops.map(ChanceDrop::output)
 
-        /** 克隆保底物品，并为每个概率条目分别生成一次 0..99 随机数。 */
-        fun roll(): List<ItemStack> = buildList {
-            guaranteed.forEach { add(it.clone()) }
+        /** 按层级缩放并克隆保底物品；向上取整确保非零倍率下至少保留一件。 */
+        private fun guaranteedOutputs(tier: SieveTier): List<ItemStack> = guaranteed.map { output ->
+            output.clone().apply {
+                amount = ceil(amount * tier.guaranteedAmountMultiplier).toInt().coerceAtLeast(1)
+            }
+        }
+
+        /** 克隆保底物品，并为当前层级可用的每个概率条目分别生成一次 0..100 随机数。 */
+        fun roll(tier: SieveTier): List<ItemStack> = buildList {
+            addAll(guaranteedOutputs(tier))
             chanceDrops.forEach { drop ->
-                if (Random.nextInt(100) < drop.percent) add(drop.output.clone())
+                if (Random.nextDouble(100.0) < drop.effectivePercent(tier)) add(drop.output.clone())
             }
         }
     }
 
     companion object {
         private val LINK_FACES = arrayOf(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)
+
+        /**
+         * 在 super 构造前静态生成当前层级的指南产出对，避免 Java 父构造器回调未初始化的 Kotlin tier 字段。
+         */
+        private fun guideRecipes(tier: SieveTier): Array<ItemStack> = buildList {
+            for (recipe in SIEVE_RECIPES) {
+                for (output in recipe.displayOutputs(tier)) {
+                    add(recipe.input.clone())
+                    add(output.clone())
+                }
+            }
+        }.toTypedArray()
 
         /**
          * 固定筛矿表。
@@ -448,7 +523,7 @@ class Sieve(
                     chance("dirt", "acacia-sapling", 1, Material.ACACIA_SAPLING),
                     chance("dirt", "spruce-sapling", 1, Material.SPRUCE_SAPLING),
                     chance("dirt", "birch-sapling", 1, Material.BIRCH_SAPLING),
-                    chance("dirt", "bamboo", 2, Material.BAMBOO)
+                    progressionChance("dirt", "bamboo", 2, 8, Material.BAMBOO)
                 )
             ),
             SieveRecipe(
@@ -469,7 +544,7 @@ class Sieve(
                     chance("grass-block", "acacia-sapling", 2, Material.ACACIA_SAPLING),
                     chance("grass-block", "spruce-sapling", 2, Material.SPRUCE_SAPLING),
                     chance("grass-block", "birch-sapling", 2, Material.BIRCH_SAPLING),
-                    chance("grass-block", "bamboo", 4, Material.BAMBOO)
+                    progressionChance("grass-block", "bamboo", 4, 16, Material.BAMBOO)
                 )
             ),
             SieveRecipe(
@@ -601,6 +676,21 @@ class Sieve(
         /** 以原版或 Slimefun 物品模板构造一项可配置的独立掉落事件。 */
         private fun chance(input: String, output: String, default: Int, source: ItemStack): ChanceDrop =
             ChanceDrop(input, output, default, item(source))
+
+        /** 普通筛子使用更高的进阶材料覆盖概率，强化筛子仍保留原有基准概率。 */
+        private fun progressionChance(
+            input: String,
+            output: String,
+            reinforcedDefault: Int,
+            basicDefault: Int,
+            material: Material
+        ): ChanceDrop = ChanceDrop(
+            input,
+            output,
+            reinforcedDefault,
+            item(ItemStack(material)),
+            basicOverrideDefaultPercent = basicDefault
+        )
 
         /** 克隆物品模板并设置数量，避免修改 Slimefun 或原版共享模板。 */
         private fun item(source: ItemStack, amount: Int = 1): ItemStack =
