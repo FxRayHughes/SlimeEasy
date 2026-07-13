@@ -6,6 +6,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack
 import io.github.thebusybiscuit.slimefun4.core.multiblocks.MultiBlockMachine
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems
+import io.github.thebusybiscuit.slimefun4.libraries.dough.protection.Interaction
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -18,15 +19,17 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import top.maplex.slimeEasy.config.SEConfig
 import top.maplex.slimeEasy.registry.Items
+import top.maplex.slimeEasy.territory.TerritoryProtectionBridge
 import java.util.ArrayDeque
 import kotlin.random.Random
 
 /**
  * 与 Slimefun 磨石操作方式一致的手动多方块筛子。
  *
- * 结构为“橡木活板门 + 下方朝上的发射器”。每份输入按配方需要多次有效筛动；原料只在最后
- * 一步的全部合成事件通过后才消耗。筛面上的 [org.bukkit.entity.BlockDisplay] 使用客户端变换插值
- * 展示原料逐渐缩小、压扁的过程；每个 [ChanceDrop] 仍独立掷骰，一次完成可同时命中多项产物。
+ * 结构为“橡木活板门 + 下方朝上的发射器”。每份输入在首次有效筛动时扣除并交给 [SieveRuntime]
+ * 托管，完成时转化为产物，流程被清理时则退回发射器或掉落。筛面上的
+ * [org.bukkit.entity.BlockDisplay] 使用客户端变换插值展示原料逐渐缩小、压扁的过程；
+ * 每个 [ChanceDrop] 仍独立掷骰，一次完成可同时命中多项产物。
  */
 class Sieve(
     itemGroup: ItemGroup,
@@ -59,16 +62,18 @@ class Sieve(
     /**
      * 推进或完成一次筛分。
      *
-     * 普通有效点击只更新内存进度与展示，不修改发射器物品。达到最后一步后先生成产物并派发全部
-     * [MultiBlockCraftEvent]；只有事件均未取消、机器与输入再次验证成功时，才原子地消耗一份输入
-     * 并输出结果。这样机器破坏、区块卸载、输入改变或插件关闭都不会造成原料丢失。
+     * 新流程在首次有效点击时扣除一份输入并交给运行态托管；后续点击只更新进度与展示。
+     * 达到最后一步后先生成产物并派发全部 [MultiBlockCraftEvent]，事件均通过且机器仍有效时才输出；
+     * 结构破坏、区块卸载或插件关闭则由运行态返还托管原料，避免复制或丢失。
      */
     override fun onInteract(player: Player, block: Block) {
         val structure = findStructure(block) ?: run {
             SieveRuntime.clear(block)
             return
         }
-        val linked = findLinkedSieves(block, structure)
+        val linked = findLinkedSieves(player, block, structure)
+        // 起点活板门虽已由 Slimefun 校验，但其下方库存也可能处于另一保护区域。
+        if (linked.isEmpty()) return
         val candidates = prepareLinkedCandidates(player, linked)
         var advanced = false
 
@@ -159,8 +164,8 @@ class Sieve(
     /**
      * 完成阶段的事务提交。
      *
-     * 产物先在内存中生成并逐项经过事件链；事件执行期间不扣材料、不投递产物。事件全部通过后，
-     * 再从当前方块状态重新取得发射器和槽位，防止监听器或其他同步逻辑替换输入后错误结算。
+     * 输入已在流程开始时由运行态托管。产物先在内存中生成并逐项经过事件链，事件执行期间不投递；
+     * 全部通过后再从当前方块状态重新取得发射器，防止监听器或其他同步逻辑破坏机器后仍错误结算。
      */
     private fun completeRecipe(
         player: Player,
@@ -313,7 +318,18 @@ class Sieve(
         return null
     }
 
-    private fun findLinkedSieves(origin: Block, originStructure: SieveStructure): List<Block> {
+    /**
+     * 沿同类型筛子执行受保护的广度优先扫描。
+     *
+     * Slimefun 的多方块交互只校验玩家点击的起点，而联动会读取、扣除并回写每台筛子的发射器。
+     * 因此每个节点都要重新校验筛面与实际库存；拒绝的节点也不能成为 BFS 中继，否则仍可跨过
+     * 领地边界操作更远处的筛子。
+     */
+    private fun findLinkedSieves(
+        player: Player,
+        origin: Block,
+        originStructure: SieveStructure
+    ): List<Block> {
         val maxLinked = SEConfig.sieveMaxLinkedSieves
         val result = ArrayList<Block>(maxLinked)
         val visited = HashSet<String>()
@@ -328,6 +344,7 @@ class Sieve(
             val current = queue.removeFirst()
             val currentStructure = findStructure(current)
             if (currentStructure == null || currentStructure.reinforced != originStructure.reinforced) continue
+            if (!canOperateLinkedSieve(player, current, currentStructure)) continue
 
             result += current
 
@@ -344,6 +361,22 @@ class Sieve(
 
         return result
     }
+
+    /**
+     * 使用当前操作玩家询问完整 Slimefun 保护链；保护管理器未就绪时由桥接层失败关闭。
+     * 同时检查活板门与发射器，避免垂直分区或精细区域规则只保护实际库存时被绕过。
+     */
+    private fun canOperateLinkedSieve(
+        player: Player,
+        sieveBlock: Block,
+        structure: SieveStructure
+    ): Boolean =
+        TerritoryProtectionBridge.hasPermission(player, sieveBlock.location, Interaction.INTERACT_BLOCK) &&
+            TerritoryProtectionBridge.hasPermission(
+                player,
+                structure.dispenser.block.location,
+                Interaction.INTERACT_BLOCK
+            )
 
     /** 一个独立的百分比掉落事件；概率从 `sieve.chances` 动态读取。 */
     private data class ChanceDrop(
