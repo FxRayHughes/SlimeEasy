@@ -13,13 +13,13 @@ interface EngineerGogglesDisplayContext {
     /** 本次私有全息图的唯一接收玩家。 */
     val viewer: Player
 
-    /** 普通方块本身或已匹配多方块结构的中心方块。 */
+    /** 普通方块本身、原生多方块中心或扩展目标提供器声明的逻辑中心。 */
     val block: Block
 
     /** Slimefun 注册表中与目标对应的物品。 */
     val slimefunItem: SlimefunItem
 
-    /** 目标是否来自已匹配的 Slimefun 多方块结构。 */
+    /** 目标是否来自已匹配的原生多方块或扩展结构，而不是持久化 Slimefun 单方块。 */
     val isMultiblock: Boolean
 }
 

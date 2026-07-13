@@ -23,6 +23,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.block.BlockPistonExtendEvent
 import org.bukkit.event.block.BlockPistonRetractEvent
 import org.bukkit.event.block.Action
+import org.bukkit.event.block.CauldronLevelChangeEvent
 import org.bukkit.event.world.ChunkLoadEvent
 import org.bukkit.event.world.ChunkUnloadEvent
 import org.bukkit.event.world.WorldUnloadEvent
@@ -49,14 +50,14 @@ import java.util.logging.Level
  * 工程师护目镜的全服共享扫描与显示服务。
  *
  * 所有世界、方块、Slimefun 数据和全息图操作都在 Bukkit 主线程执行。普通 Slimefun 方块使用每轮区块快照，
- * 原版方块组成的多方块按 16³ 空间单元建立全服共享索引；两个层次都不会主动加载区块。
+ * 原版方块组成的多方块与扩展注册结构按 16³ 空间单元建立全服共享索引；所有层次都不会主动加载区块。
  */
 internal object EngineerGogglesDisplay : Listener {
 
     /** 普通 Slimefun 方块的刷新轮次共享键；世界 UUID 防止不同世界同区块坐标串用结果。 */
     private data class ChunkKey(val world: UUID, val x: Int, val z: Int)
 
-    /** 多方块中心的持久空间索引键；每个坐标轴均以 16 格为一个单元。 */
+    /** 原生多方块和扩展结构中心的持久空间索引键；每个坐标轴均以 16 格为一个单元。 */
     private data class SpatialCell(val world: UUID, val x: Int, val y: Int, val z: Int)
 
     /** 单轮允许建立的新单元数量；使用可变包装让同轮所有佩戴者共享同一主线程预算。 */
@@ -79,15 +80,24 @@ internal object EngineerGogglesDisplay : Listener {
         val lastLines: MutableMap<String, List<String>> = HashMap()
     )
 
+    /** 同一轮空间扫描使用的原生多方块与通用扩展目标快照。 */
+    private data class StructuredTargetSources(
+        val multiblocks: List<MultiBlock>,
+        val customProviders: List<EngineerGogglesApi.TargetRegistration>
+    )
+
     private val states = HashMap<UUID, PlayerState>()
     private val missingDependencyWarned = HashSet<UUID>()
     /**
      * 插入顺序同时作为轻量 LRU 队列；命中时通过 remove + put 移到末尾，防止玩家长期探索无限增长。
      * Bukkit 世界对象不放入键中，避免世界卸载后被缓存强引用。
      */
-    private val multiblockCells = LinkedHashMap<SpatialCell, List<EngineerGogglesTarget>>()
+    private val structuredTargetCells = LinkedHashMap<SpatialCell, List<EngineerGogglesTarget>>()
     private val multiblocksByCenterMaterial = HashMap<Material, List<MultiBlock>>()
+    private val customProvidersByCenterMaterial =
+        HashMap<Material, List<EngineerGogglesApi.TargetRegistration>>()
     private var multiblockRegistrySize = -1
+    private var customTargetProviderRevision = -1L
     private val energy = EngineerGogglesEnergy()
     private var wearerCursor = 0
     private var backend: PrivateHologramBackend? = null
@@ -115,9 +125,11 @@ internal object EngineerGogglesDisplay : Listener {
         states.values.forEach(::destroy)
         states.clear()
         missingDependencyWarned.clear()
-        multiblockCells.clear()
+        structuredTargetCells.clear()
         multiblocksByCenterMaterial.clear()
+        customProvidersByCenterMaterial.clear()
         multiblockRegistrySize = -1
+        customTargetProviderRevision = -1L
         wearerCursor = 0
         energy.retain(emptySet())
         EngineerGogglesApi.shutdown()
@@ -169,7 +181,7 @@ internal object EngineerGogglesDisplay : Listener {
         val state = states.getOrPut(player.uniqueId, ::PlayerState)
         val targets = LinkedHashMap<String, EngineerGogglesTarget>()
         discoverStoredBlocks(player, context.storedBlocksByChunk).forEach { targets[it.key] = it }
-        discoverMultiblocks(player, context.scanBudget).forEach { targets.putIfAbsent(it.key, it) }
+        discoverStructuredTargets(player, context.scanBudget).forEach { targets.putIfAbsent(it.key, it) }
         val filters = player.inventory.helmet?.let(EngineerGogglesFilter::read) ?: return
         if (filters.displayMode == EngineerGogglesDisplayMode.AIMED) {
             val aimedBlock = player.getTargetBlockExact(SEConfig.engineerGogglesRadius, FluidCollisionMode.NEVER)
@@ -281,8 +293,8 @@ internal object EngineerGogglesDisplay : Listener {
         }
     }
 
-    /** 查询玩家球形范围覆盖的空间单元；单元结果跨玩家、跨刷新轮次复用。 */
-    private fun discoverMultiblocks(
+    /** 查询玩家球形范围覆盖的结构单元；原生多方块和扩展目标共享缓存与扫描预算。 */
+    private fun discoverStructuredTargets(
         player: Player,
         scanBudget: CellScanBudget
     ): List<EngineerGogglesTarget> {
@@ -290,7 +302,7 @@ internal object EngineerGogglesDisplay : Listener {
         val origin = player.location
         val radius = SEConfig.engineerGogglesRadius
         val radiusSquared = radius.toDouble() * radius
-        val registered = registeredMultiblocks()
+        val sources = registeredTargetSources()
         val minimumCellX = (origin.blockX - radius) shr CELL_SHIFT
         val maximumCellX = (origin.blockX + radius) shr CELL_SHIFT
         val minimumCellY = (origin.blockY - radius).coerceAtLeast(world.minHeight) shr CELL_SHIFT
@@ -320,7 +332,7 @@ internal object EngineerGogglesDisplay : Listener {
             deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ
         }
         for (cell in cells) {
-            for (target in multiblocksInCell(world, cell, registered, scanBudget)) {
+            for (target in structuredTargetsInCell(world, cell, sources, scanBudget)) {
                 if (target.centerDistanceSquared(origin) <= radiusSquared) {
                     result.putIfAbsent(target.key, target)
                 }
@@ -329,35 +341,39 @@ internal object EngineerGogglesDisplay : Listener {
         return result.values.toList()
     }
 
-    /** 注册表只在启动期变化；变化时两个派生索引必须一起清空，不能混用旧候选集合。 */
-    private fun registeredMultiblocks(): List<MultiBlock> {
-        val registered = Slimefun.getRegistry().multiBlocks.toList()
-        if (registered.size != multiblockRegistrySize) {
+    /** 任一结构来源变化时整体清空派生索引，不能让已注销插件的目标继续留在空间缓存中。 */
+    private fun registeredTargetSources(): StructuredTargetSources {
+        val multiblocks = Slimefun.getRegistry().multiBlocks.toList()
+        val providerRevision = EngineerGogglesApi.targetProviderRevision()
+        val customProviders = EngineerGogglesApi.targetProviderSnapshot()
+        if (multiblocks.size != multiblockRegistrySize || providerRevision != customTargetProviderRevision) {
             multiblocksByCenterMaterial.clear()
-            multiblockCells.clear()
-            multiblockRegistrySize = registered.size
+            customProvidersByCenterMaterial.clear()
+            structuredTargetCells.clear()
+            multiblockRegistrySize = multiblocks.size
+            customTargetProviderRevision = providerRevision
         }
-        return registered
+        return StructuredTargetSources(multiblocks, customProviders)
     }
 
-    private fun multiblocksInCell(
+    private fun structuredTargetsInCell(
         world: World,
         cell: SpatialCell,
-        registered: List<MultiBlock>,
+        sources: StructuredTargetSources,
         scanBudget: CellScanBudget
     ): List<EngineerGogglesTarget> {
-        multiblockCells.remove(cell)?.let { cached ->
+        structuredTargetCells.remove(cell)?.let { cached ->
             // 命中项移到插入顺序末尾，淘汰时优先移除长期未访问区域。
-            multiblockCells[cell] = cached
+            structuredTargetCells[cell] = cached
             return cached
         }
         // 未命中但本轮预算耗尽时暂不扫描；后续刷新会继续，避免首次佩戴集中扫描全部 27 个单元。
         if (scanBudget.remaining <= 0) return emptyList()
         scanBudget.remaining--
-        val scanned = scanCell(world, cell, registered)
-        multiblockCells[cell] = scanned
-        while (multiblockCells.size > MAX_CACHED_CELLS) {
-            val eldest = multiblockCells.entries.iterator()
+        val scanned = scanCell(world, cell, sources)
+        structuredTargetCells[cell] = scanned
+        while (structuredTargetCells.size > MAX_CACHED_CELLS) {
+            val eldest = structuredTargetCells.entries.iterator()
             if (eldest.hasNext()) {
                 eldest.next()
                 eldest.remove()
@@ -370,7 +386,7 @@ internal object EngineerGogglesDisplay : Listener {
     private fun scanCell(
         world: World,
         cell: SpatialCell,
-        registered: List<MultiBlock>
+        sources: StructuredTargetSources
     ): List<EngineerGogglesTarget> {
         val minimumX = cell.x shl CELL_SHIFT
         val minimumY = (cell.y shl CELL_SHIFT).coerceAtLeast(world.minHeight)
@@ -384,10 +400,10 @@ internal object EngineerGogglesDisplay : Listener {
             for (z in minimumZ..maximumZ) {
                 for (y in minimumY..maximumY) {
                     val center = world.getBlockAt(x, y, z)
-                    val candidates = multiblocksByCenterMaterial.getOrPut(center.type) {
-                        registered.filter { materialMatches(center.type, it.structure[4]) }
+                    val multiblockCandidates = multiblocksByCenterMaterial.getOrPut(center.type) {
+                        sources.multiblocks.filter { materialMatches(center.type, it.structure[4]) }
                     }
-                    for (multiblock in candidates) {
+                    for (multiblock in multiblockCandidates) {
                         val structure = multiblock.structure
                         val directions = if (multiblock.isSymmetric) SYMMETRIC_DIRECTIONS else ALL_DIRECTIONS
                         for (direction in directions) {
@@ -397,6 +413,20 @@ internal object EngineerGogglesDisplay : Listener {
                             val target = EngineerGogglesTarget.forMultiblock(center, direction, multiblock)
                             result.putIfAbsent(target.key, target)
                         }
+                    }
+                    val customCandidates = customProvidersByCenterMaterial.getOrPut(center.type) {
+                        sources.customProviders.filter { center.type in it.centerMaterials }
+                    }
+                    for (registration in customCandidates) {
+                        val members = EngineerGogglesApi.resolveTargetMembers(registration, center)
+                        if (members.isEmpty()) continue
+                        val target = EngineerGogglesTarget.forCustomStructure(
+                            center,
+                            registration.id,
+                            registration.slimefunItem,
+                            members
+                        )
+                        result.putIfAbsent(target.key, target)
                     }
                 }
             }
@@ -456,7 +486,36 @@ internal object EngineerGogglesDisplay : Listener {
                 matches += multiblock.slimefunItem
             }
         }
+        matches += resolveCustomStructureItems(block)
         return matches.lastOrNull()
+    }
+
+    /**
+     * 从被点击成员反向枚举提供器声明半径内的候选中心，并用实际成员结果完成最终确认。
+     * 此路径只在玩家主动切换单项过滤时运行；空间持续显示仍使用按材质建立的共享单元索引。
+     */
+    private fun resolveCustomStructureItems(member: Block): List<SlimefunItem> {
+        val world = member.world
+        val matches = ArrayList<SlimefunItem>()
+        for (registration in EngineerGogglesApi.targetProviderSnapshot()) {
+            val reach = registration.structureReach
+            val minimumY = (member.y - reach).coerceAtLeast(world.minHeight)
+            val maximumY = (member.y + reach).coerceAtMost(world.maxHeight - 1)
+            for (x in member.x - reach..member.x + reach) {
+                for (z in member.z - reach..member.z + reach) {
+                    if (!world.isChunkLoaded(x shr CELL_SHIFT, z shr CELL_SHIFT)) continue
+                    for (y in minimumY..maximumY) {
+                        val center = world.getBlockAt(x, y, z)
+                        if (center.type !in registration.centerMaterials) continue
+                        val members = EngineerGogglesApi.resolveTargetMembers(registration, center)
+                        if (members.any { it.x == member.x && it.y == member.y && it.z == member.z }) {
+                            matches += registration.slimefunItem
+                        }
+                    }
+                }
+            }
+        }
+        return matches
     }
 
     private fun remove(playerId: UUID) {
@@ -478,21 +537,25 @@ internal object EngineerGogglesDisplay : Listener {
     }
 
     /**
-     * 一个结构成员只可能影响 X/Y/Z 各一格内的多方块中心；仅删除这些中心所在单元，
-     * 避免服务器任意位置的一次方块变化让所有玩家的空间索引同时失效。
+     * 只删除可能以该成员为组成部分的结构中心单元；扩展提供器声明的最大半径参与边界计算，
+     * 避免局部变化让全服索引失效，也不能沿用原生三乘三结构的一格假设漏掉大型扩展结构。
      */
     private fun invalidate(block: Block) {
         val world = block.world.uid
-        val minimumCellX = (block.x - STRUCTURE_REACH) shr CELL_SHIFT
-        val maximumCellX = (block.x + STRUCTURE_REACH) shr CELL_SHIFT
-        val minimumCellY = (block.y - STRUCTURE_REACH) shr CELL_SHIFT
-        val maximumCellY = (block.y + STRUCTURE_REACH) shr CELL_SHIFT
-        val minimumCellZ = (block.z - STRUCTURE_REACH) shr CELL_SHIFT
-        val maximumCellZ = (block.z + STRUCTURE_REACH) shr CELL_SHIFT
+        val reach = maxOf(
+            NATIVE_STRUCTURE_REACH,
+            EngineerGogglesApi.maximumTargetStructureReach()
+        )
+        val minimumCellX = (block.x - reach) shr CELL_SHIFT
+        val maximumCellX = (block.x + reach) shr CELL_SHIFT
+        val minimumCellY = (block.y - reach) shr CELL_SHIFT
+        val maximumCellY = (block.y + reach) shr CELL_SHIFT
+        val minimumCellZ = (block.z - reach) shr CELL_SHIFT
+        val maximumCellZ = (block.z + reach) shr CELL_SHIFT
         for (cellX in minimumCellX..maximumCellX) {
             for (cellY in minimumCellY..maximumCellY) {
                 for (cellZ in minimumCellZ..maximumCellZ) {
-                    multiblockCells.remove(SpatialCell(world, cellX, cellY, cellZ))
+                    structuredTargetCells.remove(SpatialCell(world, cellX, cellY, cellZ))
                 }
             }
         }
@@ -542,10 +605,14 @@ internal object EngineerGogglesDisplay : Listener {
         missingDependencyWarned.remove(event.player.uniqueId)
     }
 
-    /** 依赖方关闭时立即释放其内容提供器，避免插件类加载器被长期引用。 */
+    /** 依赖方关闭时立即释放其内容与目标提供器，避免缓存继续引用插件类加载器。 */
     @EventHandler
     fun onPluginDisable(event: PluginDisableEvent) {
         EngineerGogglesApi.unregisterProviders(event.plugin)
+        // PluginDisableEvent 后不能等下一轮 revision 检查，立即释放缓存中的 SlimefunItem 类引用。
+        structuredTargetCells.clear()
+        customProvidersByCenterMaterial.clear()
+        customTargetProviderRevision = -1L
     }
 
     /** 死亡可能卸下或掉落头盔，先清理显示，复活后由共享任务重新识别。 */
@@ -563,6 +630,10 @@ internal object EngineerGogglesDisplay : Listener {
     /** 破坏方块使用与放置相同的局部失效边界。 */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onBreak(event: BlockBreakEvent) = invalidate(event.block)
+
+    /** 坩埚装入或取出流体会原地改变结构中心材质，必须像放置/破坏一样清除结构结果。 */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    fun onCauldronLevelChange(event: CauldronLevelChangeEvent) = invalidate(event.block)
 
     /** 活塞伸出同时失效活塞、移动前位置与移动后位置，防止结构残影。 */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -607,7 +678,7 @@ internal object EngineerGogglesDisplay : Listener {
     }
 
     private fun invalidateChunkNeighborhood(world: UUID, chunkX: Int, chunkZ: Int) {
-        multiblockCells.keys.removeIf { cell ->
+        structuredTargetCells.keys.removeIf { cell ->
             cell.world == world && cell.x in chunkX - 1..chunkX + 1 && cell.z in chunkZ - 1..chunkZ + 1
         }
     }
@@ -616,15 +687,15 @@ internal object EngineerGogglesDisplay : Listener {
     @EventHandler
     fun onWorldUnload(event: WorldUnloadEvent) {
         val world = event.world.uid
-        multiblockCells.keys.removeIf { it.world == world }
+        structuredTargetCells.keys.removeIf { it.world == world }
     }
 
     /** 空间单元与区块对齐为 16 格；修改会整体改变缓存键协议。 */
     private const val CELL_SHIFT = 4
     private const val CELL_SIZE = 16
 
-    /** Slimefun 标准多方块从中心向任一轴最多延伸一格，局部失效必须覆盖该距离。 */
-    private const val STRUCTURE_REACH = 1
+    /** Slimefun 标准多方块从中心向任一轴最多延伸一格，局部失效至少覆盖该距离。 */
+    private const val NATIVE_STRUCTURE_REACH = 1
 
     /** 全服最多保存 4096 个已访问单元，硬上限防止玩家长期探索导致缓存无界增长。 */
     private const val MAX_CACHED_CELLS = 4096
@@ -633,7 +704,10 @@ internal object EngineerGogglesDisplay : Listener {
     private val ALL_DIRECTIONS = arrayOf(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)
 }
 
-/** 单个可展示目标；多方块没有 [blockData]，因此只展示名称而不伪造能源数据。 */
+/** 扩展结构成员相对逻辑中心的不可变坐标，不跨 tick 保留外部插件返回的 Block 引用。 */
+internal data class EngineerGogglesMemberOffset(val x: Int, val y: Int, val z: Int)
+
+/** 单个可展示目标；结构目标没有 [blockData]，因此只展示名称而不伪造能源数据。 */
 internal data class EngineerGogglesTarget(
     val key: String,
     val lastLineLocation: Location,
@@ -641,7 +715,8 @@ internal data class EngineerGogglesTarget(
     val item: SlimefunItem,
     val blockData: SlimefunBlockData?,
     val multiblockDirection: BlockFace?,
-    val multiblockStructure: Array<out Material?>?
+    val multiblockStructure: Array<out Material?>?,
+    val customMemberOffsets: Set<EngineerGogglesMemberOffset>?
 ) {
     /** 以方块中心计算三维距离，普通机器与多方块查询共享同一精确半径口径。 */
     fun centerDistanceSquared(origin: Location): Double {
@@ -652,8 +727,8 @@ internal data class EngineerGogglesTarget(
     }
 
     /**
-     * 判断视线命中的方块是否属于本目标。普通机器只匹配自身；多方块按已确认朝向的九格结构成员匹配，
-     * 配方中的 null 是不参与结构的通配位置，不能仅因玩家看向该位置就显示信息。
+     * 判断视线命中的方块是否属于本目标。普通机器只匹配自身；原生多方块按已确认朝向的九格结构成员匹配；
+     * 扩展结构使用注册回调本次返回的真实成员快照，不能把声明半径内的其它方块误判成目标。
      */
     fun contains(block: Block): Boolean {
         if (block.world.uid != blockLocation.world?.uid) return false
@@ -661,6 +736,13 @@ internal data class EngineerGogglesTarget(
             return block.x == blockLocation.blockX &&
                 block.y == blockLocation.blockY &&
                 block.z == blockLocation.blockZ
+        }
+        customMemberOffsets?.let { members ->
+            return EngineerGogglesMemberOffset(
+                block.x - blockLocation.blockX,
+                block.y - blockLocation.blockY,
+                block.z - blockLocation.blockZ
+            ) in members
         }
         val direction = multiblockDirection ?: return false
         val structure = multiblockStructure ?: return false
@@ -696,6 +778,7 @@ internal data class EngineerGogglesTarget(
                 item,
                 data,
                 null,
+                null,
                 null
             )
         }
@@ -716,7 +799,35 @@ internal data class EngineerGogglesTarget(
                 multiblock.slimefunItem,
                 null,
                 direction,
-                multiblock.structure
+                multiblock.structure,
+                null
+            )
+        }
+
+        /**
+         * 把扩展提供器的瞬时 Block 集合转换成中心相对坐标；缓存只保留 SlimeEasy 自有值对象，
+         * 插件关闭并递增注册 revision 后即可释放提供器及其类加载器。
+         */
+        fun forCustomStructure(
+            center: Block,
+            sourceId: Long,
+            item: SlimefunItem,
+            members: Collection<Block>
+        ): EngineerGogglesTarget {
+            val location = center.location
+            val offsets = members.mapTo(LinkedHashSet()) { member ->
+                EngineerGogglesMemberOffset(member.x - center.x, member.y - center.y, member.z - center.z)
+            }
+            val highestOffset = offsets.maxOf { it.y }
+            return EngineerGogglesTarget(
+                "${locationKey("custom-$sourceId", location)}:${item.id}",
+                location.clone().add(0.5, highestOffset + 1.65, 0.5),
+                location,
+                item,
+                null,
+                null,
+                null,
+                offsets
             )
         }
 

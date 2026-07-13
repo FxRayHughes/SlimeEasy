@@ -150,11 +150,11 @@ https://github.com/FxRayHughes/SlimeEasy/releases/download/latest/SlimeEasy-1.0-
 ### 工程师护目镜
 
 铁头盔外观的穿戴工具。戴入头盔栏后，每 10 tick 扫描同世界三维距离 16 格内的已加载区域，显示全部已放置
-Slimefun 方块及注册多方块结构的名称。全息图由 DecentHolograms 发包，只向佩戴者显示，不创建可点击命中箱。
+Slimefun 方块、注册多方块及扩展 API 注册结构的名称。全息图由 DecentHolograms 发包，只向佩戴者显示，不创建可点击命中箱。
 
 - 储能组件显示真实当前电量/容量，并按相邻采样显示净流入或净流出 (`J/s`)
 - 标准加工机器显示额定耗电，发电组件显示当前 API 发电量；第三方附属未公开的数据不会被伪造
-- 多方块按 `16×16×16` 空间单元建立全服共享索引，方块变化只局部失效；普通机器按刷新轮次共享已加载区块快照
+- 原生多方块与扩展结构按 `16×16×16` 空间单元建立全服共享索引，方块变化只局部失效；普通机器按刷新轮次共享已加载区块快照
 - 每轮默认最多新扫描 4 个空间单元（可配置）并轮换玩家起点，避免首次佩戴形成主线程尖峰；索引限制为 4096 个最近访问单元
 - 区块装卸会清理边界结果；工作状态与能源详情按目标共享，全息文字未变化时不重复发包
 - 主手持护目镜潜行左键可打开 ChestMenu 多选筛选；可按 Slimefun 注册分类、单个物品类型、附属插件、机器种类和工作状态组合过滤
@@ -180,10 +180,29 @@ EngineerGogglesApi.registerProvider(this) { context, content ->
 }
 ```
 
+不进入 Slimefun 原生方块/多方块注册表的设备，可额外注册通用结构目标。解析函数只会收到已加载且材质匹配的候选中心，
+必须返回包含中心在内的真实成员块；空集合表示不匹配：
+
+```kotlin
+private val customTarget = Function<Block, Collection<Block>> { center ->
+    findCustomMachineMembers(center) ?: emptyList()
+}
+
+EngineerGogglesApi.registerTargetProvider(
+    this,
+    MyItems.CUSTOM_MACHINE,
+    setOf(Material.BARREL),
+    1,
+    customTarget
+)
+```
+
 - `EngineerGogglesContentProvider` 按注册顺序同步执行，适合 SlimeBotania 等依赖方的高频稳定扩展
+- `registerTargetProvider` 只用于原生注册表无法发现的结构；SlimeEasy 仍负责空间扫描、缓存、瞄准命中和筛选
+- 目标解析函数必须是主线程常数时间邻块检查，不得扫描世界、加载区块、执行 I/O 或跨 tick 保存参数
 - `EngineerGogglesDisplayEvent` 在提供器之后触发，可修改标题和详情、设置 `content.visible` 或取消单次目标显示
-- 依赖插件关闭时提供器会自动注销；也可调用 `unregisterProvider` / `unregisterProviders` 主动清理
-- 当前 `EngineerGogglesApi.API_VERSION` 为 `1`；公开上下文只包含玩家、目标方块、Slimefun 物品和多方块标记
+- 依赖插件关闭时两类提供器都会自动注销；也可调用对应的 `unregisterProvider` / `unregisterTargetProvider` 主动清理
+- 当前 `EngineerGogglesApi.API_VERSION` 为 `2`；公开渲染上下文仍只包含玩家、目标方块、Slimefun 物品和多方块标记
 
 ### 生长抑制器
 
@@ -360,6 +379,7 @@ EngineerGogglesApi.registerProvider(this) { context, content ->
 src/main/kotlin/top/maplex/slimeEasy/
 ├── SlimeEasy.kt              插件主类 (入口)
 ├── SlimeEasyAddon.kt         Slimefun 附属身份
+├── api/goggles/             护目镜内容与自定义结构目标公开扩展 API
 ├── config/                   配置读取与独立 i18n 语言服务
 ├── machine/
 │   ├── common/               机器共享层

@@ -9,6 +9,7 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import top.maplex.slimeEasy.api.goggles.EngineerGogglesApi
 import top.maplex.slimeEasy.config.I18n
 import top.maplex.slimeEasy.registry.Items
 import top.maplex.slimeEasy.storage.core.GuiItems
@@ -316,13 +317,14 @@ internal object EngineerGogglesFilterMenu {
             .toList()
     }
 
-    /** 单项页排除不能作为世界目标的普通材料/工具，只保留方块物品和注册多方块。 */
+    /** 单项页只保留方块、原生多方块及扩展注册结构，不能因指南物品材质而漏掉自定义世界目标。 */
     private fun itemTypes(): List<SlimefunItem> {
         val registry = Slimefun.getRegistry()
         val multiblocks = registry.multiBlocks.mapTo(HashSet()) { it.slimefunItem.id }
+        val customTargets = EngineerGogglesApi.targetProviderSnapshot().mapTo(HashSet()) { it.slimefunItem.id }
         return registry.enabledSlimefunItems
             .asSequence()
-            .filter { it.item.type.isBlock || it.id in multiblocks }
+            .filter { it.item.type.isBlock || it.id in multiblocks || it.id in customTargets }
             .sortedWith(compareBy<SlimefunItem> { it.itemGroup.key.toString() }.thenBy { it.id })
             .toList()
     }
