@@ -54,8 +54,8 @@ internal sealed interface SieveAdvanceResult {
 /**
  * 筛子的短生命周期运行态与 BlockDisplay 表现层。
  *
- * 不持久化任何进度：输入改变、机器被破坏、区块卸载或插件关闭时直接清除。
- * 原料仅由 [Sieve] 在完成结算时扣除，因此清除运行态不会造成物品损失。
+ * 不持久化任何进度：每个流程在首次有效操作时接管一份已扣除原料，完成时消费；输入改变、
+ * 机器被破坏、区块卸载或插件关闭时必须先返还该原料，再清除内存状态与临时展示。
  */
 internal object SieveRuntime {
 
@@ -88,8 +88,9 @@ internal object SieveRuntime {
     /**
      * 尝试推进一次筛分。
      *
+     * [inputSnapshot] 只在创建流程时传入，表示调用方已扣除并交由本对象托管的一份原料。
      * 到达最后一步时只返回 [SieveAdvanceResult.ReadyToComplete]，不把展示高度先压到零；
-     * 只有调用方确认全部合成事件通过、成功扣除原料后才调用 [complete]。
+     * 只有调用方确认全部合成事件通过并投递产物后才调用 [complete] 消费托管原料。
      */
     fun advance(
         block: Block,
@@ -296,7 +297,7 @@ internal object SieveRuntime {
         return null
     }
 
-    /** 区块卸载时抛弃该区块内全部内存进度并删除临时实体。 */
+    /** 区块卸载前返还该区块内全部托管原料，并清除内存进度与临时实体。 */
     fun clearChunk(worldId: UUID, chunkX: Int, chunkZ: Int) {
         val keys = buildSet {
             processes.keys.filterTo(this) { it.inChunk(worldId, chunkX, chunkZ) }
@@ -306,7 +307,7 @@ internal object SieveRuntime {
         keys.forEach(::clear)
     }
 
-    /** 世界卸载时清除该世界中的全部筛子运行态。 */
+    /** 世界卸载前返还该世界中的全部托管原料，并清除筛子运行态。 */
     fun clearWorld(worldId: UUID) {
         val keys = buildSet {
             processes.keys.filterTo(this) { it.worldId == worldId }
@@ -316,7 +317,7 @@ internal object SieveRuntime {
         keys.forEach(::clear)
     }
 
-    /** 插件关闭时删除全部临时展示实体。 */
+    /** 插件关闭时返还全部托管原料，并删除所有临时展示实体。 */
     fun shutdown() {
         processes.keys.toList().forEach(::clear)
         activeVisuals.values.forEach { it.display.remove() }

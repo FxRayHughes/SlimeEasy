@@ -29,6 +29,7 @@ import top.maplex.slimeEasy.machine.clicker.AutoClicker
 import top.maplex.slimeEasy.machine.placer.AutoPlacer
 import top.maplex.slimeEasy.machine.quarry.Quarry
 import top.maplex.slimeEasy.machine.sieve.Sieve
+import top.maplex.slimeEasy.machine.sieve.SieveCleanupListener
 import top.maplex.slimeEasy.storage.box.PagedBox
 import top.maplex.slimeEasy.storage.disk.DiskManager
 import top.maplex.slimeEasy.storage.drawer.Drawer
@@ -186,6 +187,8 @@ object Registration {
                 SIEVE_RESEARCH_COST,
                 *(sieveMaterials + sieve).toTypedArray()
             )
+            // 首击预扣的原料由运行态托管；结构破坏或区块卸载时必须由监听器立即返还。
+            Bukkit.getPluginManager().registerEvents(SieveCleanupListener(), SlimeEasy.instance)
         }
 
         // 6. 注册苦力怕驱逐方块 (增强工作台配方); 关闭时连同管控监听器一并跳过
